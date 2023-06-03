@@ -11,13 +11,24 @@ fn main() {
 
     let img_width_norm: f64 = f64::from(img_width - 1);
     let img_height_norm: f64 = f64::from(img_height - 1);
-
+    let mut tri_start: i32;
+    let mut tri_end: i32;
+    
     // Pixels
-    for i in (0..img_height).rev() {
+    for i in 0..img_height {
+        tri_start = 127 - (i/2);
+        tri_end = 127 + (i/2);
+
         for j in 0..img_width {
-            let r: f64 = f64::from(j) / img_width_norm;
-            let g: f64 = f64::from(i) / img_height_norm;
-            let b: f64 = 0.25;
+            let mut r: f64 = 0.0;
+            let mut g: f64 = 0.0;
+            let mut b: f64 = 0.0;
+
+            if j >= tri_start && j < tri_end {
+                r = f64::from(j) / img_width_norm;
+                g = f64::from(255 - i) / img_height_norm;
+                b = 0.25;
+            }
 
             let ir: u8 = (r * 255.0) as u8;
             let ig: u8 = (g * 255.0) as u8;
