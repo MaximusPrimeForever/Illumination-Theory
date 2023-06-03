@@ -1,3 +1,5 @@
+mod vec3;
+
 use std::io::{Write, stderr};
 
 fn main() {
