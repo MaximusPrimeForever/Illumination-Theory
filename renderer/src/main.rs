@@ -1,3 +1,5 @@
+use std::io::{Write, stderr};
+
 fn main() {
     // Image
 
@@ -13,11 +15,14 @@ fn main() {
     let img_height_norm: f64 = f64::from(img_height - 1);
     let mut tri_start: i32;
     let mut tri_end: i32;
+    let mut stderr = stderr();
     
     // Pixels
     for i in 0..img_height {
         tri_start = 127 - (i/2);
         tri_end = 127 + (i/2);
+        eprint!("\rScanlines remaining: {}", img_height-i);
+        stderr.flush().unwrap();
 
         for j in 0..img_width {
             let mut r: f64 = 0.0;
@@ -37,4 +42,5 @@ fn main() {
             println!("{ir} {ig} {ib}")
         }
     }
+    eprintln!("\nDone.")
 }
