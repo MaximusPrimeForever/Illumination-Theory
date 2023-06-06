@@ -1,18 +1,20 @@
 mod vec3;
+mod color;
 
 use std::io::{Write, stderr};
 
+// use vec3::Vec3 as Point3;
+use vec3::Vec3 as Color;
+
 fn main() {
     // Image
-
     let img_width: i32 = 256;
     let img_height: i32 = 256;
-    let img_max_color: f64 = 255.0;
 
     // Render
 
     // Header
-    println!("P3\n{img_width} {img_height}\n{img_max_color}\n");
+    println!("P3\n{img_width} {img_height}\n{}\n", color::MAX_COLOR);
 
     let img_width_norm: f64 = f64::from(img_width - 1);
     let img_height_norm: f64 = f64::from(img_height - 1);
@@ -38,18 +40,9 @@ fn main() {
                 b = 0.25;
             }
 
-            let ir: u8 = (r * img_max_color) as u8;
-            let ig: u8 = (g * img_max_color) as u8;
-            let ib: u8 = (b * img_max_color) as u8;
-
-            println!("{ir} {ig} {ib}")
+            let pixel_color: Color = Color::new(r, g, b);
+            color::write_color(pixel_color);
         }
     }
     eprintln!("\nDone.");
-
-    let v1: vec3::Vec3 = vec3::Vec3::origin();
-    let v2: vec3::Vec3 = vec3::Vec3::new(1.0, 2.0, 3.0);
-
-    eprintln!("v1: {} {} {}", v1[0], v1[1], v1[2]);
-    eprintln!("v2: {} {} {}", v2.x(), v2.y(), v2.z());
 }
