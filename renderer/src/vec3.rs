@@ -1,5 +1,6 @@
 use std::{ops};
 
+#[derive(Clone, Copy)]
 pub struct Vec3 {
     e: [f64; 3]
 }
@@ -7,7 +8,7 @@ pub struct Vec3 {
 impl Vec3 {
     pub fn origin() -> Vec3 { Vec3{e: [0.0, 0.0, 0.0]} }
     pub fn new(e1: f64, e2: f64, e3: f64) -> Vec3 { Vec3{e: [e1, e2, e3]} }
-    pub fn unit() -> Vec3 { Vec3 { e: [1.0, 1.0, 1.0]} }
+
 
     pub fn x(&self) -> f64 { self.e[0] }
     pub fn y(&self) -> f64 { self.e[1] }
@@ -81,8 +82,8 @@ impl ops::Add<Vec3> for Vec3 {
     fn add(self, rhs: Vec3) -> Self::Output {
         Vec3::new(
             self[0] + rhs[0],
-            self[0] + rhs[0],
-            self[0] + rhs[0]
+            self[1] + rhs[1],
+            self[2] + rhs[2]
         )
     }
 }
@@ -93,8 +94,8 @@ impl ops::Sub<Vec3> for Vec3 {
     fn sub(self, rhs: Vec3) -> Self::Output {
         Vec3::new(
             self[0] - rhs[0],
-            self[0] - rhs[0],
-            self[0] - rhs[0]
+            self[1] - rhs[1],
+            self[2] - rhs[2]
         )
     }
 }
@@ -105,8 +106,8 @@ impl ops::Mul<Vec3> for Vec3 {
     fn mul(self, rhs: Vec3) -> Self::Output {
         Vec3::new(
             self[0] * rhs[0],
-            self[0] * rhs[0],
-            self[0] * rhs[0]
+            self[1] * rhs[1],
+            self[2] * rhs[2]
         )
     }
 }
@@ -118,8 +119,8 @@ impl ops::Mul<Vec3> for f64 {
     fn mul(self, rhs: Vec3) -> Self::Output {
         Vec3::new(
             rhs[0] * self,
-            rhs[0] * self,
-            rhs[0] * self
+            rhs[1] * self,
+            rhs[2] * self
         )
     }
 }
@@ -130,8 +131,8 @@ impl ops::Mul<f64> for Vec3 {
     fn mul(self, rhs: f64) -> Self::Output {
         Vec3::new(
             self[0] * rhs,
-            self[0] * rhs,
-            self[0] * rhs
+            self[1] * rhs,
+            self[2] * rhs
         )
     }
 }
@@ -156,4 +157,8 @@ fn cross(u: Vec3, v: Vec3) -> Vec3 {
         u.e[2] * v.e[0] - u.e[0] * v.e[2],
         u.e[0] * v.e[1] - u.e[1] * v.e[0]
     )
+}
+
+pub fn unit_vector(v: Vec3) -> Vec3 {
+    v / v.length()
 }
