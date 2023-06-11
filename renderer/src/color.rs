@@ -15,6 +15,10 @@ pub fn write_color(pixel_color: Color) -> () {
 }
 
 pub fn ray_color(ray: &Ray) -> Color {
+    if ray::hit_sphere(Vec3::new(0.0,0.0,-1.0), 0.5, ray) {
+        return Color::new(1.0, 0.0, 0.0);
+    }
+
     let unit_direction: Vec3 = vec3::unit_vector(ray.direction);
     let t: f64 = 0.5 * (unit_direction.y() + 1.0);
 

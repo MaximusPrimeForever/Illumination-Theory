@@ -26,3 +26,32 @@ impl Ray {
         self.origin + t * self.direction
     }
 }
+
+pub fn hit_sphere(center: Point3, radius: f64, ray: &Ray) -> bool {
+    /* Compute intersection of given ray and given sphere.
+    
+    The sphere equation is:
+    (x - Cx)^2 + (y - Cy)^2 + (z - Cz)^2 = r^2
+    Given the sphere vector and a 3D point we can rewrite as:
+    (P - C)*(P - C) = r^2
+    
+    We want to check if a given ray has a 't' for which it intersects with the sphere.
+    So,
+    (P(t) - C)(P(t) - C) = r^2
+    (A + t*b - C)(A + t*b - C) = r^2
+    Simplify, and we get a quadratic equation:
+    t^2*b*b + t*2b*(A-C) + (A-C)*(A-C) - r^2 = 0
+
+    Solving for t (the only unknown) there is a square root part that is either:
+    * positive - we get 2 intersection points.
+    * zero - we get a single intersection point.
+    * negative - we don't get an intersection point.
+     */
+    let oc: Vec3 = ray.origin - center;
+    let a = vec3::dot(ray.direction, ray.direction);
+    let b: f64 = 2.0 * vec3::dot(ray.direction, oc);
+    let c: f64 = vec3::dot(oc, oc) - radius * radius;
+
+    let discriminant: f64 = b * b - 4.0 * a * c;
+    return discriminant > 0.0;
+}
