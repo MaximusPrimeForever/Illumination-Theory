@@ -27,7 +27,7 @@ impl Ray {
     }
 }
 
-pub fn hit_sphere(center: Point3, radius: f64, ray: &Ray) -> bool {
+pub fn hit_sphere(center: Point3, radius: f64, ray: &Ray) -> f64 {
     /* Compute intersection of given ray and given sphere.
     
     The sphere equation is:
@@ -48,10 +48,14 @@ pub fn hit_sphere(center: Point3, radius: f64, ray: &Ray) -> bool {
     * negative - we don't get an intersection point.
      */
     let oc: Vec3 = ray.origin - center;
-    let a = vec3::dot(ray.direction, ray.direction);
-    let b: f64 = 2.0 * vec3::dot(ray.direction, oc);
-    let c: f64 = vec3::dot(oc, oc) - radius * radius;
+    let a = ray.direction.length_squared();
+    let half_b: f64 = vec3::dot(ray.direction, oc);
+    let c: f64 = oc.length_squared() - radius * radius;
+    let discriminant: f64 = half_b * half_b - a * c;
 
-    let discriminant: f64 = b * b - 4.0 * a * c;
-    return discriminant > 0.0;
+    if discriminant < 0.0 {
+        return -1.0;
+    } else {
+        return (-half_b - discriminant.sqrt()) / a;
+    }
 }

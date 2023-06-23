@@ -15,12 +15,19 @@ pub fn write_color(pixel_color: Color) -> () {
 }
 
 pub fn ray_color(ray: &Ray) -> Color {
-    if ray::hit_sphere(Vec3::new(0.0,0.0,-1.0), 0.5, ray) {
-        return Color::new(1.0, 0.0, 0.0);
+    let mut t: f64 = ray::hit_sphere(Vec3::new(0.0,0.0,-1.0), 0.5, ray);
+
+    if t > 0.0 {
+        let normal: Vec3 = vec3::unit_vector(ray.at(t) - Vec3::new(0.0, 0.0, -1.0));
+        return 0.5 * Color::new(
+            normal.x() + 1.0,
+            normal.y() + 1.0,
+            normal.z() + 1.0
+        );
     }
 
     let unit_direction: Vec3 = vec3::unit_vector(ray.direction);
-    let t: f64 = 0.5 * (unit_direction.y() + 1.0);
+    t = 0.5 * (unit_direction.y() + 1.0);
 
     (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0)
 }
