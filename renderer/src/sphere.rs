@@ -4,7 +4,7 @@ use crate::ray::Ray as Ray;
 
 use vec3::Point3 as Point3;
 use vec3::Vec3 as Vec3;
-use hittable::hittable_t;
+use hittable::HittableT;
 
 #[derive(Default)]
 pub struct Sphere {
@@ -18,11 +18,11 @@ impl Sphere {
     }
 }
 
-impl hittable_t for Sphere {
-    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64, rec: &mut hittable::hit_record) -> bool {
+impl HittableT for Sphere {
+    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64, rec: &mut hittable::HitRecord) -> bool {
         let oc: Vec3 = ray.origin - self.center;
         let a = ray.direction.length_squared();
-        let half_b: f64 = vec3::dot(ray.direction, oc);
+        let half_b: f64 = vec3::dot(&ray.direction, &oc);
         let c: f64 = oc.length_squared() - self.radius * self.radius;
         let discriminant: f64 = half_b * half_b - a * c;
     
@@ -30,14 +30,16 @@ impl hittable_t for Sphere {
         let dscr_sqrt = discriminant.sqrt();
         let mut root = (-half_b - dscr_sqrt) / a;
 
-        if (root < t_min || t_max > root) {
+        if root < t_min || t_max > root {
             root = (-half_b + dscr_sqrt) / a;
-            if (root < t_min || t_max > root) { return false; }
+            if root < t_min || t_max > root { return false; }
         }
 
         rec.t = root;
         rec.point = ray.at(rec.t);
-        rec.normal = (rec.point - self.center) / self.radius;
-        return true;
+        let outward_normal: Vec3 = (rec.point - self.center) / self.radius;
+        rec.set_face_normal(ray, &outward_normal);
+
+        true
     }
 }
