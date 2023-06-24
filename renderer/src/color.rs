@@ -2,7 +2,7 @@ use crate::vec3;
 use crate::ray;
 
 use vec3::Vec3 as Vec3;
-use vec3::Vec3 as Color;
+use vec3::Color as Color;
 use ray::Ray as Ray;
 
 pub const MAX_COLOR: f64 = 255.0;
