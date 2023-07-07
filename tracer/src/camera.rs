@@ -30,11 +30,10 @@ impl Camera {
     }
 
     pub fn get_ray(&self, u: f64, v: f64) -> Ray {
-        // TODO: how is this ok?? shouldn't direction vanish outside this scope?
         let direction =
             self.lower_left_corner
-            + u*self.horizontal 
-            + v*self.vertical 
+            + u * self.horizontal 
+            + v * self.vertical 
             - self.origin;
 
         Ray::new(
