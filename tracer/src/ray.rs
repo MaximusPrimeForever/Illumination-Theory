@@ -12,10 +12,10 @@ impl Ray {
             direction: Vec3::origin()
         } 
     }
-    pub fn new(origin: &Point3, direction: &Vec3) -> Ray { 
+    pub fn new(origin: Point3, direction: Vec3) -> Ray { 
         Ray { 
-            origin: origin.clone(),
-            direction: direction.clone() 
+            origin,
+            direction 
         }
     }
 

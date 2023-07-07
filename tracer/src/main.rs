@@ -62,8 +62,8 @@ fn main() {
             let dir = lower_left_corner + (u * horizontal) + (v * vertical) - origin;
 
             let ray = Ray::new(
-                &origin,
-                &dir
+                origin,
+                dir
             );
 
             let pixel_color: Color = color::ray_color(&ray, &world);

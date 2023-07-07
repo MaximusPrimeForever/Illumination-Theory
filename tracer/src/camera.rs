@@ -35,12 +35,11 @@ impl Camera {
             self.lower_left_corner
             + u*self.horizontal 
             + v*self.vertical 
-            - self.origin
-        ;
+            - self.origin;
 
         Ray::new(
-            &self.origin, 
-            &direction
+            self.origin, 
+            direction
         )
     }
 }
