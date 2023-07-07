@@ -9,11 +9,11 @@ use crate::hittable::{HittableT, HitRecord};
 /// ray that potentially intersects with both, will return a HitRecord of the closest
 /// one.
 #[derive(Default)]
-pub struct HittableList {
+pub struct HittableGroup {
     pub objects: Vec<Rc<dyn HittableT>>
 }
 
-impl HittableList {
+impl HittableGroup {
     pub fn clear(&mut self) {
         self.objects.clear()
     }
@@ -23,7 +23,7 @@ impl HittableList {
     }
 }
 
-impl HittableT for HittableList {
+impl HittableT for HittableGroup {
     /// Iterates list of objects and tries to find the closest object a given ray intersects with.
     fn hit(&self, ray: &crate::ray::Ray, t_min: f64, t_max: f64, rec: &mut crate::hittable::HitRecord) -> bool {
         let mut temp_hrec: HitRecord = HitRecord::default();

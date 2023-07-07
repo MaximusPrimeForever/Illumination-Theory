@@ -2,9 +2,10 @@ mod vec3;
 mod color;
 mod ray;
 mod hittable;
-mod hittable_list;
+mod hittable_group;
 mod rtweekend;
 mod sphere;
+mod camera;
 
 use std::io::{Write, stderr};
 use std::rc::Rc;
@@ -12,7 +13,7 @@ use std::rc::Rc;
 use vec3::{Vec3, Point3, Color};
 use ray::Ray as Ray;
 
-use hittable_list::HittableList;
+use hittable_group::HittableGroup;
 use sphere::Sphere;
 
 fn main() {
@@ -25,7 +26,7 @@ fn main() {
 
 
     // World
-    let mut world: HittableList = HittableList::default();
+    let mut world: HittableGroup = HittableGroup::default();
     world.add(Rc::new(Sphere::new(
         &Point3::new(0.0, 0.0, -1.0),
         0.5
