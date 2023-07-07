@@ -1,7 +1,6 @@
-use crate::Vec3;
-use crate::hittable::{HittableT, HitRecord};
-use std::vec::Vec;
 use std::rc::Rc;
+use std::vec::Vec;
+use crate::hittable::{HittableT, HitRecord};
 
 
 /// This class optimizes intersections with a group of objects
@@ -10,11 +9,11 @@ use std::rc::Rc;
 /// ray that potentially intersects with both, will return a HitRecord of the closest
 /// one.
 #[derive(Default)]
-pub struct hittable_list {
+pub struct HittableList {
     pub objects: Vec<Rc<dyn HittableT>>
 }
 
-impl hittable_list {
+impl HittableList {
     pub fn clear(&mut self) {
         self.objects.clear()
     }
@@ -24,7 +23,7 @@ impl hittable_list {
     }
 }
 
-impl HittableT for hittable_list {
+impl HittableT for HittableList {
     /// Iterates list of objects and tries to find the closest object a given ray intersects with.
     fn hit(&self, ray: &crate::ray::Ray, t_min: f64, t_max: f64, rec: &mut crate::hittable::HitRecord) -> bool {
         let mut temp_hrec: HitRecord = HitRecord::default();

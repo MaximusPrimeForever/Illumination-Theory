@@ -11,6 +11,7 @@ pub type Color = Vec3;
 impl Vec3 {
     pub fn origin() -> Vec3 { Vec3{e: [0.0, 0.0, 0.0]} }
     pub fn new(e1: f64, e2: f64, e3: f64) -> Vec3 { Vec3{e: [e1, e2, e3]} }
+    pub const fn new_const(e1: f64, e2: f64, e3: f64) -> Vec3 { Vec3{e: [e1, e2, e3]} }
 
     pub fn x(&self) -> f64 { self.e[0] }
     pub fn y(&self) -> f64 { self.e[1] }

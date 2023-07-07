@@ -7,19 +7,33 @@ mod rtweekend;
 mod sphere;
 
 use std::io::{Write, stderr};
+use std::rc::Rc;
 
-use vec3::Vec3 as Vec3;
-use Vec3 as Point3;
-use Vec3 as Color;
+use vec3::{Vec3, Point3, Color};
 use ray::Ray as Ray;
+
+use hittable_list::HittableList;
+use sphere::Sphere;
 
 fn main() {
     let mut stderr = stderr();
 
     // Image
     let img_aspect_ratio: f64 = 16.0 / 9.0;
-    let img_width: i32 = 400;
+    let img_width: i32 = 800;
     let img_height: i32 = (img_width as f64 / img_aspect_ratio) as i32;
+
+
+    // World
+    let mut world: HittableList = HittableList::default();
+    world.add(Rc::new(Sphere::new(
+        &Point3::new(0.0, 0.0, -1.0),
+        0.5
+    )));
+    world.add(Rc::new(Sphere::new(
+        &Point3::new(0.0, -100.5, -1.0),
+        100.0
+    )));
 
     // Camera
     let viewport_height = 2.0;
@@ -51,7 +65,7 @@ fn main() {
                 &dir
             );
 
-            let pixel_color: Color = color::ray_color(&ray);
+            let pixel_color: Color = color::ray_color(&ray, &world);
             color::write_color(pixel_color);
         }
     }

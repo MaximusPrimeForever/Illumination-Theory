@@ -1,7 +1,4 @@
-use crate::vec3;
-
-use vec3::Vec3 as Vec3;
-use vec3::Point3 as Point3;
+use crate::vec3::{Vec3, Point3, dot};
 
 pub struct Ray {
     pub origin: Point3,
@@ -49,7 +46,7 @@ pub fn hit_sphere(center: Point3, radius: f64, ray: &Ray) -> f64 {
      */
     let oc: Vec3 = ray.origin - center;
     let a = ray.direction.length_squared();
-    let half_b: f64 = vec3::dot(&ray.direction, &oc);
+    let half_b: f64 = dot(&ray.direction, &oc);
     let c: f64 = oc.length_squared() - radius * radius;
     let discriminant: f64 = half_b * half_b - a * c;
 
