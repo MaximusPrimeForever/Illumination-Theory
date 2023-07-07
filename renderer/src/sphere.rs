@@ -30,9 +30,9 @@ impl HittableT for Sphere {
         let dscr_sqrt = discriminant.sqrt();
         let mut root = (-half_b - dscr_sqrt) / a;
 
-        if root < t_min || t_max > root {
+        if t_min > root || root > t_max {
             root = (-half_b + dscr_sqrt) / a;
-            if root < t_min || t_max > root { return false; }
+            if t_min > root || root > t_max{ return false; }
         }
 
         rec.t = root;
