@@ -26,7 +26,9 @@ fn main() {
     let img_aspect_ratio: f64 = 16.0 / 9.0;
     let image_width: i32 = 400;
     let image_height: i32 = (image_width as f64 / img_aspect_ratio) as i32;
+    
     let samples_per_pixel = 50;
+    let trace_depth = 30;
 
     // World
     let mut world: HittableGroup = HittableGroup::default();
@@ -60,7 +62,7 @@ fn main() {
                 let v = (i as f64 + rand::random::<f64>()) / (image_height - 1) as f64;
                 let ray = cam.get_ray(u, v);
 
-                pixel_color += ray_color(&ray, &world);
+                pixel_color += ray_color(&ray, &world, trace_depth);
             }
             write_color(pixel_color, samples_per_pixel);
         }
