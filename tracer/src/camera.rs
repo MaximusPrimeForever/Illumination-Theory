@@ -1,6 +1,5 @@
 use crate::ray::Ray;
 use crate::vec3::{Point3, Vec3};
-use crate::rtweekend;
 
 pub struct Camera {
     pub origin: Point3,
