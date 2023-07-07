@@ -6,6 +6,7 @@ use vec3::Point3 as Point3;
 use vec3::Vec3 as Vec3;
 use ray::Ray as Ray;
 
+#[derive(Default, Clone, Copy)]
 pub struct HitRecord {
     pub point: Point3,
     pub normal: Vec3,
