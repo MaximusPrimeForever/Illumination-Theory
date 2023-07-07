@@ -1,4 +1,6 @@
 use std::{ops};
+use rand::random;
+use crate::rtweekend::random_f64_range;
 
 #[derive(Clone, Copy, Default)]
 pub struct Vec3 {
@@ -11,7 +13,24 @@ pub type Color = Vec3;
 impl Vec3 {
     pub fn origin() -> Vec3 { Vec3{e: [0.0, 0.0, 0.0]} }
     pub fn new(e1: f64, e2: f64, e3: f64) -> Vec3 { Vec3{e: [e1, e2, e3]} }
-    pub const fn new_const(e1: f64, e2: f64, e3: f64) -> Vec3 { Vec3{e: [e1, e2, e3]} }
+    pub const fn new_const(e1: f64, e2: f64, e3: f64) -> Vec3 {
+        Vec3{e: [e1, e2, e3]} 
+    }
+
+    pub fn random() -> Vec3 { 
+        Self::new(
+            random::<f64>(),
+            random::<f64>(),
+            random::<f64>()
+        )
+    }
+    pub fn random_range(min: f64, max: f64) -> Vec3 { 
+        Self::new(
+            random_f64_range(min, max),
+            random_f64_range(min, max),
+            random_f64_range(min, max)
+        )
+    }
 
     pub fn x(&self) -> f64 { self.e[0] }
     pub fn y(&self) -> f64 { self.e[1] }
@@ -164,4 +183,11 @@ pub fn cross(u: &Vec3, v: &Vec3) -> Vec3 {
 
 pub fn unit_vector(v: &Vec3) -> Vec3 {
     *v / v.length()
+}
+
+pub fn get_random_point_in_unit_sphere() -> Point3 {
+    loop {
+        let p = Vec3::random_range(-1.0, 1.0);
+        if p.length_squared() < 1.0 { return p; }
+    }
 }
