@@ -1,4 +1,5 @@
 use crate::ray::Ray;
+use crate::buffer::Pixel;
 use crate::rtweekend::clamp;
 use crate::hittable::{HitRecord, HittableT};
 use crate::vec3::{Vec3, Color, unit_vector, get_random_point_in_unit_sphere};
@@ -6,8 +7,11 @@ use crate::vec3::{Vec3, Color, unit_vector, get_random_point_in_unit_sphere};
 pub const MAX_COLOR: f64 = 255.0;
 pub const COLOR_WHITE: Color = Color::new_const(1.0, 1.0, 1.0);
 pub const COLOR_SKY_BLUE: Color = Color::new_const(0.5, 0.7, 1.0);
+pub const COLOR_BLACK: Color = Color::new_const(0.0, 0.0, 0.0);
+pub const t_min_tolerance: f64 = 0.001;
 
-pub fn write_color(pixel_color: Color, samples_per_pixel: i32) {
+
+pub fn write_color(pixel_color: Color, samples_per_pixel: u32) -> Pixel {
     let mut r = pixel_color.x();
     let mut g = pixel_color.y();
     let mut b = pixel_color.z();
@@ -17,13 +21,13 @@ pub fn write_color(pixel_color: Color, samples_per_pixel: i32) {
     r = (r * scale).sqrt();
     g = (g * scale).sqrt();
     b = (b * scale).sqrt();
+    
+    let r: u8 = (256.0 * clamp(r, 0.0, 0.999)) as u8;
+    let g: u8 = (256.0 * clamp(g, 0.0, 0.999)) as u8;
+    let b: u8 = (256.0 * clamp(b, 0.0, 0.999)) as u8;
 
-    println!(
-        "{} {} {}",
-        (256.0 * clamp(r, 0.0, 0.999)) as u8,
-        (256.0 * clamp(g, 0.0, 0.999)) as u8,
-        (256.0 * clamp(b, 0.0, 0.999)) as u8
-    )
+    // println!("{} {} {}", r, g, b);
+    Pixel{r, g ,b}
 }
 
 /// Return the color of the sky gradient when a ray hit it.
@@ -39,10 +43,10 @@ pub fn sky_color(ray: &Ray) -> Color {
 /// 
 /// If the ray hit nothing, return the sky color.
 pub fn ray_color(ray: &Ray, world: &dyn HittableT, depth: i32) -> Color {
-    if depth <= 0 { return Color::origin() }
+    if depth <= 0 { return COLOR_BLACK; }
     
     let mut rec: HitRecord = HitRecord::default();
-    if world.hit(ray, 0.0, f64::INFINITY, &mut rec) {
+    if world.hit(ray, t_min_tolerance, f64::INFINITY, &mut rec) {
         // This shoots the ray in some random direction
         // by adding the normal vector the target point is displaced
         // in a direction determined by the surface's orientation.

@@ -5,10 +5,12 @@ if [ $# -eq 0 ]; then
   exit 1
 fi
 
-RUSTFLAGS="--allow dead_code" cargo run --manifest-path=./tracer/Cargo.toml > $1.ppm
+mkdir -p ./renders
+RUSTFLAGS="--allow dead_code" cargo run --manifest-path=./tracer/Cargo.toml
 
 if command -v eog >/dev/null 2>&1; then
-  eog $1.ppm 2> /dev/null
+  eog ./output.ppm 2> /dev/null
+  cp ./output.ppm ./renders/$1.ppm
 else
   echo "Looks like you're not using gnome."
   echo "You can replace *eog* in this script with your preferred image viewer."
