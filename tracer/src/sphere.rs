@@ -38,27 +38,27 @@ impl HittableT for Sphere {
     /// * positive - we get 2 intersection points.
     /// * zero - we get a single intersection point.
     /// * negative - we don't get an intersection point.
-    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64, rec: &mut HitRecord) -> bool {
+    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
         let oc: Vec3 = ray.origin - self.center;
         let a = ray.direction.length_squared();
         let half_b: f64 = dot(&ray.direction, &oc);
         let c: f64 = oc.length_squared() - self.radius * self.radius;
         let discriminant: f64 = half_b * half_b - a * c;
     
-        if discriminant < 0.0 { return false; }
+        if discriminant < 0.0 { return None; }
         let dscr_sqrt = discriminant.sqrt();
         let mut root = (-half_b - dscr_sqrt) / a;
 
         if t_min > root || root > t_max {
             root = (-half_b + dscr_sqrt) / a;
-            if t_min > root || root > t_max{ return false; }
+            if t_min > root || root > t_max{ return None; }
         }
 
-        rec.t = root;
-        rec.point = ray.at(rec.t);
-        let outward_normal: Vec3 = (rec.point - self.center) / self.radius;
+        let point = ray.at(root);
+        let outward_normal: Vec3 = (point - self.center) / self.radius;
+        let mut rec = HitRecord{t: root, point, normal: (point - self.center) / self.radius, ..Default::default()};
         rec.set_face_normal(ray, &outward_normal);
 
-        true
+        Some(rec)
     }
 }

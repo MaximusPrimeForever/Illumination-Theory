@@ -34,6 +34,8 @@ pub struct SliceBuffer {
     pub pixels: Vec<Vec<Pixel>>
 }
 
+unsafe impl Sync for SliceBuffer {}
+
 pub type Canvas = SliceBuffer;
 impl Canvas {
     pub fn new(width: usize, height: usize) -> SliceBuffer {
@@ -79,9 +81,10 @@ pub fn write_img_ppm(canvas: Canvas, file: &mut File) {
     }
 }
 
-pub fn render_slice(slice_buffer: &mut SliceBuffer, world: HittableGroup, cam: Camera, samples_per_pixel: u32, trace_depth: i32, multi_bar: Arc<MultiProgress>) {
-    let height = slice_buffer.height;
-    let width = slice_buffer.width;
+pub fn render_slice(slice: SliceBuffer, world: Arc<HittableGroup>, cam: Camera, samples_per_pixel: u32, trace_depth: i32, multi_bar: Arc<MultiProgress>) -> Vec<Vec<Pixel>> {
+    let height = slice.height + slice.p_row;
+    let width = slice.width + slice.p_col;
+    
     let mut slice_vec: Vec<Vec<Pixel>> = Vec::default();
 
     let height_bar: ProgressBar = multi_bar.add(ProgressBar::new(height as u64));
@@ -123,5 +126,5 @@ pub fn render_slice(slice_buffer: &mut SliceBuffer, world: HittableGroup, cam: C
     }
     height_bar.finish();
 
-    slice_buffer.pixels = slice_vec;
+    slice_vec
 }

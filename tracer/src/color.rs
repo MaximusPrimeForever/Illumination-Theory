@@ -1,3 +1,6 @@
+use std::sync::Arc;
+
+use crate::hittable_group::HittableGroup;
 use crate::ray::Ray;
 use crate::buffer::Pixel;
 use crate::rtweekend::clamp;
@@ -26,7 +29,6 @@ pub fn write_color(pixel_color: Color, samples_per_pixel: u32) -> Pixel {
     let g: u8 = (256.0 * clamp(g, 0.0, 0.999)) as u8;
     let b: u8 = (256.0 * clamp(b, 0.0, 0.999)) as u8;
 
-    // println!("{} {} {}", r, g, b);
     Pixel{r, g ,b}
 }
 
@@ -42,23 +44,25 @@ pub fn sky_color(ray: &Ray) -> Color {
 /// Given a ray and a world, return the ray's color.
 /// 
 /// If the ray hit nothing, return the sky color.
-pub fn ray_color(ray: &Ray, world: &dyn HittableT, depth: i32) -> Color {
+pub fn ray_color(ray: &Ray, world: &Arc<HittableGroup>, depth: i32) -> Color {
     if depth <= 0 { return COLOR_BLACK; }
-    
-    let mut rec: HitRecord = HitRecord::default();
-    if world.hit(ray, t_min_tolerance, f64::INFINITY, &mut rec) {
-        // This shoots the ray in some random direction
-        // by adding the normal vector the target point is displaced
-        // in a direction determined by the surface's orientation.
-        let target = rec.point + rec.normal + get_random_point_in_unit_sphere();
-        return 0.5 * ray_color(
-            &Ray::new(
-                rec.point,
-                target - rec.point
-            ),
-            world,
-            depth - 1
-        );
+
+    match world.hit(ray, t_min_tolerance, f64::INFINITY) {
+        Some(rec) => {
+            // This shoots the ray in some random direction
+            // by adding the normal vector the target point is displaced
+            // in a direction determined by the surface's orientation.
+            let target = rec.point + rec.normal + get_random_point_in_unit_sphere();
+            return 0.5 * ray_color(
+                &Ray::new(
+                    rec.point,
+                    target - rec.point
+                ),
+                world,
+                depth - 1
+            );
+        }
+        None => {}
     }
 
     sky_color(ray)

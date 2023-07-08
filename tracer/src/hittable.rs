@@ -17,6 +17,6 @@ impl HitRecord {
     }
 }
 
-pub trait HittableT {
-    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64, rec: &mut HitRecord) -> bool;
+pub trait HittableT : Sync + Send {
+    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord>;
 }
