@@ -11,5 +11,5 @@ $rendersDir = ".\renders"
 New-Item -ItemType Directory -Path $rendersDir -Force | Out-Null
 
 $env:RUSTFLAGS = "--allow dead_code"
-cargo run --manifest-path=.\tracer\Cargo.toml
+cargo run --release --manifest-path=.\tracer\Cargo.toml
 Copy-Item -Path ".\output.ppm" -Destination "$rendersDir\$image_name.ppm" -Force

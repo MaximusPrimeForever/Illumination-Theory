@@ -8,7 +8,6 @@ mod hittable;
 mod rtweekend;
 mod hittable_group;
 
-use std::thread;
 use std::rc::{Rc};
 use std::fs::File;
 use std::sync::Arc;
@@ -29,8 +28,8 @@ fn main() -> std::io::Result<()>{
     let image_width: usize = 400;
     let image_height: usize = (image_width as f64 / img_aspect_ratio) as usize;
     
-    let samples_per_pixel = 100;
-    let trace_depth: i32 = 5;
+    let samples_per_pixel = 200;
+    let trace_depth: i32 = 10;
 
     // World
     let mut world = HittableGroup::default();
@@ -45,6 +44,10 @@ fn main() -> std::io::Result<()>{
     world.add(Rc::new(Sphere::new(
         &Point3::new(0.0, -0.4, -1.0),
         0.1
+    )));
+    world.add(Rc::new(Sphere::new(
+        &Point3::new(-0.5, 2.5, -1.0),
+        2.0
     )));
     world.add(Rc::new(Sphere::new(
         &Point3::new(0.0, -100.5, -1.0),

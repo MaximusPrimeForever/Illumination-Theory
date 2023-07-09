@@ -70,7 +70,7 @@ pub fn write_img_ppm(canvas: Canvas, file: &mut File) {
     let image_width = canvas.width;
     let image_height = canvas.height;
 
-    file.write_fmt(format_args!("P3\n{image_width} {image_height}\n{}\n", MAX_COLOR));
+    let _ = file.write_fmt(format_args!("P3\n{image_width} {image_height}\n{}\n", MAX_COLOR));
 
     for row in &canvas.pixels {
         for pixel in row {

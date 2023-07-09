@@ -8,7 +8,7 @@ pub const MAX_COLOR: f64 = 255.0;
 pub const COLOR_WHITE: Color = Color::new_const(1.0, 1.0, 1.0);
 pub const COLOR_SKY_BLUE: Color = Color::new_const(0.5, 0.7, 1.0);
 pub const COLOR_BLACK: Color = Color::new_const(0.0, 0.0, 0.0);
-pub const t_min_tolerance: f64 = 0.001;
+pub const T_MIN_TOLERANCE: f64 = 0.001;
 
 
 pub fn write_color(pixel_color: Color, samples_per_pixel: u32) -> Pixel {
@@ -46,7 +46,7 @@ pub fn ray_color(ray: &Ray, world: &dyn HittableT, depth: i32) -> Color {
     if depth <= 0 { return COLOR_BLACK; }
     
     let mut rec: HitRecord = HitRecord::default();
-    if world.hit(ray, t_min_tolerance, f64::INFINITY, &mut rec) {
+    if world.hit(ray, T_MIN_TOLERANCE, f64::INFINITY, &mut rec) {
         // This shoots the ray in some random direction
         // by adding the normal vector the target point is displaced
         // in a direction determined by the surface's orientation.

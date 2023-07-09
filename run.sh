@@ -6,7 +6,7 @@ if [ $# -eq 0 ]; then
 fi
 
 mkdir -p ./renders
-RUSTFLAGS="--allow dead_code" cargo run --manifest-path=./tracer/Cargo.toml
+RUSTFLAGS="--allow dead_code" cargo run --release --manifest-path=./tracer/Cargo.toml
 
 if command -v eog >/dev/null 2>&1; then
   eog ./output.ppm 2> /dev/null
