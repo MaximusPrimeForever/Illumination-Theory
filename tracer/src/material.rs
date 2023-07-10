@@ -1,5 +1,5 @@
 use crate::ray::Ray;
-use crate::vec3::{get_random_point_on_unit_sphere, reflect, unit_vector, dot};
+use crate::vec3::{get_random_point_on_unit_sphere, reflect, unit_vector, dot, get_random_point_in_unit_sphere};
 use crate::{hittable::HitRecord, vec3::Color};
 
 
@@ -30,13 +30,14 @@ impl Material for Lambertian {
 // =======
 
 pub struct Metal {
-    pub albedo: Color
+    pub albedo: Color,
+    pub fuzz: f64
 }
 
 impl Material for Metal {
     fn scatter(&self, incident_ray: &Ray, hitrec: &HitRecord) -> Option<(Color, Ray)> {
         let reflected = reflect(&unit_vector(incident_ray.direction), &hitrec.normal);
-        let scattered = Ray::new(hitrec.point, reflected);
+        let scattered = Ray::new(hitrec.point, reflected + self.fuzz * get_random_point_in_unit_sphere());
 
         if dot(&scattered.direction, &hitrec.normal) > 0.0 {
             Some((self.albedo, scattered))
