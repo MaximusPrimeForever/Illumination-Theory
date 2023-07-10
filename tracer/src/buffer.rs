@@ -74,7 +74,7 @@ pub fn write_img_ppm(canvas: Canvas, file: &mut File) {
 
     for row in &canvas.pixels {
         for pixel in row {
-            file.write_fmt(format_args!("{} {} {}\n", pixel.r, pixel.g, pixel.b));
+            let _ = file.write_fmt(format_args!("{} {} {}\n", pixel.r, pixel.g, pixel.b));
         }
     }
 }

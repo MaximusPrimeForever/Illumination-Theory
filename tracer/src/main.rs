@@ -20,7 +20,7 @@ use buffer::{SliceBuffer, Canvas, write_img_ppm, render_slice};
 
 use world::World;
 use crate::color::{ray_color, write_color};
-use crate::material::Lambertian;
+use crate::material::{Lambertian, Metal};
 
 use indicatif::{MultiProgress};
 
@@ -30,35 +30,43 @@ fn main() -> std::io::Result<()>{
     let image_width: usize = 400;
     let image_height: usize = (image_width as f64 / img_aspect_ratio) as usize;
     
-    let samples_per_pixel = 200;
-    let trace_depth: i32 = 10;
+    let samples_per_pixel = 400;
+    let trace_depth: i32 = 20;
 
     // World
     let mut world = World::default();
+
+    // right
     world.add(Rc::new(Sphere::new(
-        &Point3::new(0.5, 0.0, -1.0),
+        &Point3::new(1.0, 0.0, -1.0),
         0.5,
-        Rc::new(Lambertian{albedo: Color::new(1.0, 0.0, 0.0)})
+        Rc::new(Metal{albedo: Color::new(0.8, 0.6, 0.2)})
     )));
+
+    // center
     world.add(Rc::new(Sphere::new(
-        &Point3::new(-0.5, -0.2, -1.0),
-        0.3,
-        Rc::new(Lambertian{albedo: Color::new(0.0, 1.0, 0.0)})
+        &Point3::new(0.0, 0.0, -1.0),
+        0.5,
+        Rc::new(Lambertian{albedo: Color::new(0.7, 0.3, 0.3)})
     )));
+
+    // left
     world.add(Rc::new(Sphere::new(
-        &Point3::new(0.0, -0.4, -1.0),
+        &Point3::new(-1.0, 0.0, -1.0),
+        0.5,
+        Rc::new(Metal{albedo: Color::new(0.8, 0.8, 0.8)})
+    )));
+
+    world.add(Rc::new(Sphere::new(
+        &Point3::new(-0.5, 0.6, -1.0),
         0.1,
-        Rc::new(Lambertian{albedo: Color::new(1.0, 0.0, 0.0)})
+        Rc::new(Lambertian{albedo: Color::new(2.0, 0.3, 0.3)})
     )));
-    world.add(Rc::new(Sphere::new(
-        &Point3::new(-0.5, 2.5, -1.0),
-        2.0,
-        Rc::new(Lambertian{albedo: Color::new(1.0, 0.0, 0.0)})
-    )));
+
     world.add(Rc::new(Sphere::new(
         &Point3::new(0.0, -100.5, -1.0),
         100.0,
-        Rc::new(Lambertian{albedo: Color::new(1.0, 1.0, 1.0)})
+        Rc::new(Lambertian{albedo: Color::new(0.8, 0.8, 0.0)})
     )));
 
     // Camera

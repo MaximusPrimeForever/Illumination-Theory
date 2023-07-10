@@ -203,3 +203,7 @@ pub fn get_random_point_on_unit_sphere() -> Point3 {
     let v = Vec3::random_range(-1.0, 1.0);
     unit_vector(v)
 }
+
+pub fn reflect(incident: &Vec3, normal: &Vec3) -> Vec3 {
+    *incident - 2.0 * dot(incident, normal) * (*normal)
+}

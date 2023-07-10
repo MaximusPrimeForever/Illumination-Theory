@@ -1,7 +1,7 @@
 use crate::ray::Ray;
 use crate::buffer::Pixel;
 use crate::rtweekend::clamp;
-use crate::hittable::{HitRecord, HittableT};
+use crate::hittable::{HittableT};
 
 use crate::vec3::{
     Vec3,
@@ -55,22 +55,20 @@ pub fn ray_color(ray: &Ray, world: &dyn HittableT, depth: i32) -> Color {
     
     match world.hit(ray, T_MIN_TOLERANCE, f64::INFINITY) {
         Some(rec) => {
-            // This shoots the ray in some random direction
-            // by adding the normal vector the target point is displaced
-            // in a direction determined by the surface's orientation.
-            let target = diffuse_lambertian_reflection(rec.point, rec.normal);
-            return 0.5 * ray_color(
-                &Ray::new(
-                    rec.point,
-                    target - rec.point
-                ),
-                world,
-                depth - 1
-            );
+            match rec.material.scatter(&ray, &rec) {
+                Some((attenuation, scattered)) => {
+                    attenuation * ray_color(&scattered, world, depth - 1)
+                }
+                None => { COLOR_BLACK }
+            }
         }
         None => { sky_color(ray) }
     }
 }
+
+// These functions shoot the ray in some random direction
+// by adding the normal vector the target point is displaced
+// in a direction determined by the surface's orientation.
 
 fn diffuse_rejection_method(point: Point3, normal: Vec3) -> Vec3 {
     point + normal + get_random_point_in_unit_sphere()
