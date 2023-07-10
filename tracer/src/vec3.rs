@@ -10,6 +10,8 @@ pub struct Vec3 {
 pub type Point3 = Vec3;
 pub type Color = Vec3;
 
+const NEAR_ZERO_THRESHOLD: f64 = 1e-8;
+
 impl Vec3 {
     pub fn origin() -> Vec3 { Vec3{e: [0.0, 0.0, 0.0]} }
     pub fn new(e1: f64, e2: f64, e3: f64) -> Vec3 { Vec3{e: [e1, e2, e3]} }
@@ -39,8 +41,14 @@ impl Vec3 {
     pub fn length(&self) -> f64 {
         self.length_squared().sqrt()
     }
+
     pub fn length_squared(&self) -> f64 {
         self.e[0] * self.e[0] + self.e[1] * self.e[1] + self.e[2] * self.e[2]
+    }
+
+    pub fn near_zero(&self) -> bool {
+        let thresh = NEAR_ZERO_THRESHOLD;
+        self.e[0].abs() < thresh && self.e[1].abs() < thresh && self.e[2].abs() < thresh
     }
 }
 
@@ -54,7 +62,6 @@ impl ops::Index<usize> for Vec3 {
 
 
 impl ops::AddAssign for Vec3 {
-    
     fn add_assign(&mut self, rhs: Self) {
         self.e[0] += rhs.e[0];
         self.e[1] += rhs.e[1];
@@ -181,8 +188,8 @@ pub fn cross(u: &Vec3, v: &Vec3) -> Vec3 {
     )
 }
 
-pub fn unit_vector(v: &Vec3) -> Vec3 {
-    *v / v.length()
+pub fn unit_vector(v: Vec3) -> Vec3 {
+    v / v.length()
 }
 
 pub fn get_random_point_in_unit_sphere() -> Point3 {
@@ -190,4 +197,9 @@ pub fn get_random_point_in_unit_sphere() -> Point3 {
         let p = Vec3::random_range(-1.0, 1.0);
         if p.length_squared() < 1.0 { return p; }
     }
+}
+
+pub fn get_random_point_on_unit_sphere() -> Point3 {
+    let v = Vec3::random_range(-1.0, 1.0);
+    unit_vector(v)
 }
