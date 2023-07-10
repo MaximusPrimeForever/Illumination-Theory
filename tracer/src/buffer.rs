@@ -9,7 +9,7 @@ use crate::write_color;
 use crate::color::MAX_COLOR;
 
 use crate::Camera;
-use crate::HittableGroup;
+use crate::World;
 
 use indicatif::{ProgressBar, ProgressStyle, MultiProgress};
 
@@ -79,7 +79,7 @@ pub fn write_img_ppm(canvas: Canvas, file: &mut File) {
     }
 }
 
-pub fn render_slice(slice_buffer: &mut SliceBuffer, world: HittableGroup, cam: Camera, samples_per_pixel: u32, trace_depth: i32, multi_bar: Arc<MultiProgress>) {
+pub fn render_slice(slice_buffer: &mut SliceBuffer, world: World, cam: Camera, samples_per_pixel: u32, trace_depth: i32, multi_bar: Arc<MultiProgress>) {
     let height = slice_buffer.height;
     let width = slice_buffer.width;
     let mut slice_vec: Vec<Vec<Pixel>> = Vec::default();

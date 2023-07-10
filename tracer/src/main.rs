@@ -4,9 +4,10 @@ mod color;
 mod buffer;
 mod sphere;
 mod camera;
+mod material;
 mod hittable;
 mod rtweekend;
-mod hittable_group;
+mod world;
 
 use std::rc::{Rc};
 use std::fs::File;
@@ -17,8 +18,9 @@ use camera::Camera;
 use vec3::{Point3, Color};
 use buffer::{SliceBuffer, Canvas, write_img_ppm, render_slice};
 
-use hittable_group::HittableGroup;
+use world::World;
 use crate::color::{ray_color, write_color};
+use crate::material::Lambertian;
 
 use indicatif::{MultiProgress};
 
@@ -32,26 +34,31 @@ fn main() -> std::io::Result<()>{
     let trace_depth: i32 = 10;
 
     // World
-    let mut world = HittableGroup::default();
+    let mut world = World::default();
     world.add(Rc::new(Sphere::new(
         &Point3::new(0.5, 0.0, -1.0),
-        0.5
+        0.5,
+        Rc::new(Lambertian{albedo: Color::new(1.0, 0.0, 0.0)})
     )));
     world.add(Rc::new(Sphere::new(
         &Point3::new(-0.5, -0.2, -1.0),
-        0.3
+        0.3,
+        Rc::new(Lambertian{albedo: Color::new(0.0, 1.0, 0.0)})
     )));
     world.add(Rc::new(Sphere::new(
         &Point3::new(0.0, -0.4, -1.0),
-        0.1
+        0.1,
+        Rc::new(Lambertian{albedo: Color::new(1.0, 0.0, 0.0)})
     )));
     world.add(Rc::new(Sphere::new(
         &Point3::new(-0.5, 2.5, -1.0),
-        2.0
+        2.0,
+        Rc::new(Lambertian{albedo: Color::new(1.0, 0.0, 0.0)})
     )));
     world.add(Rc::new(Sphere::new(
         &Point3::new(0.0, -100.5, -1.0),
-        100.0
+        100.0,
+        Rc::new(Lambertian{albedo: Color::new(1.0, 1.0, 1.0)})
     )));
 
     // Camera

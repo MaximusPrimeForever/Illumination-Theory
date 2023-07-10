@@ -1,5 +1,7 @@
 use std::rc::Rc;
 use std::vec::Vec;
+
+use crate::ray::Ray;
 use crate::hittable::{HittableT, HitRecord};
 
 
@@ -9,11 +11,11 @@ use crate::hittable::{HittableT, HitRecord};
 /// ray that potentially intersects with both, will return a HitRecord of the closest
 /// one.
 #[derive(Default)]
-pub struct HittableGroup {
+pub struct World {
     pub objects: Vec<Rc<dyn HittableT>>
 }
 
-impl HittableGroup {
+impl World {
     pub fn clear(&mut self) {
         self.objects.clear()
     }
@@ -23,21 +25,22 @@ impl HittableGroup {
     }
 }
 
-impl HittableT for HittableGroup {
+impl HittableT for World {
     /// Iterates list of objects and tries to find the closest object a given ray intersects with.
-    fn hit(&self, ray: &crate::ray::Ray, t_min: f64, t_max: f64, rec: &mut crate::hittable::HitRecord) -> bool {
-        let mut temp_hrec: HitRecord = HitRecord::default();
-        let mut hit_anything: bool = false;
+    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
+        let mut final_hrec = None;
         let mut closest_so_far: f64 = t_max;
 
         for obj in &self.objects {
-            if obj.hit(ray, t_min, closest_so_far, &mut temp_hrec) {
-                hit_anything = true;
-                closest_so_far = temp_hrec.t;
-                *rec = temp_hrec;
+            match obj.hit(ray, t_min, closest_so_far) {
+                Some(hit_record) => {
+                    closest_so_far = hit_record.t;
+                    final_hrec = Some(hit_record);
+                }
+                None => {}
             }
         }
 
-        hit_anything
+        final_hrec
     }
 }
