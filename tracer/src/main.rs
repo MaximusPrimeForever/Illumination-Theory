@@ -10,7 +10,7 @@ mod rtweekend;
 mod world;
 
 use std::env;
-use std::rc::{Rc};
+use std::rc::Rc;
 use std::fs::File;
 use std::sync::Arc;
 
@@ -21,9 +21,9 @@ use buffer::{SliceBuffer, Canvas, write_img_ppm, render_slice};
 
 use world::World;
 use crate::color::{ray_color, write_color};
-use crate::material::{Lambertian, Metal};
+use crate::material::{Lambertian, Metal, Dialectic};
 
-use indicatif::{MultiProgress};
+use indicatif::MultiProgress;
 
 fn main() -> std::io::Result<()>{
     let args: Vec<String> = env::args().collect();
@@ -46,14 +46,16 @@ fn main() -> std::io::Result<()>{
     world.add(Rc::new(Sphere::new(
         &Point3::new(-1.0, 0.0, -1.0),
         0.5,
-        Rc::new(Metal{albedo: Color::new(0.8, 0.8, 0.8), fuzz: 0.3})
+        // Rc::new(Metal{albedo: Color::new(0.8, 0.8, 0.8), fuzz: 0.3})
+        Rc::new(Dialectic{ir: 1.5})
     )));
     
     // center
     world.add(Rc::new(Sphere::new(
         &Point3::new(0.0, 0.0, -1.0),
         0.5,
-        Rc::new(Lambertian{albedo: Color::new(0.7, 0.3, 0.3)})
+        Rc::new(Lambertian{albedo: Color::new(0.1, 0.2, 0.5)})
+        // Rc::new(Dialectic{ir: 1.5})
     )));
     
     // right

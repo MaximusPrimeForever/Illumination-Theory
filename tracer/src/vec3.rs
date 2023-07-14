@@ -50,6 +50,25 @@ impl Vec3 {
         let thresh = NEAR_ZERO_THRESHOLD;
         self.e[0].abs() < thresh && self.e[1].abs() < thresh && self.e[2].abs() < thresh
     }
+
+    pub fn unit(&self) -> Vec3 {
+        *self / self.length()
+    }
+
+    pub fn dot(&self, v: Vec3) -> f64 {
+        self.x() * v.x()
+      + self.y() * v.y()
+      + self.z() * v.z()
+    }
+
+    pub fn cross(&self, v: Vec3) -> Vec3 {
+        Vec3::new(
+            &self.e[1] * v.e[2] - &self.e[2] * v.e[1],
+            &self.e[2] * v.e[0] - &self.e[0] * v.e[2],
+            &self.e[0] * v.e[1] - &self.e[1] * v.e[0]
+        )
+    }
+
 }
 
 impl ops::Index<usize> for Vec3 {
@@ -174,24 +193,6 @@ impl ops::Div<f64> for Vec3 {
     }
 }
 
-pub fn dot(u: &Vec3, v: &Vec3) -> f64 {
-      u.x() * v.x()
-    + u.y() * v.y()
-    + u.z() * v.z()
-}
-
-pub fn cross(u: &Vec3, v: &Vec3) -> Vec3 {
-    Vec3::new(
-        u.e[1] * v.e[2] - u.e[2] * v.e[1],
-        u.e[2] * v.e[0] - u.e[0] * v.e[2],
-        u.e[0] * v.e[1] - u.e[1] * v.e[0]
-    )
-}
-
-pub fn unit_vector(v: Vec3) -> Vec3 {
-    v / v.length()
-}
-
 pub fn get_random_point_in_unit_sphere() -> Point3 {
     loop {
         let p = Vec3::random_range(-1.0, 1.0);
@@ -200,10 +201,18 @@ pub fn get_random_point_in_unit_sphere() -> Point3 {
 }
 
 pub fn get_random_point_on_unit_sphere() -> Point3 {
-    let v = Vec3::random_range(-1.0, 1.0);
-    unit_vector(v)
+    Vec3::random_range(-1.0, 1.0).unit()
 }
 
-pub fn reflect(incident: &Vec3, normal: &Vec3) -> Vec3 {
-    *incident - 2.0 * dot(incident, normal) * (*normal)
+pub fn reflect(incident: Vec3, normal: Vec3) -> Vec3 {
+    incident - 2.0 * incident.dot(normal) * (normal)
+}
+
+pub fn refract(incident: Vec3, normal: Vec3, etai_over_etat: f64) -> Vec3 {
+    let cos_theta = -incident.dot(normal).min(1.0);
+
+    let r_out_perp = etai_over_etat * (incident + cos_theta * normal);
+    let r_out_parallel = -(1.0 - r_out_perp.length_squared()).abs().sqrt() * normal;
+
+    r_out_perp + r_out_parallel
 }

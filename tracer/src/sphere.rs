@@ -1,9 +1,9 @@
 use std::rc::Rc;
 
-use crate::material::Material;
 use crate::ray::Ray;
+use crate::material::Material;
+use crate::vec3::{Vec3, Point3};
 use crate::hittable::{HittableT, HitRecord};
-use crate::vec3::{Vec3, Point3, dot};
 
 pub struct Sphere {
     pub center: Point3,
@@ -44,7 +44,7 @@ impl HittableT for Sphere {
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
         let oc: Vec3 = ray.origin - self.center;
         let a = ray.direction.length_squared();
-        let half_b: f64 = dot(&ray.direction, &oc);
+        let half_b: f64 = ray.direction.dot(oc);
         let c: f64 = oc.length_squared() - self.radius * self.radius;
         let discriminant: f64 = half_b * half_b - a * c;
     
