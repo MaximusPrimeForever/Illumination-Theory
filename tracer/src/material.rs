@@ -1,3 +1,5 @@
+use rand::random;
+
 use crate::color::COLOR_WHITE;
 use crate::ray::Ray;
 use crate::vec3::{
@@ -84,6 +86,12 @@ pub struct Dialectic {
     pub ir: f64 // index of refraction
 }
 
+fn reflectance(cosine: f64, ref_idx: f64) -> f64 {
+    let r0 = ((1.0 -  ref_idx) / (1.0 + ref_idx)).powi(2);
+    
+    r0 + (1.0 - r0) * (1.0 - cosine).powi(5)
+}
+
 impl Material for Dialectic {
     fn scatter(&self, incident_ray: &Ray, hitrec: &HitRecord) -> Option<(Color, Ray)> {
         // If the ray comes from the outside, assume the refraction index outside the 
@@ -96,7 +104,10 @@ impl Material for Dialectic {
 
         let direction;
         // if ray cannot refract, it gets reflected
-        if refraction_ratio * sin_theta > 1.0 {
+        let cannot_refract = refraction_ratio * sin_theta > 1.0;
+        let some_bullshit = reflectance(cos_theta, refraction_ratio) > random::<f64>();
+
+        if cannot_refract || some_bullshit {
             direction = reflect(unit_direction, hitrec.normal);
         } else {
             // TODO: Return 2 rays maybe? one reflects, one refracts

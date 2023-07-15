@@ -44,8 +44,8 @@ fn main() -> std::io::Result<()>{
     
     // left
     world.add(Rc::new(Sphere::new(
-        &Point3::new(-1.0, 0.0, -1.0),
-        0.5,
+        &Point3::new(-1.0, -0.1, -1.0),
+        0.4,
         // Rc::new(Metal{albedo: Color::new(0.8, 0.8, 0.8), fuzz: 0.3})
         Rc::new(Metal{albedo: Color::new(0.8, 0.6, 0.2), fuzz: 0.0})
     )));
@@ -60,9 +60,10 @@ fn main() -> std::io::Result<()>{
     
     // right
     world.add(Rc::new(Sphere::new(
-        &Point3::new(1.0, 0.0, -1.0),
-        0.5,
-        Rc::new(Metal{albedo: Color::new(0.8, 0.6, 0.2), fuzz: 1.0})
+        &Point3::new(1.0, -0.1, -1.0),
+        -0.4,
+        // Rc::new(Metal{albedo: Color::new(0.8, 0.6, 0.2), fuzz: 1.0})
+        Rc::new(Dialectic{ir: 1.5})
     )));
 
     world.add(Rc::new(Sphere::new(
@@ -78,7 +79,9 @@ fn main() -> std::io::Result<()>{
     )));
 
     // Camera
-    let cam = Camera::new();
+    let aspect_ratio = 16.0 / 9.0;
+    let vfov = 90.0;
+    let cam = Camera::new(vfov, aspect_ratio);
 
     // Render
     let multi_bar = Arc::new(MultiProgress::new());
