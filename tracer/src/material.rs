@@ -24,7 +24,7 @@ pub struct Lambertian {
 
 impl Material for Lambertian {
     fn scatter(&self, _incident_ray: &Ray, hitrec: &HitRecord) -> Option<(Color, Ray)> {
-        let mut scatter_direction = hitrec.normal + get_random_point_on_unit_sphere();
+        let mut scatter_direction = diffuse_lambertian_reflection(hitrec.normal);
 
         // Avoid situation where scatter direction vector is zero
         if scatter_direction.near_zero() { scatter_direction = hitrec.normal; }
@@ -36,21 +36,23 @@ impl Material for Lambertian {
 // These functions shoot the ray in some random direction
 // by adding the normal vector the target point is displaced
 // in a direction determined by the surface's orientation.
-
-fn diffuse_rejection_method(point: Point3, normal: Vec3) -> Vec3 {
-    point + normal + get_random_point_in_unit_sphere()
+#[allow(dead_code)]
+fn diffuse_rejection_method(normal: Vec3) -> Vec3 {
+    normal + get_random_point_in_unit_sphere()
 }
 
-fn diffuse_lambertian_reflection(point: Point3, normal: Vec3) -> Vec3 {
-    point + normal + get_random_point_on_unit_sphere()
+#[allow(dead_code)]
+fn diffuse_lambertian_reflection(normal: Vec3) -> Vec3 {
+    normal + get_random_point_on_unit_sphere()
 }
 
-fn diffuse_uniform_without_normal(point: Point3, normal: Vec3) -> Vec3 {
+#[allow(dead_code)]
+fn diffuse_uniform_without_normal(normal: Vec3) -> Vec3 {
     let in_unit_sphere = get_random_point_in_unit_sphere();
     if in_unit_sphere.dot(normal) > 0.0 {
-        point + in_unit_sphere
+        in_unit_sphere
     } else {
-        point - in_unit_sphere
+        in_unit_sphere
     }
 }
 
@@ -97,6 +99,8 @@ impl Material for Dialectic {
         if refraction_ratio * sin_theta > 1.0 {
             direction = reflect(unit_direction, hitrec.normal);
         } else {
+            // TODO: Return 2 rays maybe? one reflects, one refracts
+            // play with random weights for each ray's attenutation
             direction = refract(unit_direction, hitrec.normal, refraction_ratio);
         }
 

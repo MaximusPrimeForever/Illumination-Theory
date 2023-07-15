@@ -1,7 +1,7 @@
 use crate::ray::Ray;
 use crate::buffer::Pixel;
 use crate::rtweekend::clamp;
-use crate::hittable::{HittableT};
+use crate::hittable::HittableT;
 
 use crate::vec3::{
     Vec3,
