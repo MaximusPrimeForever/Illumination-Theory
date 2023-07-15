@@ -6,8 +6,8 @@ use crate::vec3::{
     get_random_point_on_unit_sphere,
     reflect,
     get_random_point_in_unit_sphere,
-    Point3,
-    Vec3, refract
+    Vec3,
+    refract
 };
 use crate::{hittable::HitRecord, vec3::Color};
 

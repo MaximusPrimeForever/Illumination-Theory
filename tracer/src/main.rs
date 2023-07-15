@@ -22,6 +22,7 @@ use buffer::{SliceBuffer, Canvas, write_img_ppm, render_slice};
 use world::World;
 use crate::color::{ray_color, write_color};
 use crate::material::{Lambertian, Metal, Dialectic};
+use crate::vec3::Vec3;
 
 use indicatif::MultiProgress;
 
@@ -80,8 +81,14 @@ fn main() -> std::io::Result<()>{
 
     // Camera
     let aspect_ratio = 16.0 / 9.0;
-    let vfov = 90.0;
-    let cam = Camera::new(vfov, aspect_ratio);
+    let vfov = 88.0;
+    let cam = Camera::new(
+        Point3::new(2.0, 2.0, 1.0),
+        Point3::new(0.0, 0.0, -1.0),
+        Vec3::new(0.0, 1.0, 0.0),
+        vfov,
+        aspect_ratio
+    );
 
     // Render
     let multi_bar = Arc::new(MultiProgress::new());
