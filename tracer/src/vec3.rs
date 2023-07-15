@@ -192,27 +192,3 @@ impl ops::Div<f64> for Vec3 {
         (1.0 / rhs) * self
     }
 }
-
-pub fn get_random_point_in_unit_sphere() -> Point3 {
-    loop {
-        let p = Vec3::random_range(-1.0, 1.0);
-        if p.length_squared() < 1.0 { return p; }
-    }
-}
-
-pub fn get_random_point_on_unit_sphere() -> Point3 {
-    Vec3::random_range(-1.0, 1.0).unit()
-}
-
-pub fn reflect(incident: Vec3, normal: Vec3) -> Vec3 {
-    incident - 2.0 * incident.dot(normal) * (normal)
-}
-
-pub fn refract(incident: Vec3, normal: Vec3, etai_over_etat: f64) -> Vec3 {
-    let cos_theta = -incident.dot(normal).min(1.0);
-
-    let r_out_perp = etai_over_etat * (incident + cos_theta * normal);
-    let r_out_parallel = -(1.0 - r_out_perp.length_squared()).abs().sqrt() * normal;
-
-    r_out_perp + r_out_parallel
-}

@@ -1,13 +1,15 @@
 mod ray;
 mod vec3;
 mod color;
+mod world;
 mod buffer;
 mod sphere;
+mod optics;
 mod camera;
 mod material;
+mod geometry;
 mod hittable;
 mod rtweekend;
-mod world;
 
 use std::env;
 use std::rc::Rc;
@@ -61,7 +63,7 @@ fn main() -> std::io::Result<()>{
     
     // right
     world.add(Rc::new(Sphere::new(
-        &Point3::new(1.0, -0.1, -1.0),
+        &Point3::new(0.9, -0.1, -1.0),
         -0.4,
         // Rc::new(Metal{albedo: Color::new(0.8, 0.6, 0.2), fuzz: 1.0})
         Rc::new(Dialectic{ir: 1.5})
@@ -81,13 +83,18 @@ fn main() -> std::io::Result<()>{
 
     // Camera
     let aspect_ratio = 16.0 / 9.0;
-    let vfov = 88.0;
+    let vfov = 30.0;
+    let look_from = Point3::new(2.0, 2.0, 1.0);
+    let look_at = Point3::new(0.0, 0.0, -1.0);
+
     let cam = Camera::new(
-        Point3::new(2.0, 2.0, 1.0),
-        Point3::new(0.0, 0.0, -1.0),
+        look_from,
+        look_at,
         Vec3::new(0.0, 1.0, 0.0),
         vfov,
-        aspect_ratio
+        aspect_ratio,
+        0.5,
+        (look_from - look_at).length()
     );
 
     // Render

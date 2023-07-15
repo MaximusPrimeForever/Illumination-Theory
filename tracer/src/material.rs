@@ -1,15 +1,15 @@
 use rand::random;
 
-use crate::color::COLOR_WHITE;
 use crate::ray::Ray;
-use crate::vec3::{
-    get_random_point_on_unit_sphere,
-    reflect,
-    get_random_point_in_unit_sphere,
-    Vec3,
-    refract
-};
+use crate::vec3::Vec3;
+use crate::color::COLOR_WHITE;
 use crate::{hittable::HitRecord, vec3::Color};
+use crate::optics::{reflect, refract};
+
+use crate::geometry::{
+    get_random_point_in_unit_sphere,
+    get_random_point_on_unit_sphere
+};
 
 
 pub trait Material {
