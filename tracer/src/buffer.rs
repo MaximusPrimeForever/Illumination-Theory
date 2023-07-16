@@ -34,6 +34,12 @@ pub struct SliceBuffer {
     pub pixels: Vec<Vec<Pixel>>
 }
 
+impl SliceBuffer {
+    pub fn new_slice(width: usize, height: usize, p_row: usize, p_col: usize) -> SliceBuffer {
+        SliceBuffer { width, height, p_row, p_col, ..Default::default() }
+    }
+}
+
 pub type Canvas = SliceBuffer;
 impl Canvas {
     pub fn new(width: usize, height: usize) -> SliceBuffer {
@@ -79,7 +85,7 @@ pub fn write_img_ppm(canvas: Canvas, file: &mut File) {
     }
 }
 
-pub fn render_slice(slice_buffer: &mut SliceBuffer, world: World, cam: Camera, samples_per_pixel: u32, trace_depth: i32, multi_bar: Arc<MultiProgress>) {
+pub fn render_slice(slice_buffer: &mut SliceBuffer, canvas_width: usize, canvas_height: usize, world: Arc<World>, cam: Arc<Camera>, samples_per_pixel: u32, trace_depth: i32, multi_bar: Arc<MultiProgress>) {
     let height = slice_buffer.height;
     let width = slice_buffer.width;
     let mut slice_vec: Vec<Vec<Pixel>> = Vec::default();
@@ -95,20 +101,25 @@ pub fn render_slice(slice_buffer: &mut SliceBuffer, world: World, cam: Camera, s
 
     for i in (0..height).rev() {
         let mut line_buffer: Vec<Pixel> = Vec::default();
+        let pixel_row = slice_buffer.p_row + i;
 
         // Render single line
         for j in 0..width {
             let mut pixel_color = Color::origin();
+            let pixel_col = slice_buffer.p_col + j;
 
             // Render single pixel
             for _ in 0..samples_per_pixel {
-                let u = (j as f64 + rand::random::<f64>()) / (width - 1) as f64;
-                let v = (i as f64 + rand::random::<f64>()) / (height - 1) as f64;
+                // dividing by the canvas dimensions fixes the issues with the slices
+                // dividing by slice dimensions caused u,v to be >1.0 which rendered
+                // outside the viewport and distorted them a LOT
+                let u = (pixel_col as f64 + rand::random::<f64>()) / (canvas_width - 1) as f64;
+                let v = (pixel_row as f64 + rand::random::<f64>()) / (canvas_height - 1) as f64;
                 let ray = cam.get_ray(u, v);
             
-                pixel_color += ray_color(&ray, &world, trace_depth);
+                pixel_color += ray_color(ray, &world, trace_depth);
             }
-            width_bar.set_message(format!("col #{}", j));
+            width_bar.set_message(format!("col #{}", pixel_col));
             width_bar.inc(1);
 
             line_buffer.push(write_color(pixel_color, samples_per_pixel));
@@ -118,7 +129,7 @@ pub fn render_slice(slice_buffer: &mut SliceBuffer, world: World, cam: Camera, s
 
         slice_vec.push(line_buffer);
 
-        height_bar.set_message(format!("line #{}", height - i));
+        height_bar.set_message(format!("line #{}", pixel_row));
         height_bar.inc(1);
     }
     height_bar.finish();

@@ -12,18 +12,17 @@ mod hittable;
 mod rtweekend;
 
 use std::env;
-use std::rc::Rc;
+use std::thread;
 use std::fs::File;
 use std::sync::Arc;
 
-use sphere::Sphere;
 use camera::Camera;
 use vec3::{Point3, Color};
 use buffer::{SliceBuffer, Canvas, write_img_ppm, render_slice};
 
 use world::World;
 use crate::color::{ray_color, write_color};
-use crate::material::{Lambertian, Metal, Dialectic};
+use crate::rtweekend::random_scene;
 use crate::vec3::Vec3;
 
 use indicatif::MultiProgress;
@@ -39,72 +38,78 @@ fn main() -> std::io::Result<()>{
     let trace_depth: i32 = args[3].parse::<i32>().unwrap();
 
     // Image
-    let img_aspect_ratio: f64 = 16.0 / 9.0;
-    let image_height: usize = (image_width as f64 / img_aspect_ratio) as usize;
+    let aspect_ratio = 3.0 / 2.0;
+    let image_height: usize = (image_width as f64 / aspect_ratio) as usize;
 
+    let slice_height = image_height;
+    let slice_width = image_width / 4;
+    let mut image_canvas = Canvas::new(image_width, image_height);
+    
     // World
-    let mut world = World::default();
+    let world = Arc::new(random_scene());
     
-    // left
-    world.add(Rc::new(Sphere::new(
-        &Point3::new(-1.0, -0.1, -1.0),
-        0.4,
-        // Rc::new(Metal{albedo: Color::new(0.8, 0.8, 0.8), fuzz: 0.3})
-        Rc::new(Metal{albedo: Color::new(0.8, 0.6, 0.2), fuzz: 0.0})
-    )));
-    
-    // center
-    world.add(Rc::new(Sphere::new(
-        &Point3::new(0.0, 0.0, -1.0),
-        0.5,
-        Rc::new(Lambertian{albedo: Color::new(0.1, 0.2, 0.5)})
-        // Rc::new(Dialectic{ir: 1.5})
-    )));
-    
-    // right
-    world.add(Rc::new(Sphere::new(
-        &Point3::new(0.9, -0.1, -1.0),
-        -0.4,
-        // Rc::new(Metal{albedo: Color::new(0.8, 0.6, 0.2), fuzz: 1.0})
-        Rc::new(Dialectic{ir: 1.5})
-    )));
-
-    world.add(Rc::new(Sphere::new(
-        &Point3::new(-0.5, 0.6, -1.0),
-        0.1,
-        Rc::new(Lambertian{albedo: Color::new(2.0, 0.3, 0.3)})
-    )));
-
-    world.add(Rc::new(Sphere::new(
-        &Point3::new(0.0, -100.5, -1.0),
-        100.0,
-        Rc::new(Lambertian{albedo: Color::new(0.6, 0.8, 0.0)})
-    )));
-
     // Camera
-    let aspect_ratio = 16.0 / 9.0;
-    let vfov = 30.0;
-    let look_from = Point3::new(2.0, 2.0, 1.0);
-    let look_at = Point3::new(0.0, 0.0, -1.0);
-
-    let cam = Camera::new(
+    let vfov = 20.0;
+    let look_from = Point3::new(13.0, 2.0, 3.0);
+    let look_at = Point3::origin();
+    
+    let cam = Arc::new(Camera::new(
         look_from,
         look_at,
         Vec3::new(0.0, 1.0, 0.0),
         vfov,
         aspect_ratio,
-        0.5,
-        (look_from - look_at).length()
-    );
-
+        0.0,
+        10.0
+    ));
+    
     // Render
     let multi_bar = Arc::new(MultiProgress::new());
-    let mut image_canvas = Canvas::new(image_width, image_height);
 
-    let mut main_slice = SliceBuffer{height: image_height, width: image_width, ..Default::default()};
-    render_slice(&mut main_slice, world, cam, samples_per_pixel, trace_depth, multi_bar);
-    image_canvas.write_slice(main_slice);
+    let mut slice_1 = SliceBuffer::new_slice(
+        slice_width,
+        slice_height,
+        0,
+        0
+    );
+    let mut slice_2 = SliceBuffer::new_slice(
+        slice_width,
+        slice_height,
+        0,
+        slice_width * 1
+    );
+    let mut slice_3 = SliceBuffer::new_slice(
+        slice_width,
+        slice_height,
+        0,
+        slice_width * 2
+    );
+    let mut slice_4 = SliceBuffer::new_slice(
+        slice_width,
+        slice_height,
+        0,
+        slice_width * 3
+    );
+
+    // thread::scope(|scope| {
+    //     scope.spawn(|_| {
+    //         let a = 0;
+    //         a
+    //     }).join().unwrap()
+    // }).unwrap();
+    render_slice(&mut slice_1, image_width,  image_height, world.clone(), cam.clone(), samples_per_pixel, trace_depth, multi_bar.clone());
     
+    render_slice(&mut slice_2, image_width, image_height, world.clone(), cam.clone(), samples_per_pixel, trace_depth, multi_bar.clone());
+    
+    render_slice(&mut slice_3, image_width, image_height, world.clone(), cam.clone(), samples_per_pixel, trace_depth, multi_bar.clone());
+    
+    render_slice(&mut slice_4, image_width, image_height, world.clone(), cam.clone(), samples_per_pixel, trace_depth, multi_bar.clone());
+    
+    image_canvas.write_slice(slice_1);
+    image_canvas.write_slice(slice_2);
+    image_canvas.write_slice(slice_3);
+    image_canvas.write_slice(slice_4);
+
     // File
     let mut output_image_file = File::create("output.ppm")?;
     write_img_ppm(image_canvas, &mut output_image_file);

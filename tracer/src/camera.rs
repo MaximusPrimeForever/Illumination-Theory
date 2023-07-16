@@ -25,7 +25,7 @@ impl Camera {
         let theta = vertical_fov.to_radians();
         let h = (theta / 2.0).tan();
         let viewport_height = 2.0 * h;
-        let viewport_width = aspect_ratio *  viewport_height;
+        let viewport_width = aspect_ratio * viewport_height;
 
         let look_at_axis = (look_from - look_at).unit();
         let horizontal_axis = vup.cross(look_at_axis).unit();
@@ -34,7 +34,10 @@ impl Camera {
         let origin = look_from;
         let vertical = focus_distance * viewport_height * vertical_axis;
         let horizontal = focus_distance * viewport_width * horizontal_axis;
-        let lower_left_corner = origin - horizontal/2.0 - vertical/2.0 - focus_distance  * look_at_axis;
+        let lower_left_corner = origin 
+                                      - horizontal/2.0
+                                      - vertical/2.0
+                                      - focus_distance * look_at_axis;
 
         let lens_radius = aperture / 2.0;
 

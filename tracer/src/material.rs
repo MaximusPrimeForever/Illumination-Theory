@@ -82,7 +82,7 @@ impl Material for Metal {
 // Dialectics
 // ==========
 
-pub struct Dialectic {
+pub struct Dielectric {
     pub ir: f64 // index of refraction
 }
 
@@ -92,7 +92,7 @@ fn reflectance(cosine: f64, ref_idx: f64) -> f64 {
     r0 + (1.0 - r0) * (1.0 - cosine).powi(5)
 }
 
-impl Material for Dialectic {
+impl Material for Dielectric {
     fn scatter(&self, incident_ray: &Ray, hitrec: &HitRecord) -> Option<(Color, Ray)> {
         // If the ray comes from the outside, assume the refraction index outside the 
         // object is 1.0

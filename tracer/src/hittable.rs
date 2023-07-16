@@ -29,5 +29,5 @@ fn set_face_normal(ray: Ray, normal: Vec3) -> (bool, Vec3) {
 }
 
 pub trait HittableT {
-    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord>;
+    fn hit(&self, ray: Ray, t_min: f64, t_max: f64) -> Option<HitRecord>;
 }

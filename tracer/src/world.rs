@@ -27,7 +27,7 @@ impl World {
 
 impl HittableT for World {
     /// Iterates list of objects and tries to find the closest object a given ray intersects with.
-    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
+    fn hit(&self, ray: Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
         let mut final_hrec = None;
         let mut closest_so_far: f64 = t_max;
 

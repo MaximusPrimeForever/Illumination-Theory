@@ -12,8 +12,8 @@ pub struct Sphere {
 }
 
 impl Sphere {
-    pub fn new(center: &Point3, radius: f64, material: Rc<dyn Material>) -> Sphere {
-        Sphere { center: *center, radius, material } 
+    pub fn new(center: Point3, radius: f64, material: Rc<dyn Material>) -> Sphere {
+        Sphere { center: center, radius, material } 
     }
 }
 
@@ -41,7 +41,7 @@ impl HittableT for Sphere {
     /// * positive - we get 2 intersection points.
     /// * zero - we get a single intersection point.
     /// * negative - we don't get an intersection point.
-    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
+    fn hit(&self, ray: Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
         let oc: Vec3 = ray.origin - self.center;
         let a = ray.direction.length_squared();
         let half_b: f64 = ray.direction.dot(oc);
@@ -64,7 +64,7 @@ impl HittableT for Sphere {
             (point - self.center) / self.radius,
             material_rc,
             root,
-            *ray
+            ray
         );
 
         Some(rec)
