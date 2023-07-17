@@ -7,6 +7,7 @@ pub struct Ray {
 }
 
 impl Ray {
+    #[allow(dead_code)]
     pub fn zero() -> Ray { 
         Ray { 
             origin: Vec3::origin(),
