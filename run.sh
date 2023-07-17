@@ -23,8 +23,14 @@ else
   trace_depth=$4
 fi
 
+if [ -z "$5" ]; then
+  core_count="0"
+else
+  core_count=$5
+fi
+
 mkdir -p ./renders
-RUSTFLAGS="--allow dead_code" cargo run --release --manifest-path=./tracer/Cargo.toml -- $image_width $samples_per_pixel $trace_depth
+RUSTFLAGS="--allow dead_code" cargo run --release --manifest-path=./tracer/Cargo.toml -- $image_width $samples_per_pixel $trace_depth $core_count
 
 if command -v eog >/dev/null 2>&1; then
   eog ./output.ppm 2> /dev/null

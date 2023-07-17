@@ -44,11 +44,11 @@ pub fn random_scene() -> World {
                 let sphere: Sphere;
 
                 // pick material
-                if choose_material < 0.8 {
+                if choose_material < 0.6 {
                     let albedo = Color::random() * Color::random();
                     sphere_material = Arc::new(Lambertian{albedo});
 
-                } else if choose_material < 0.95 {
+                } else if choose_material < 0.8 {
                     let albedo = Color::random() * Color::random();
                     let fuzz = random_f64_range(0.0, 0.5);
                     sphere_material = Arc::new(Metal{albedo, fuzz});

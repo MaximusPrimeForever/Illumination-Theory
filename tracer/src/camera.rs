@@ -4,7 +4,7 @@ use crate::vec3::{Point3, Vec3};
 
 pub struct Camera {
     pub origin: Point3,
-    pub lower_left_corner: Point3,
+    pub upper_left_corner: Point3,
     pub horizontal: Vec3,
     pub vertical: Vec3,
     pub look_at_axis: Vec3,
@@ -34,16 +34,16 @@ impl Camera {
         let origin = look_from;
         let vertical = focus_distance * viewport_height * vertical_axis;
         let horizontal = focus_distance * viewport_width * horizontal_axis;
-        let lower_left_corner = origin 
+        let upper_left_corner = origin 
                                       - horizontal/2.0
-                                      - vertical/2.0
+                                      + vertical/2.0
                                       - focus_distance * look_at_axis;
 
         let lens_radius = aperture / 2.0;
 
         Camera { 
             origin,
-            lower_left_corner,
+            upper_left_corner,
             horizontal,
             vertical,
             look_at_axis,
@@ -58,9 +58,9 @@ impl Camera {
         let offset = self.horizontal_axis * rd.x() + self.vertical_axis * rd.y();
 
         let direction =
-            self.lower_left_corner
+            self.upper_left_corner
             + s * self.horizontal
-            + t * self.vertical
+            - t * self.vertical
             - self.origin
             - offset;
 
