@@ -104,7 +104,7 @@ pub fn render_slice(slice_buffer: Arc<Mutex<SliceBuffer>>,
     // Progress bar config
     let height_bar: ProgressBar = multi_bar.add(ProgressBar::new(height as u64));
     height_bar.set_style(ProgressStyle::with_template(
-        "[{elapsed_precise}] {bar:40.cyan/blue} {pos:>7}/{len:7} {msg}"
+        "[{elapsed_precise}] {bar:40.cyan/blue} {pos:>7}/{len:7} ({eta})"
     )
     .unwrap()
     .progress_chars("##-")); 
@@ -132,8 +132,6 @@ pub fn render_slice(slice_buffer: Arc<Mutex<SliceBuffer>>,
             line_buffer.push(write_color(pixel_color, samples_per_pixel));
         }
         slice_vec.push(line_buffer);
-
-        height_bar.set_message(format!("line #{}", pixel_row));
         height_bar.inc(1);
     }
     height_bar.finish();
