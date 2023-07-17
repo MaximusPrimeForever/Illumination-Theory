@@ -14,7 +14,7 @@ mod rtweekend;
 use std::env;
 use std::thread;
 use std::fs::File;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
 use camera::Camera;
 use vec3::{Point3, Color};
@@ -66,44 +66,84 @@ fn main() -> std::io::Result<()>{
     // Render
     let multi_bar = Arc::new(MultiProgress::new());
 
-    let mut slice_1 = SliceBuffer::new_slice(
+    // TODO: wrap all of this shit in a module and scale rendering with cpu count
+    let slice_1 = Arc::new(Mutex::new(SliceBuffer::new_slice(
         slice_width,
         slice_height,
         0,
         0
-    );
-    let mut slice_2 = SliceBuffer::new_slice(
+    )));
+    let slice_2 = Arc::new(Mutex::new(SliceBuffer::new_slice(
         slice_width,
         slice_height,
         0,
         slice_width * 1
-    );
-    let mut slice_3 = SliceBuffer::new_slice(
+    )));
+    let slice_3 = Arc::new(Mutex::new(SliceBuffer::new_slice(
         slice_width,
         slice_height,
         0,
         slice_width * 2
-    );
-    let mut slice_4 = SliceBuffer::new_slice(
+    )));
+    let slice_4 = Arc::new(Mutex::new(SliceBuffer::new_slice(
         slice_width,
         slice_height,
         0,
         slice_width * 3
-    );
+    )));
 
-    // thread::scope(|scope| {
-    //     scope.spawn(|_| {
-    //         let a = 0;
-    //         a
-    //     }).join().unwrap()
-    // }).unwrap();
-    render_slice(&mut slice_1, image_width,  image_height, world.clone(), cam.clone(), samples_per_pixel, trace_depth, multi_bar.clone());
-    
-    render_slice(&mut slice_2, image_width, image_height, world.clone(), cam.clone(), samples_per_pixel, trace_depth, multi_bar.clone());
-    
-    render_slice(&mut slice_3, image_width, image_height, world.clone(), cam.clone(), samples_per_pixel, trace_depth, multi_bar.clone());
-    
-    render_slice(&mut slice_4, image_width, image_height, world.clone(), cam.clone(), samples_per_pixel, trace_depth, multi_bar.clone());
+    thread::scope(|scope| {
+        scope.spawn(|| {
+            render_slice(
+                slice_1.clone(),
+                image_width,
+                image_height,
+                world.clone(),
+                cam.clone(),
+                samples_per_pixel,
+                trace_depth,
+                multi_bar.clone()
+            );
+        });
+        scope.spawn(|| {
+            render_slice(
+                slice_2.clone(),
+                image_width,
+                image_height,
+                world.clone(),
+                cam.clone(),
+                samples_per_pixel,
+                trace_depth,
+                multi_bar.clone()
+            );
+        });
+
+        scope.spawn(|| {
+            render_slice(
+                slice_3.clone(),
+                image_width,
+                image_height,
+                world.clone(),
+                cam.clone(),
+                samples_per_pixel,
+                trace_depth,
+                multi_bar.clone()
+            );
+        });
+
+        scope.spawn(|| {
+            render_slice(
+                slice_4.clone(),
+                image_width,
+                image_height,
+                world.clone(),
+                cam.clone(),
+                samples_per_pixel,
+                trace_depth,
+                multi_bar.clone()
+            );
+        });
+    });
     
     image_canvas.write_slice(slice_1);
     image_canvas.write_slice(slice_2);

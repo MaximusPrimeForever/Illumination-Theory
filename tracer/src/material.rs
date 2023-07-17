@@ -16,6 +16,9 @@ pub trait Material {
     fn scatter(&self, incident_ray: &Ray, hitrec: &HitRecord) -> Option<(Color, Ray)>;
 }
 
+// ? wtf is this, read about it
+pub type MaterialSend = dyn Material + Send + Sync;
+
 
 // Diffuse
 // =======

@@ -1,18 +1,18 @@
-use std::rc::Rc;
+use std::sync::Arc;
 
 use crate::ray::Ray;
-use crate::material::Material;
+use crate::material::MaterialSend;
 use crate::vec3::{Vec3, Point3};
 use crate::hittable::{HittableT, HitRecord};
 
 pub struct Sphere {
     pub center: Point3,
     pub radius: f64,
-    pub material: Rc<dyn Material>
+    pub material: Arc<MaterialSend>
 }
 
 impl Sphere {
-    pub fn new(center: Point3, radius: f64, material: Rc<dyn Material>) -> Sphere {
+    pub fn new(center: Point3, radius: f64, material: Arc<MaterialSend>) -> Sphere {
         Sphere { center: center, radius, material } 
     }
 }
@@ -58,7 +58,7 @@ impl HittableT for Sphere {
         }
 
         let point = ray.at(root);
-        let material_rc = Rc::clone(&self.material);
+        let material_rc = Arc::clone(&self.material);
         let rec = HitRecord::new(
             point,
             (point - self.center) / self.radius,

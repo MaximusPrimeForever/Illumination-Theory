@@ -1,7 +1,7 @@
 
-use std::io::Write;
-use std::sync::Arc;
 use std::fs::File;
+use std::io::Write;
+use std::sync::{Arc, Mutex};
 
 use crate::Color;
 use crate::ray_color;
@@ -52,19 +52,20 @@ impl Canvas {
     }
 
     /// Write a given slice onto the canvas
-    pub fn write_slice(&mut self, slice: SliceBuffer) -> bool {
+    pub fn write_slice(&mut self, slice: Arc<Mutex<SliceBuffer>>) -> bool {
+        let slice_data = slice.lock().unwrap();
         // Slice is too large
-        if slice.height > self.height || slice.width > self.width {
+        if slice_data.height > self.height || slice_data.width > self.width {
             return false;
         }
         // Slice position overflows canvas
-        if slice.p_row + slice.height > self.height || slice.p_col + slice.width > self.width {
+        if slice_data.p_row + slice_data.height > self.height || slice_data.p_col + slice_data.width > self.width {
             return false;
         }
 
-        for i in 0..slice.height {
-            for j in 0..slice.width {
-                self.pixels[slice.p_row + i][slice.p_col + j] = slice.pixels[i][j];
+        for i in 0..slice_data.height {
+            for j in 0..slice_data.width {
+                self.pixels[slice_data.p_row + i][slice_data.p_col + j] = slice_data.pixels[i][j];
             }
         }
 
@@ -85,48 +86,51 @@ pub fn write_img_ppm(canvas: Canvas, file: &mut File) {
     }
 }
 
-pub fn render_slice(slice_buffer: &mut SliceBuffer, canvas_width: usize, canvas_height: usize, world: Arc<World>, cam: Arc<Camera>, samples_per_pixel: u32, trace_depth: i32, multi_bar: Arc<MultiProgress>) {
-    let height = slice_buffer.height;
-    let width = slice_buffer.width;
+pub fn render_slice(slice_buffer: Arc<Mutex<SliceBuffer>>,
+                    canvas_width: usize,
+                    canvas_height: usize,
+                    world: Arc<World>,
+                    cam: Arc<Camera>,
+                    samples_per_pixel: u32,
+                    trace_depth: i32,
+                    multi_bar: Arc<MultiProgress>) {
+    let mut slice_data = slice_buffer.lock().unwrap();
+    let height = slice_data.height;
+    let width = slice_data.width;
+
+    // TODO: Optimization: initialize slice_vec to the expected size which is known
     let mut slice_vec: Vec<Vec<Pixel>> = Vec::default();
 
+    // Progress bar config
     let height_bar: ProgressBar = multi_bar.add(ProgressBar::new(height as u64));
-    let width_bar: ProgressBar = multi_bar.add(ProgressBar::new(width as u64));
-
-    let sty = ProgressStyle::with_template(
-        "[{elapsed_precise}] {bar:40.cyan/blue} {pos:>7}/{len:7} {msg}",
-    ).unwrap().progress_chars("##-");
-    height_bar.set_style(sty.clone());
-    width_bar.set_style(sty);    
+    height_bar.set_style(ProgressStyle::with_template(
+        "[{elapsed_precise}] {bar:40.cyan/blue} {pos:>7}/{len:7} {msg}"
+    )
+    .unwrap()
+    .progress_chars("##-")); 
 
     for i in (0..height).rev() {
         let mut line_buffer: Vec<Pixel> = Vec::default();
-        let pixel_row = slice_buffer.p_row + i;
+        let pixel_row = slice_data.p_row + i;
 
         // Render single line
         for j in 0..width {
             let mut pixel_color = Color::origin();
-            let pixel_col = slice_buffer.p_col + j;
+            let pixel_col = slice_data.p_col + j;
 
             // Render single pixel
             for _ in 0..samples_per_pixel {
-                // dividing by the canvas dimensions fixes the issues with the slices
-                // dividing by slice dimensions caused u,v to be >1.0 which rendered
-                // outside the viewport and distorted them a LOT
+                // Earlier, dividing by slice dimensions caused u,v to be >1.0 which rendered
+                // pixels outside the viewport and distorted them a LOT
+                // dividing by canvas dimensions fixes that
                 let u = (pixel_col as f64 + rand::random::<f64>()) / (canvas_width - 1) as f64;
                 let v = (pixel_row as f64 + rand::random::<f64>()) / (canvas_height - 1) as f64;
                 let ray = cam.get_ray(u, v);
             
                 pixel_color += ray_color(ray, &world, trace_depth);
             }
-            width_bar.set_message(format!("col #{}", pixel_col));
-            width_bar.inc(1);
-
             line_buffer.push(write_color(pixel_color, samples_per_pixel));
         }
-        width_bar.finish();
-        width_bar.reset();
-
         slice_vec.push(line_buffer);
 
         height_bar.set_message(format!("line #{}", pixel_row));
@@ -134,5 +138,5 @@ pub fn render_slice(slice_buffer: &mut SliceBuffer, canvas_width: usize, canvas_
     }
     height_bar.finish();
 
-    slice_buffer.pixels = slice_vec;
+    slice_data.pixels = slice_vec;
 }
