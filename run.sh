@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ -z "$1" ]; then
-  echo "Usage: ./render.sh image_name [optional: image_width] [optional: samples_per_pixel] [optional: trace_depth]"
+  echo "Usage: ./render.sh image_name [op: image_width] [op: samples_per_pixel] [op: trace_depth] [op: thread_count]"
   exit 1
 fi
 
