@@ -56,13 +56,16 @@ impl World {
     /// The sum of all shadow and light rays result in the final color.
     /// Light rays' color is determined by the light's color and brightness.
     /// Whereas the shadow ray just results in a black color.
-    pub fn hit_lights(&self, point: Point3, t_min: f64, t_max: f64) -> Color {
+    pub fn hit_lights(&self, point: Point3, t_min: f64) -> Color {
         let mut color = Color::zero();
 
         for light in &self.lights {
-            let direction = light.origin - point;
+            // before setting the direction to be unit long
+            // mirror shadows would appear sometimes
+            let direction = (light.origin - point).unit();
             let ray = Ray::new(point, direction);
-
+            
+            let t_max = (light.origin - point).length();
             match &self.hit_object(ray, t_min, t_max) {
                 // shadow rays are black - cuz i said so
                 Some(_) => {

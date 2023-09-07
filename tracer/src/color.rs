@@ -1,14 +1,10 @@
 use std::sync::Arc;
 
 use crate::ray::Ray;
+use crate::world::World;
 use crate::buffer::Pixel;
 use crate::rtweekend::clamp;
-
-use crate::vec3::{
-    Vec3,
-    Color
-};
-use crate::world::World;
+use crate::vec3::{Vec3, Color};
 
 pub const MAX_COLOR: f64 = 255.0;
 pub const T_MIN_TOLERANCE: f64 = 0.001;
@@ -16,7 +12,7 @@ pub const T_MIN_TOLERANCE: f64 = 0.001;
 // Colors
 pub const COLOR_WHITE: Color = Color::new_const(1.0, 1.0, 1.0);
 pub const COLOR_SKY_BLUE: Color = Color::new_const(0.5, 0.7, 1.0);
-// pub const COLOR_RED: Color = Color::new_const(100.0, 0.0, 0.0);
+pub const COLOR_RED: Color = Color::new_const(100.0, 0.0, 0.0);
 pub const COLOR_BLACK: Color = Color::new_const(0.0, 0.0, 0.0);
 
 
@@ -54,7 +50,7 @@ pub fn ray_color(ray: Ray, world: &Arc<World>, depth: i32) -> Color {
     if depth <= 0 { 
         // Once depth runs out, generate rays to all lights in the world
         // and for each ray check if it's a shadow ray or light ray
-        return world.hit_lights(ray.origin, T_MIN_TOLERANCE, f64::INFINITY)
+        return world.hit_lights(ray.origin, T_MIN_TOLERANCE);
     }
     
     match world.hit_object(ray, T_MIN_TOLERANCE, f64::INFINITY) {
@@ -66,9 +62,11 @@ pub fn ray_color(ray: Ray, world: &Arc<World>, depth: i32) -> Color {
                 None => { COLOR_BLACK }
             }
         }
-        None => { 
+        None => {
+            // Ray did not hit any object
+            // Compute light value based on sky and nearby lights
             let sky_color = sky_color(ray);
-            let lights_color = world.hit_lights(ray.origin, T_MIN_TOLERANCE, f64::INFINITY);
+            let lights_color = world.hit_lights(ray.origin, T_MIN_TOLERANCE);
 
             return lights_color * 0.8 + sky_color * 0.2;
         }
