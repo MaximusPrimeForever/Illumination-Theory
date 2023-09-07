@@ -228,20 +228,26 @@ pub fn lit_world() -> World {
     world.add_object(Arc::new(Sphere::new(
         Point3::new(0.0, 1.0, 0.0),
         1.0,
-        Arc::new(Lambertian{albedo: Color::new(0.1, 0.1, 0.8)})
+        Arc::new(Dielectric{ir: 1.5})
+    )));
+    
+    world.add_object(Arc::new(Sphere::new(
+        Point3::new(0.0, 1.0, 2.0),
+        1.0,
+        Arc::new(Lambertian{albedo: Color::new(0.4, 0.2, 0.1)})
     )));
 
     world.add_object(Arc::new(Sphere::new(
-        Point3::new(0.0, 0.5, -1.5),
-        0.5,
-        Arc::new(Lambertian{albedo: Color::new(0.8, 0.8, 0.8)})
+        Point3::new(0.0, 1.0, -2.0),
+        1.0,
+        Arc::new(Metal{albedo: Color::new(0.7, 0.6, 0.5), fuzz: 0.0})
     )));
 
-    world.add_light(Arc::new(Light::new(
-        Point3::new(0.0, 1.0, -2.2),
-        Color::new(1.0, 1.0, 1.0),
-        1.0
-    )));
+    // world.add_light(Arc::new(Light::new(
+    //     Point3::new(0.0, 100.0, -1.2),
+    //     Color::new(1.0, 1.0, 1.0),
+    //     1.0
+    // )));
 
     // world.add_light(Arc::new(Light::new(
     //     Point3::new(5.0, 2.0, 0.0),

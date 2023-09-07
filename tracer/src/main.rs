@@ -20,6 +20,7 @@ use std::sync::Arc;
 use camera::Camera;
 use render::render_scene;
 use buffer::write_img_ppm;
+use light::Light;
 
 use vec3::{Vec3, Point3, Color};
 use crate::color::{ray_color, write_color};
@@ -47,12 +48,18 @@ fn main() -> std::io::Result<()>{
 
     // World
     // let world = rtweekend::cool_effects(8, 1.3);
-    let world = rtweekend::lit_world();
+    // let mut world = rtweekend::random_scene(8);
+    let mut world = rtweekend::lit_world();
+    world.add_light(Arc::new(Light::new(
+        Point3::new(-3.0, 5.0, 1.5),
+        Color::new(1.0, 1.0, 1.0),
+        1.0
+    )));
     
     // Camera
-    let vfov = 50.0;
-    let look_from = Point3::new(6.0, 3.0, 0.0);
-    let look_at = Point3::new(0.0, 0.5, -1.0);
+    let vfov = 30.0;
+    let look_from = Point3::new(6.0, 3.0, 5.0);
+    let look_at = Point3::new(0.0, 0.5, 0.0);
     
     let cam = Camera::new(
         look_from,
