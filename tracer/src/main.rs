@@ -2,6 +2,7 @@ mod ray;
 mod vec3;
 mod color;
 mod world;
+mod light;
 mod buffer;
 mod sphere;
 mod optics;
@@ -46,12 +47,12 @@ fn main() -> std::io::Result<()>{
 
     // World
     // let world = rtweekend::cool_effects(8, 1.3);
-    let world = rtweekend::random_scene(10);
+    let world = rtweekend::lit_world();
     
     // Camera
-    let vfov = 25.0;
-    let look_from = Point3::new(10.0, 1.5, 2.0);
-    let look_at = Point3::new(0.0, 0.5, 0.0);
+    let vfov = 50.0;
+    let look_from = Point3::new(6.0, 3.0, 0.0);
+    let look_at = Point3::new(0.0, 0.5, -1.0);
     
     let cam = Camera::new(
         look_from,

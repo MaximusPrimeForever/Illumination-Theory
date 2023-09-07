@@ -52,10 +52,12 @@ pub fn sky_color(ray: Ray) -> Color {
 /// If the ray hit nothing, return the sky color.
 pub fn ray_color(ray: Ray, world: &Arc<World>, depth: i32) -> Color {
     if depth <= 0 { 
-        return COLOR_BLACK;
+        // Once depth runs out, generate rays to all lights in the world
+        // and for each ray check if it's a shadow ray or light ray
+        return world.hit_lights(ray.origin, T_MIN_TOLERANCE, f64::INFINITY)
     }
     
-    match world.hit(ray, T_MIN_TOLERANCE, f64::INFINITY) {
+    match world.hit_object(ray, T_MIN_TOLERANCE, f64::INFINITY) {
         Some(rec) => {
             match rec.material.scatter(&ray, &rec) {
                 Some((attenuation, scattered)) => {
@@ -64,6 +66,11 @@ pub fn ray_color(ray: Ray, world: &Arc<World>, depth: i32) -> Color {
                 None => { COLOR_BLACK }
             }
         }
-        None => { sky_color(ray) }
+        None => { 
+            let sky_color = sky_color(ray);
+            let lights_color = world.hit_lights(ray.origin, T_MIN_TOLERANCE, f64::INFINITY);
+
+            return lights_color * 0.8 + sky_color * 0.2;
+        }
     }
 }
