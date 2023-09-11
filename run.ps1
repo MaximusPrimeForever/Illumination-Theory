@@ -7,7 +7,7 @@ param (
 )
 
 if ($image_name -eq $null) {
-    Write-Host "Usage: ./render.ps1 [image_name] [op: image_width] [op: samples_per_pixel] [op: trace_depth] [op: thread_count]"
+    Write-Host "Usage: ./render.ps1 [image_name] [opt: image_width] [opt: samples_per_pixel] [opt: trace_depth] [opt: thread_count]"
     exit 1
 }
 

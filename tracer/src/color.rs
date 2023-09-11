@@ -1,14 +1,10 @@
 use std::sync::Arc;
 
 use crate::ray::Ray;
+use crate::world::World;
 use crate::buffer::Pixel;
 use crate::rtweekend::clamp;
-
-use crate::vec3::{
-    Vec3,
-    Color
-};
-use crate::world::World;
+use crate::vec3::{Vec3, Color};
 
 pub const MAX_COLOR: f64 = 255.0;
 pub const T_MIN_TOLERANCE: f64 = 0.001;
@@ -42,7 +38,7 @@ pub fn write_color(pixel_color: Color, samples_per_pixel: u32) -> Pixel {
 /// Blends smoothly between white, and light blue.
 pub fn sky_color(ray: Ray) -> Color {
     let unit_direction: Vec3 = ray.direction.unit();
-    let h = 0.5 * (unit_direction.y() + 1.0);
+    let h = 0.5 * (unit_direction.y() + 1.0) * 1.5;
 
     (1.0 - h) * COLOR_WHITE + h * COLOR_SKY_BLUE
 }
@@ -50,20 +46,39 @@ pub fn sky_color(ray: Ray) -> Color {
 /// Given a ray and a world, return the ray's color.
 /// 
 /// If the ray hit nothing, return the sky color.
-pub fn ray_color(ray: Ray, world: &Arc<World>, depth: i32) -> Color {
+pub fn ray_color(ray: Ray, world: &Arc<World>, depth: i32, has_bounced: bool) -> Color {
     if depth <= 0 { 
-        return COLOR_BLACK;
+        // Once depth runs out, generate rays to all lights in the world
+        // and for each ray check if it's a shadow ray or light ray
+        return world.hit_lights(ray.origin, T_MIN_TOLERANCE);
     }
     
-    match world.hit(ray, T_MIN_TOLERANCE, f64::INFINITY) {
+    match world.hit_object(ray, T_MIN_TOLERANCE, f64::INFINITY) {
         Some(rec) => {
             match rec.material.scatter(&ray, &rec) {
                 Some((attenuation, scattered)) => {
-                    attenuation * ray_color(scattered, world, depth - 1)
+                    attenuation * ray_color(
+                        scattered, 
+                        world, 
+                        depth - 1,
+                        true)
                 }
                 None => { COLOR_BLACK }
             }
         }
-        None => { sky_color(ray) }
+        None => {
+            // Ray did not hit any object
+            let sky_color = sky_color(ray);
+
+            // if the ray had not bounced around the scene, and hit the sky directly
+            // otherwise the sky gets the color of the lights
+            if !has_bounced {
+                return sky_color;
+            }
+            
+            // Compute light value based on sky and nearby lights
+            let lights_color = world.hit_lights(ray.origin, T_MIN_TOLERANCE);
+            return lights_color * 0.8 + sky_color * 0.2;
+        }
     }
 }

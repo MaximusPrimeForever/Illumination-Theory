@@ -2,6 +2,9 @@ use std::vec::Vec;
 use std::sync::Arc;
 
 use crate::ray::Ray;
+use crate::light::Light;
+use crate::vec3::{Point3, Color};
+use crate::color::COLOR_BLACK;
 use crate::hittable::{HittableSync, HitRecord};
 
 
@@ -12,7 +15,8 @@ use crate::hittable::{HittableSync, HitRecord};
 /// one.
 #[derive(Default)]
 pub struct World {
-    pub objects: Vec<Arc<HittableSync>>
+    pub objects: Vec<Arc<HittableSync>>,
+    pub lights: Vec<Arc<Light>>
 }
 
 impl World {
@@ -21,12 +25,16 @@ impl World {
         self.objects.clear()
     }
 
-    pub fn add(&mut self, object: Arc<HittableSync>) {
+    pub fn add_object(&mut self, object: Arc<HittableSync>) {
         self.objects.push(object)
     }
 
+    pub fn add_light(&mut self, light: Arc<Light>) {
+        self.lights.push(light)
+    }
+
     /// Iterates list of objects and tries to find the closest object a given ray intersects with.
-    pub fn hit(&self, ray: Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
+    pub fn hit_object(&self, ray: Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
         let mut final_hrec = None;
         let mut closest_so_far: f64 = t_max;
 
@@ -41,5 +49,32 @@ impl World {
         }
 
         final_hrec
+    }
+
+    /// Iterate all the lights in the world, and compute light and shadow rays
+    /// 
+    /// The sum of all shadow and light rays result in the final color.
+    /// Light rays' color is determined by the light's color and brightness.
+    /// Whereas the shadow ray just results in a black color.
+    pub fn hit_lights(&self, point: Point3, t_min: f64) -> Color {
+        let mut color = Color::zero();
+
+        for light in &self.lights {
+            // before setting the direction to be unit long
+            // mirror shadows would appear sometimes
+            let direction = (light.origin - point).unit();
+            let ray = Ray::new(point, direction);
+            
+            let t_max = (light.origin - point).length();
+            match &self.hit_object(ray, t_min, t_max) {
+                // shadow rays are black - cuz i said so
+                Some(_) => {
+                    color += COLOR_BLACK;
+                }
+                None => { color += light.color * light.brightness }
+            }
+        }
+
+        color
     }
 }

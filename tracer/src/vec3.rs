@@ -14,6 +14,7 @@ const NEAR_ZERO_THRESHOLD: f64 = 1e-8;
 
 impl Vec3 {
     pub fn origin() -> Vec3 { Vec3{e: [0.0, 0.0, 0.0]} }
+    pub fn zero() -> Vec3 { Vec3{e: [0.0, 0.0, 0.0]} }
     pub fn new(e1: f64, e2: f64, e3: f64) -> Vec3 { Vec3{e: [e1, e2, e3]} }
     pub const fn new_const(e1: f64, e2: f64, e3: f64) -> Vec3 {
         Vec3{e: [e1, e2, e3]} 

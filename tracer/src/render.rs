@@ -148,7 +148,7 @@ fn render_slice(slice_buffer: Arc<Mutex<SliceBuffer>>,
                 let v = (pixel_row as f64 + rand::random::<f64>()) / (canvas_height - 1) as f64;
                 let ray = cam.get_ray(u, v);
 
-                pixel_color += ray_color(ray, &world, trace_depth);
+                pixel_color += ray_color(ray, &world, trace_depth, false);
             }
             line_buffer.push(write_color(pixel_color, samples_per_pixel));
         }
