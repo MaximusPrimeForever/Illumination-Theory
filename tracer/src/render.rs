@@ -12,8 +12,8 @@ use crate::buffer::{Canvas, SliceBuffer, Pixel};
 
 
 
-/// Get tuple specifying how many rows and columns
-/// should the canvas be split
+/// Return tuple specifying how many rows and columns
+/// should the canvas be split into
 /// 
 /// Return (rows, columns)
 fn core_to_slices(core_count: usize) -> (usize, usize) {
@@ -44,6 +44,10 @@ fn core_to_slices(core_count: usize) -> (usize, usize) {
     slice_seg
 }
 
+/// Render a scene given a World object, and render parameters
+/// 
+/// Splits the frame into sub-frames according to the given core count, 
+/// and render all sub-frames in parallel.
 pub fn render_scene(core_count: usize,
                     scene_width: usize,
                     scene_height: usize,
@@ -73,7 +77,8 @@ pub fn render_scene(core_count: usize,
 
     let mut image_canvas = Canvas::new(scene_width, scene_height);
     let multi_bar = Arc::new(MultiProgress::new());
-    
+
+    // Render slices in parallel
     thread::scope(|scope| {
         for row in 0..rows {
             for col in 0..columns {
@@ -94,6 +99,7 @@ pub fn render_scene(core_count: usize,
             }
     });
 
+    // Assemble slices back into a single canvas
     for row in 0..rows {
         for col in 0..columns {
             let locked_slice_buffer = slices_array[row][col].lock().unwrap();
@@ -106,7 +112,9 @@ pub fn render_scene(core_count: usize,
     image_canvas
 }
 
-
+/// Render a single slice.
+/// 
+/// Shoots rays into the scene and updates the SliceBuffer with a pixel array.
 fn render_slice(slice_buffer: Arc<Mutex<SliceBuffer>>,
                 canvas_width: usize,
                 canvas_height: usize,

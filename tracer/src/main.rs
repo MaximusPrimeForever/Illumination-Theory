@@ -37,11 +37,6 @@ fn main() -> std::io::Result<()>{
     let trace_depth: i32 = args[3].parse::<i32>().unwrap();
     let core_count: usize = args[4].parse::<usize>().unwrap();
 
-    // let image_width = 400;
-    // let samples_per_pixel: u32 = 200;
-    // let trace_depth: i32 = 50;
-    // let core_count: usize = 0;
-
     // Image
     let aspect_ratio = 3.0 / 2.0;
     let image_height: usize = (image_width as f64 / aspect_ratio) as usize;

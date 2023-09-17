@@ -70,13 +70,14 @@ pub fn ray_color(ray: Ray, world: &Arc<World>, depth: i32, has_bounced: bool) ->
             // Ray did not hit any object
             let sky_color = sky_color(ray);
 
-            // if the ray had not bounced around the scene, and hit the sky directly
-            // otherwise the sky gets the color of the lights
+            // return the sky color if the ray hasn't bounced around
+            // this results in a nice color for the sky
             if !has_bounced {
                 return sky_color;
             }
             
             // Compute light value based on sky and nearby lights
+            // very crude and lame
             let lights_color = world.hit_lights(ray.origin, T_MIN_TOLERANCE);
             return lights_color * 0.8 + sky_color * 0.2;
         }

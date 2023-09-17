@@ -1,6 +1,7 @@
 #![allow(dead_code)]
-use std::sync::Arc;
+/// This module contains mostly scene descriptions, and some util functions.
 
+use std::sync::Arc;
 use rand::random;
 
 use crate::{
