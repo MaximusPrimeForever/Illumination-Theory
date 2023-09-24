@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use crate::interval::Interval;
 use crate::ray::Ray;
 use crate::material::MaterialSend;
 use crate::vec3::{Vec3, Point3};
@@ -41,7 +42,7 @@ impl HittableT for Sphere {
     /// * positive - we get 2 intersection points.
     /// * zero - we get a single intersection point.
     /// * negative - we don't get an intersection point.
-    fn hit(&self, ray: Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
+    fn hit(&self, ray: Ray, ray_interval: Interval) -> Option<HitRecord> {
         let oc: Vec3 = ray.origin - self.center;
         let a = ray.direction.length_squared();
         let half_b: f64 = ray.direction.dot(oc);
@@ -52,9 +53,9 @@ impl HittableT for Sphere {
         let dscr_sqrt = discriminant.sqrt();
         let mut root = (-half_b - dscr_sqrt) / a;
 
-        if t_min > root || root > t_max {
+        if !ray_interval.surrounds(root) {
             root = (-half_b + dscr_sqrt) / a;
-            if t_min > root || root > t_max{ return None; }
+            if !ray_interval.surrounds(root) { return None; }
         }
 
         let point = ray.at(root);

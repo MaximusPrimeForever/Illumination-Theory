@@ -1,14 +1,20 @@
 #![allow(dead_code)]
 /// This module contains mostly scene descriptions, and some util functions.
 
+use std::fs::File;
 use std::sync::Arc;
+
 use rand::random;
 
 use crate::{
     world::World,
     material::{Lambertian, Metal, Dielectric, MaterialSend},
-    vec3::{Color, Point3}, sphere::Sphere, light::Light
+    vec3::{Color, Point3}, sphere::Sphere, light::Light,
+    camera::Camera,
+    render::render_scene,
+    buffer::write_img_ppm
 };
+
 
 /// Generate a random number in a given half open range
 /// [min, max)
@@ -16,10 +22,51 @@ pub fn random_f64_range(min: f64, max: f64) -> f64 {
     min + random::<f64>() * (max - min)
 }
 
-pub fn clamp(value: f64, min: f64, max: f64) -> f64 {
-    if value < min { return min; }
-    if value > max { return max; }
-    value
+pub fn test_scene() {
+    // Camera    
+    let mut cam = Camera::default();
+    cam.look_from = Point3::new(0.0, 0.0, 1.0);
+    cam.look_at = Point3::new(0.0, 0.0, -1.0);
+
+    let mut world = World::default();
+
+    let ground_material = Arc::new(Lambertian{albedo: Color::new(0.5, 0.5, 0.5)});
+    world.add_object(Arc::new(
+        Sphere::new(Point3::new(0.0, -1000.5, -1.0), 1000.0, ground_material)
+    ));
+
+    // big shiny ball
+    let shiny = Metal{
+        albedo: Color::new(1.4, 1.2, 1.0) * 0.5, 
+        fuzz: 0.0
+    };
+    world.add_object(Arc::new(Sphere::new(
+        Point3::new(-0.0, 0.0, -1.0),
+        0.5,
+        Arc::new(shiny)
+    )));
+
+    world.add_light(Arc::new(Light::new(
+        Point3::new(-3.0, 5.0, 1.5),
+        Color::new(1.0, 1.0, 1.0),
+        1.0
+    )));
+
+    // Must be called!
+    cam.initialize();
+
+    // Render
+    let image_canvas = render_scene(
+        1,
+        Arc::new(world),
+        Arc::new(cam),
+        10,
+        10
+    );
+    
+    // Output to file
+    let mut output_image_file = File::create("output.ppm").unwrap();
+    write_img_ppm(image_canvas, &mut output_image_file);
 }
 
 pub fn random_scene(grid_size: i32) -> World {

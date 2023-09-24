@@ -1,13 +1,9 @@
-use std::sync::Arc;
-
+use crate::interval::Interval;
 use crate::ray::Ray;
-use crate::world::World;
 use crate::buffer::Pixel;
-use crate::rtweekend::clamp;
 use crate::vec3::{Vec3, Color};
 
 pub const MAX_COLOR: f64 = 255.0;
-pub const T_MIN_TOLERANCE: f64 = 0.001;
 
 // Colors
 pub const COLOR_WHITE: Color = Color::new_const(1.0, 1.0, 1.0);
@@ -16,7 +12,7 @@ pub const COLOR_SKY_BLUE: Color = Color::new_const(0.5, 0.7, 1.0);
 pub const COLOR_BLACK: Color = Color::new_const(0.0, 0.0, 0.0);
 
 
-pub fn write_color(pixel_color: Color, samples_per_pixel: u32) -> Pixel {
+pub fn rasterize_color(pixel_color: Color, samples_per_pixel: usize) -> Pixel {
     let mut r = pixel_color.x();
     let mut g = pixel_color.y();
     let mut b = pixel_color.z();
@@ -27,9 +23,10 @@ pub fn write_color(pixel_color: Color, samples_per_pixel: u32) -> Pixel {
     g = (g * scale).sqrt();
     b = (b * scale).sqrt();
     
-    let r: u8 = (256.0 * clamp(r, 0.0, 0.999)) as u8;
-    let g: u8 = (256.0 * clamp(g, 0.0, 0.999)) as u8;
-    let b: u8 = (256.0 * clamp(b, 0.0, 0.999)) as u8;
+    let intensity = Interval::new(0.0, 0.999);
+    let r: u8 = (256.0 * intensity.clamp(r)) as u8;
+    let g: u8 = (256.0 * intensity.clamp(g)) as u8;
+    let b: u8 = (256.0 * intensity.clamp(b)) as u8;
 
     Pixel{r, g ,b}
 }
@@ -41,45 +38,4 @@ pub fn sky_color(ray: Ray) -> Color {
     let h = 0.5 * (unit_direction.y() + 1.0) * 1.5;
 
     (1.0 - h) * COLOR_WHITE + h * COLOR_SKY_BLUE
-}
-
-/// Given a ray and a world, return the ray's color.
-/// 
-/// If the ray hit nothing, return the sky color.
-pub fn ray_color(ray: Ray, world: &Arc<World>, depth: i32, has_bounced: bool) -> Color {
-    if depth <= 0 { 
-        // Once depth runs out, generate rays to all lights in the world
-        // and for each ray check if it's a shadow ray or light ray
-        return world.hit_lights(ray.origin, T_MIN_TOLERANCE);
-    }
-    
-    match world.hit_object(ray, T_MIN_TOLERANCE, f64::INFINITY) {
-        Some(rec) => {
-            match rec.material.scatter(&ray, &rec) {
-                Some((attenuation, scattered)) => {
-                    attenuation * ray_color(
-                        scattered, 
-                        world, 
-                        depth - 1,
-                        true)
-                }
-                None => { COLOR_BLACK }
-            }
-        }
-        None => {
-            // Ray did not hit any object
-            let sky_color = sky_color(ray);
-
-            // return the sky color if the ray hasn't bounced around
-            // this results in a nice color for the sky
-            if !has_bounced {
-                return sky_color;
-            }
-            
-            // Compute light value based on sky and nearby lights
-            // very crude and lame
-            let lights_color = world.hit_lights(ray.origin, T_MIN_TOLERANCE);
-            return lights_color * 0.8 + sky_color * 0.2;
-        }
-    }
 }

@@ -1,6 +1,7 @@
 use std::vec::Vec;
 use std::sync::Arc;
 
+use crate::interval::Interval;
 use crate::ray::Ray;
 use crate::light::Light;
 use crate::vec3::{Point3, Color};
@@ -34,14 +35,14 @@ impl World {
     }
 
     /// Iterates list of objects and tries to find the closest object a given ray intersects with.
-    pub fn hit_object(&self, ray: Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
+    pub fn hit_object(&self, ray: Ray, ray_interval: Interval) -> Option<HitRecord> {
         let mut final_hrec = None;
-        let mut closest_so_far: f64 = t_max;
+        let mut closest_interval = ray_interval.clone();
 
         for obj in &self.objects {
-            match obj.hit(ray, t_min, closest_so_far) {
+            match obj.hit(ray, closest_interval) {
                 Some(hit_record) => {
-                    closest_so_far = hit_record.t;
+                    closest_interval.max = hit_record.t;
                     final_hrec = Some(hit_record);
                 }
                 None => {}
@@ -66,7 +67,7 @@ impl World {
             let ray = Ray::new(point, direction);
             
             let t_max = (light.origin - point).length();
-            match &self.hit_object(ray, t_min, t_max) {
+            match &self.hit_object(ray, Interval::new(t_min, t_max)) {
                 // shadow rays are black - cuz i said so
                 Some(_) => {
                     color += COLOR_BLACK;

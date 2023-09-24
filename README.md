@@ -16,7 +16,9 @@ git clone https://github.com/MaximusPrimeForever/Illumination-Theory.git
 
 ### Options
 The script allows you to configure the following values:
-- Image width - the aspect ratio is fixed for now to 3:2, so the height will be set accordingly.
+- Image width
+- Aspect ratio - ratio of image width and height.
+- Vertical FOV - how wide the image is vertically (affects horizontal FOV as well of course).
 - Sample rate - how many rays are simulated per pixel.
 - Trace depth - how many times a ray can bounce around the scene until it dies.
 - Thread count - how many threads to run in parallel while rendering. This can be increased past the actual CPU core count to divide the image into smaller parts, and thus potentially increasing performance.
@@ -60,3 +62,14 @@ e.g. this will render an early image with anti aliasing implemented:
 git checkout antialiased_world
 ./render.sh aa_world
 ```
+
+## Testing
+On August 2023, "Ray Tracing in One Weekend" was updated with a significant refactor (for the better), and while refactoring this code I broke a lot of things.  
+So, for the future, here's a test scene to make sure everything looks correct (located in `rtweekend.rs`):
+![Alt text](resources/test_scene.png)
+
+Run:
+```powershell
+.\run.ps1 -run_test $True
+```
+Output image `output.ppm` will be next to the script.
