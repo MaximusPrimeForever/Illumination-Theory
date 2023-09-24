@@ -1,6 +1,6 @@
 param (
-    [bool]$run_test = $false,
     [string]$image_name,
+    [bool]$run_test = $false,
     [uint]$image_width = 400,
     [float]$aspect_ratio = 1.5,
     [float]$vertical_fov = 60,

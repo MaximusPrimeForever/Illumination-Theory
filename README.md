@@ -3,11 +3,12 @@
 
 Ray tracer in written Rust.
 
-Following this: https://raytracing.github.io/books/RayTracingInOneWeekend.html  
+Following this: https://raytracing.github.io/.  
 With some modifications:
--  Multithreading  ₊˚ʚ ᗢ₊˚✧ ﾟ.
+- Multithreading  ₊˚ʚ ᗢ₊˚✧ ﾟ.
+    - GPU rendering will be added soon.
 - Direct output to a file.
-- Progress bar.
+- Progress bar(s).
 ## Running
 Clone this repo:
 ```bash

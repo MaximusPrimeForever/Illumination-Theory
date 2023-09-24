@@ -51,8 +51,10 @@ fn main() -> std::io::Result<()>{
     cam.image_width = image_width;
     cam.image_height = (image_width as f64 / aspect_ratio) as usize;
     cam.vfov = vfov;
-    cam.look_from = Point3::new(0.0, 0.0, 1.0);
-    cam.look_at = Point3::new(0.0, 0.0, -1.0);
+    cam.defocus_angle = 0.6;
+    cam.focus_dist = 10.0;
+    cam.look_from = Point3::new(13.0, 2.0, 3.0);
+    cam.look_at = Point3::new(0.0, 0.0, 0.0);
     
     // Must be called!
     cam.initialize();
@@ -69,7 +71,6 @@ fn main() -> std::io::Result<()>{
     // Output to file
     let mut output_image_file = File::create("output.ppm")?;
     write_img_ppm(image_canvas, &mut output_image_file);
-    
-    eprintln!("\nDone.");
+
     Ok(())
 }
