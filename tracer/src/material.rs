@@ -28,13 +28,16 @@ pub struct Lambertian {
 }
 
 impl Material for Lambertian {
-    fn scatter(&self, _incident_ray: &Ray, hitrec: &HitRecord) -> Option<(Color, Ray)> {
+    fn scatter(&self, incident_ray: &Ray, hitrec: &HitRecord) -> Option<(Color, Ray)> {
         let mut scatter_direction = diffuse_lambertian_reflection(hitrec.normal);
 
         // Avoid situation where scatter direction vector is zero
         if scatter_direction.near_zero() { scatter_direction = hitrec.normal; }
 
-        Some((self.albedo, Ray::new(hitrec.point, scatter_direction)))
+        Some((
+            self.albedo, 
+            Ray::new(hitrec.point, scatter_direction, incident_ray.time)
+        ))
     }
 }
 
@@ -71,11 +74,15 @@ pub struct Metal {
 
 impl Material for Metal {
     fn scatter(&self, incident_ray: &Ray, hitrec: &HitRecord) -> Option<(Color, Ray)> {
-        let reflected = reflect(incident_ray.direction.unit(), hitrec.normal);
-        let scattered = Ray::new(hitrec.point, reflected + self.fuzz * get_random_point_in_unit_sphere());
+        let reflected_direction = reflect(incident_ray.direction.unit(), hitrec.normal);
+        let scattered_ray = Ray::new(
+            hitrec.point, 
+            reflected_direction + self.fuzz * get_random_point_in_unit_sphere(), 
+            incident_ray.time
+        );
 
-        if scattered.direction.dot(hitrec.normal) > 0.0 {
-            Some((self.albedo, scattered))
+        if scattered_ray.direction.dot(hitrec.normal) > 0.0 {
+            Some((self.albedo, scattered_ray))
         } else {
             None
         }
@@ -118,6 +125,9 @@ impl Material for Dielectric {
             direction = refract(unit_direction, hitrec.normal, refraction_ratio);
         }
 
-        Some((COLOR_WHITE.clone(), Ray::new(hitrec.point, direction)))
+        Some((
+            COLOR_WHITE,
+            Ray::new(hitrec.point, direction, incident_ray.time)
+        ))
     }
 }

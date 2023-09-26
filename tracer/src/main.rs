@@ -44,7 +44,7 @@ fn main() -> std::io::Result<()>{
 
     // World
     // let world = rtweekend::cool_effects(8, 1.3);
-    let world = rtweekend::random_scene(8);
+    let world = rtweekend::one_weekend_motion_blur(8);
     
     // Camera    
     let mut cam = Camera::default();

@@ -7,14 +7,34 @@ use crate::vec3::{Vec3, Point3};
 use crate::hittable::{HittableT, HitRecord};
 
 pub struct Sphere {
-    pub center: Point3,
-    pub radius: f64,
-    pub material: Arc<MaterialSend>
+    center: Point3,
+    radius: f64,
+    material: Arc<MaterialSend>,
+    is_moving: bool,
+    movement_direction: Vec3
 }
 
 impl Sphere {
-    pub fn new(center: Point3, radius: f64, material: Arc<MaterialSend>) -> Sphere {
-        Sphere { center: center, radius, material } 
+    pub fn new_stationary(center: Point3, radius: f64, material: Arc<MaterialSend>) -> Sphere {
+        Sphere {
+            center: center,
+            radius, material,
+            is_moving: false,
+            movement_direction: Vec3::zero()
+        } 
+    }
+
+    pub fn new_moving(center: Point3, radius: f64, material: Arc<MaterialSend>, direction: Vec3) -> Sphere {
+        Sphere {
+            center: center,
+            radius, material,
+            is_moving: true,
+            movement_direction: direction
+        }
+    }
+
+    pub fn at(&self, time: f64) -> Point3 {
+        self.center + time * self.movement_direction
     }
 }
 
@@ -43,7 +63,14 @@ impl HittableT for Sphere {
     /// * zero - we get a single intersection point.
     /// * negative - we don't get an intersection point.
     fn hit(&self, ray: Ray, ray_interval: Interval) -> Option<HitRecord> {
-        let oc: Vec3 = ray.origin - self.center;
+        let center: Point3;
+        if self.is_moving {
+            center = self.at(ray.time);
+        } else {
+            center = self.center;
+        }
+
+        let oc: Vec3 = ray.origin - center;
         let a = ray.direction.length_squared();
         let half_b: f64 = ray.direction.dot(oc);
         let c: f64 = oc.length_squared() - self.radius * self.radius;
@@ -62,7 +89,7 @@ impl HittableT for Sphere {
         let material_rc = Arc::clone(&self.material);
         let rec = HitRecord::new(
             point,
-            (point - self.center) / self.radius,
+            (point - center) / self.radius,
             material_rc,
             root,
             ray

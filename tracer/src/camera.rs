@@ -105,7 +105,7 @@ impl Camera {
         self.is_initialized = true;
     }
 
-    /// Return a pixel's color on the viewport
+    /// Return a ray's color on the viewport
     pub fn render_ray(&self,
                       row: f64,
                       col: f64,
@@ -127,7 +127,7 @@ impl Camera {
         let ray_origin = self.sample_defocus_disk();
         let ray_direction = pixel_sample - ray_origin;
 
-        Ray::new(ray_origin, ray_direction)
+        Ray::new(ray_origin, ray_direction, rand::random::<f64>())
     }
 
     /// Return a random point in the square surrounding a pixel at the origin.

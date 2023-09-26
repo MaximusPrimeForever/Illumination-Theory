@@ -9,7 +9,7 @@ use rand::random;
 use crate::{
     world::World,
     material::{Lambertian, Metal, Dielectric, MaterialSend},
-    vec3::{Color, Point3}, sphere::Sphere, light::Light,
+    vec3::{Color, Point3, Vec3}, sphere::Sphere, light::Light,
     camera::Camera,
     render::render_scene,
     buffer::write_img_ppm
@@ -18,7 +18,7 @@ use crate::{
 
 /// Generate a random number in a given half open range
 /// [min, max)
-pub fn random_f64_range(min: f64, max: f64) -> f64 {
+pub fn random_f64_in_range(min: f64, max: f64) -> f64 {
     min + random::<f64>() * (max - min)
 }
 
@@ -32,7 +32,7 @@ pub fn test_scene() {
 
     let ground_material = Arc::new(Lambertian{albedo: Color::new(0.5, 0.5, 0.5)});
     world.add_object(Arc::new(
-        Sphere::new(Point3::new(0.0, -1000.5, -1.0), 1000.0, ground_material)
+        Sphere::new_stationary(Point3::new(0.0, -1000.5, -1.0), 1000.0, ground_material)
     ));
 
     // big shiny ball
@@ -40,8 +40,8 @@ pub fn test_scene() {
         albedo: Color::new(1.4, 1.2, 1.0) * 0.5, 
         fuzz: 0.0
     };
-    world.add_object(Arc::new(Sphere::new(
-        Point3::new(-0.0, 0.0, -1.0),
+    world.add_object(Arc::new(Sphere::new_stationary(
+        Point3::new(0.0, 0.0, -1.0),
         0.5,
         Arc::new(shiny)
     )));
@@ -69,12 +69,12 @@ pub fn test_scene() {
     write_img_ppm(image_canvas, &mut output_image_file);
 }
 
-pub fn random_scene(grid_size: i32) -> World {
+pub fn one_weekend_endgame(grid_size: i32) -> World {
     let mut world = World::default();
 
     let ground_material = Arc::new(Lambertian{albedo: Color::new(0.5, 0.5, 0.5)});
     world.add_object(Arc::new(
-        Sphere::new(Point3::new(0.0, -1000.0, 0.0), 1000.0, ground_material)
+        Sphere::new_stationary(Point3::new(0.0, -1000.0, 0.0), 1000.0, ground_material)
     ));
 
     let some_point = Point3::new(4.0, 0.2, 0.0);
@@ -99,31 +99,31 @@ pub fn random_scene(grid_size: i32) -> World {
 
                 } else if choose_material < 0.8 {
                     let albedo = Color::random() * Color::random();
-                    let fuzz = random_f64_range(0.0, 0.5);
+                    let fuzz = random_f64_in_range(0.0, 0.5);
                     sphere_material = Arc::new(Metal{albedo, fuzz});
 
                 } else {
                     sphere_material = Arc::new(Dielectric{ir: 1.5});
                 }
-                sphere = Sphere::new(center, 0.2, sphere_material);
+                sphere = Sphere::new_stationary(center, 0.2, sphere_material);
                 world.add_object(Arc::new(sphere));
             }
         }
     }
 
-    world.add_object(Arc::new(Sphere::new(
+    world.add_object(Arc::new(Sphere::new_stationary(
         Point3::new(0.0, 1.0, 0.0),
         1.0,
         Arc::new(Dielectric{ir: 1.5})
     )));
     
-    world.add_object(Arc::new(Sphere::new(
+    world.add_object(Arc::new(Sphere::new_stationary(
         Point3::new(-4.0, 1.0, 0.0),
         1.0,
         Arc::new(Lambertian{albedo: Color::new(0.4, 0.2, 0.1)})
     )));
 
-    world.add_object(Arc::new(Sphere::new(
+    world.add_object(Arc::new(Sphere::new_stationary(
         Point3::new(4.0, 1.0, 0.0),
         1.0,
         Arc::new(Metal{albedo: Color::new(0.7, 0.6, 0.5), fuzz: 0.0})
@@ -136,7 +136,7 @@ pub fn cool_effects(sphere_count: u32, distance: f64) -> World {
     let mut world = World::default();
 
     // ground
-    world.add_object(Arc::new(Sphere::new(
+    world.add_object(Arc::new(Sphere::new_stationary(
         Point3::new(0.0, -1000.0, 0.0),
         1000.0,
         Arc::new(Lambertian{albedo: Color::new(0.5, 0.5, 0.5)})
@@ -147,7 +147,7 @@ pub fn cool_effects(sphere_count: u32, distance: f64) -> World {
         albedo: Color::new(1.4, 1.2, 1.0) * 0.5, 
         fuzz: 0.0
     };
-    world.add_object(Arc::new(Sphere::new(
+    world.add_object(Arc::new(Sphere::new_stationary(
         Point3::new(0.0, 1.0, 0.0),
         1.0,
         Arc::new(shiny)
@@ -159,7 +159,7 @@ pub fn cool_effects(sphere_count: u32, distance: f64) -> World {
         let y = 0.2;
         let z = distance * (theta_rad * i as f64).sin();
 
-        world.add_object(Arc::new(Sphere::new(
+        world.add_object(Arc::new(Sphere::new_stationary(
             Point3::new(x, y, z),
             0.2, 
             Arc::new(Dielectric{ir: 1.5})
@@ -173,7 +173,7 @@ pub fn cool_effects(sphere_count: u32, distance: f64) -> World {
         let z = (distance) * (theta_rad * 1.5 * i as f64).sin();
 
         let albedo = Color::random() * Color::random() * 2.0;
-        world.add_object(Arc::new(Sphere::new(
+        world.add_object(Arc::new(Sphere::new_stationary(
             Point3::new(x, y, z),
             0.2, 
             Arc::new(Metal{albedo: albedo, fuzz: 0.0})
@@ -187,7 +187,7 @@ pub fn row_of_glass(sphere_count: u32, distance: f64) -> World {
     let mut world = World::default();
 
     // ground
-    world.add_object(Arc::new(Sphere::new(
+    world.add_object(Arc::new(Sphere::new_stationary(
         Point3::new(0.0, -1000.0, 0.0),
         1000.0,
         Arc::new(Lambertian{albedo: Color::new(0.5, 0.5, 0.5)})
@@ -195,7 +195,7 @@ pub fn row_of_glass(sphere_count: u32, distance: f64) -> World {
 
     for i in 0..sphere_count { 
         // let albedo = Color::random() * Color::random() * 2.0;
-        world.add_object(Arc::new(Sphere::new(
+        world.add_object(Arc::new(Sphere::new_stationary(
             Point3::new((0.1 + distance) * i as f64, 0.2, 0.0),
             0.2, 
             Arc::new(Dielectric{ir: 1.5})
@@ -203,17 +203,17 @@ pub fn row_of_glass(sphere_count: u32, distance: f64) -> World {
     }
 
     let final_row_z = sphere_count as f64 * (0.2 + distance);
-    world.add_object(Arc::new(Sphere::new(
+    world.add_object(Arc::new(Sphere::new_stationary(
         Point3::new(final_row_z, 0.2, 0.25),
         0.1,
         Arc::new(Lambertian{albedo: Color::new(2.0, 0.2, 0.2)})
     )));
-    world.add_object(Arc::new(Sphere::new(
+    world.add_object(Arc::new(Sphere::new_stationary(
         Point3::new(final_row_z, 0.2, 0.0),
         0.1,
         Arc::new(Lambertian{albedo: Color::new(0.2, 2.0, 0.2)})
     )));
-    world.add_object(Arc::new(Sphere::new(
+    world.add_object(Arc::new(Sphere::new_stationary(
         Point3::new(final_row_z, 0.2, -0.25),
         0.1,
         Arc::new(Lambertian{albedo: Color::new(0.2, 0.2, 2.0)})
@@ -226,7 +226,7 @@ pub fn grid_of_glass(size: u32, distance: f64, radius: f64) -> World {
     let mut world = World::default();
 
     // ground
-    world.add_object(Arc::new(Sphere::new(
+    world.add_object(Arc::new(Sphere::new_stationary(
         Point3::new(0.0, -1000.0, 0.0),
         1000.0,
         Arc::new(Lambertian{albedo: Color::new(0.5, 0.5, 0.5)})
@@ -239,7 +239,7 @@ pub fn grid_of_glass(size: u32, distance: f64, radius: f64) -> World {
         -total_width / 2.0
     );
 
-    world.add_object(Arc::new(Sphere::new(
+    world.add_object(Arc::new(Sphere::new_stationary(
         Point3::new(0.0, total_width / 2.0 + 1.0, 0.0),
         0.1,
         Arc::new(Lambertian{albedo: Color::new(4.0, 0.2, 0.2)})
@@ -249,7 +249,7 @@ pub fn grid_of_glass(size: u32, distance: f64, radius: f64) -> World {
         for z in 0..size {
             for x in 0..size {
                 // let albedo = Color::random() * Color::random() * 2.0;
-                world.add_object(Arc::new(Sphere::new(
+                world.add_object(Arc::new(Sphere::new_stationary(
                     Point3::new(
                         starting_point.x() + x as f64 * (radius + distance),
                         starting_point.y() + y as f64 * (radius + distance),
@@ -270,38 +270,101 @@ pub fn lit_world() -> World {
 
     let ground_material = Arc::new(Lambertian{albedo: Color::new(0.5, 0.5, 0.5)});
     world.add_object(Arc::new(
-        Sphere::new(Point3::new(0.0, -1000.0, 0.0), 1000.0, ground_material)
+        Sphere::new_stationary(Point3::new(0.0, -1000.0, 0.0), 1000.0, ground_material)
     ));
 
-    world.add_object(Arc::new(Sphere::new(
+    world.add_object(Arc::new(Sphere::new_stationary(
         Point3::new(0.0, 1.0, 0.0),
         1.0,
         Arc::new(Dielectric{ir: 1.5})
     )));
     
-    world.add_object(Arc::new(Sphere::new(
+    world.add_object(Arc::new(Sphere::new_stationary(
         Point3::new(0.0, 1.0, 2.0),
         1.0,
         Arc::new(Lambertian{albedo: Color::new(0.4, 0.2, 0.1)})
     )));
 
-    world.add_object(Arc::new(Sphere::new(
+    world.add_object(Arc::new(Sphere::new_stationary(
         Point3::new(0.0, 1.0, -2.0),
         1.0,
         Arc::new(Metal{albedo: Color::new(0.7, 0.6, 0.5), fuzz: 0.0})
     )));
-
-    // world.add_light(Arc::new(Light::new(
-    //     Point3::new(0.0, 100.0, -1.2),
-    //     Color::new(1.0, 1.0, 1.0),
-    //     1.0
-    // )));
-
-    // world.add_light(Arc::new(Light::new(
-    //     Point3::new(5.0, 2.0, 0.0),
-    //     Color::new(1.0, 1.0, 1.0),
-    //     0.5
-    // )));
     
+    world
+}
+
+pub fn one_weekend_motion_blur(grid_size: i32) -> World {
+    let mut world = World::default();
+
+    let ground_material = Arc::new(Lambertian{albedo: Color::new(0.5, 0.5, 0.5)});
+    world.add_object(Arc::new(
+        Sphere::new_stationary(Point3::new(0.0, -1000.0, 0.0), 1000.0, ground_material)
+    ));
+
+    let some_point = Point3::new(4.0, 0.2, 0.0);
+
+    for a in -grid_size..grid_size {
+        for b in -grid_size..grid_size {
+            let choose_material = random::<f64>();
+            let center = Point3::new(
+                a as f64 + 0.9 * random::<f64>(),
+                0.2,
+                b as f64 + 0.9 * random::<f64>()
+            );
+
+            if (center - some_point).length() > 0.9 {
+                let sphere_material: Arc<MaterialSend>;
+                let sphere: Sphere;
+
+                // pick material
+                let mut is_moving = false;
+                if choose_material < 0.6 {
+                    let albedo = Color::random() * Color::random();
+                    sphere_material = Arc::new(Lambertian{albedo});
+                    is_moving = true;
+
+                } else if choose_material < 0.8 {
+                    let albedo = Color::random() * Color::random();
+                    let fuzz = random_f64_in_range(0.0, 0.5);
+                    sphere_material = Arc::new(Metal{albedo, fuzz});
+
+                } else {
+                    sphere_material = Arc::new(Dielectric{ir: 1.5});
+                }
+
+                if is_moving {
+                    let direction = Vec3::new(
+                        0.0, 
+                        random_f64_in_range(0.0, 0.5), 
+                        0.0
+                    );
+                    sphere = Sphere::new_moving(center, 0.2, sphere_material, direction);
+                } else {
+                    sphere = Sphere::new_stationary(center, 0.2, sphere_material);
+                }
+                world.add_object(Arc::new(sphere));
+            }
+        }
+    }
+
+    world.add_object(Arc::new(Sphere::new_stationary(
+        Point3::new(0.0, 1.0, 0.0),
+        1.0,
+        Arc::new(Dielectric{ir: 1.5})
+    )));
+    
+    world.add_object(Arc::new(Sphere::new_stationary(
+        Point3::new(-4.0, 1.0, 0.0),
+        1.0,
+        Arc::new(Lambertian{albedo: Color::new(0.4, 0.2, 0.1)})
+    )));
+
+    world.add_object(Arc::new(Sphere::new_stationary(
+        Point3::new(4.0, 1.0, 0.0),
+        1.0,
+        Arc::new(Metal{albedo: Color::new(0.7, 0.6, 0.5), fuzz: 0.0})
+    )));
+
     world
 }
