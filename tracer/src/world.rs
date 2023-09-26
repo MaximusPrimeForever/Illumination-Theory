@@ -64,7 +64,7 @@ impl World {
             // before setting the direction to be unit long
             // mirror shadows would appear sometimes
             let direction = (light.origin - point).unit();
-            let ray = Ray::new(point, direction);
+            let ray = Ray::new(point, direction, 0.0);
             
             let t_max = (light.origin - point).length();
             match &self.hit_object(ray, Interval::new(t_min, t_max)) {

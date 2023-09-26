@@ -1,6 +1,6 @@
 use std::ops;
 use rand::random;
-use crate::rtweekend::random_f64_range;
+use crate::rtweekend::random_f64_in_range;
 
 #[derive(Clone, Copy, Default)]
 pub struct Vec3 {
@@ -29,9 +29,9 @@ impl Vec3 {
     }
     pub fn random_range(min: f64, max: f64) -> Vec3 { 
         Self::new(
-            random_f64_range(min, max),
-            random_f64_range(min, max),
-            random_f64_range(min, max)
+            random_f64_in_range(min, max),
+            random_f64_in_range(min, max),
+            random_f64_in_range(min, max)
         )
     }
 
