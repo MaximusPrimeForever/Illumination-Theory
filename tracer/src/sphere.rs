@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use crate::aabb::AABB;
 use crate::interval::Interval;
 use crate::ray::Ray;
 use crate::material::MaterialSend;
@@ -11,25 +12,35 @@ pub struct Sphere {
     radius: f64,
     material: Arc<MaterialSend>,
     is_moving: bool,
-    movement_direction: Vec3
+    movement_direction: Vec3,
+    bounding_box: AABB
 }
 
 impl Sphere {
     pub fn new_stationary(center: Point3, radius: f64, material: Arc<MaterialSend>) -> Sphere {
+        let radius_vec = Vec3::new(radius, radius, radius);
+
         Sphere {
             center: center,
             radius, material,
             is_moving: false,
-            movement_direction: Vec3::zero()
+            movement_direction: Vec3::zero(),
+            bounding_box: AABB::new_from_points(center - radius_vec, center + radius_vec)
         } 
     }
 
+    /// Moving sphere has an empty bounding box
+    /// because I chose to use a direction vector to compute motion blur
+    /// where as Peter decided to use 2 center points which the sphere moves between
+    /// I think Peter's approach is weird and hardcoded, thus decided not to do it like him
+    /// Besides, adding motion blur seems unnecessary
     pub fn new_moving(center: Point3, radius: f64, material: Arc<MaterialSend>, direction: Vec3) -> Sphere {
         Sphere {
             center: center,
             radius, material,
             is_moving: true,
-            movement_direction: direction
+            movement_direction: direction,
+            bounding_box: AABB::default()
         }
     }
 
@@ -96,5 +107,9 @@ impl HittableT for Sphere {
         );
 
         Some(rec)
+    }
+
+    fn bounding_box(&self) -> AABB {
+        self.bounding_box
     }
 }

@@ -1,12 +1,14 @@
 use std::vec::Vec;
 use std::sync::Arc;
 
+use crate::aabb::AABB;
+use crate::bvh::BVH;
 use crate::interval::Interval;
 use crate::ray::Ray;
 use crate::light::Light;
 use crate::vec3::{Point3, Color};
 use crate::color::COLOR_BLACK;
-use crate::hittable::{HittableSync, HitRecord};
+use crate::hittable::{HittableSync, HitRecord, HittableT};
 
 
 /// This class optimizes intersections with a group of objects
@@ -14,42 +16,29 @@ use crate::hittable::{HittableSync, HitRecord};
 /// If one object is infront of another then the result of calling hit() with a
 /// ray that potentially intersects with both, will return a HitRecord of the closest
 /// one.
-#[derive(Default)]
+// #[derive(Default)]
 pub struct World {
-    pub objects: Vec<Arc<HittableSync>>,
-    pub lights: Vec<Arc<Light>>
+    objects: Vec<Arc<HittableSync>>,
+    bvh: BVH,
+    pub lights: Vec<Arc<Light>>,
+    pub objects_bounding_box: AABB
 }
 
 impl World {
+    pub fn new(mut objects: Vec<Arc<HittableSync>>, lights: Vec<Arc<Light>>) -> World {
+        let bvh = BVH::new_tree_random_axis(&mut objects);
+        let bounding_box = AABB::new_from_hittables(&objects);
+        World { objects, bvh, lights, objects_bounding_box: bounding_box }
+    }
+
     #[allow(dead_code)]
     pub fn clear(&mut self) {
         self.objects.clear()
     }
 
-    pub fn add_object(&mut self, object: Arc<HittableSync>) {
-        self.objects.push(object)
-    }
-
-    pub fn add_light(&mut self, light: Arc<Light>) {
-        self.lights.push(light)
-    }
-
     /// Iterates list of objects and tries to find the closest object a given ray intersects with.
     pub fn hit_object(&self, ray: Ray, ray_interval: Interval) -> Option<HitRecord> {
-        let mut final_hrec = None;
-        let mut closest_interval = ray_interval.clone();
-
-        for obj in &self.objects {
-            match obj.hit(ray, closest_interval) {
-                Some(hit_record) => {
-                    closest_interval.max = hit_record.t;
-                    final_hrec = Some(hit_record);
-                }
-                None => {}
-            }
-        }
-
-        final_hrec
+        self.bvh.hit(ray, ray_interval)
     }
 
     /// Iterate all the lights in the world, and compute light and shadow rays

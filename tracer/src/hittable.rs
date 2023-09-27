@@ -1,6 +1,7 @@
 
 use std::sync::Arc;
 
+use crate::aabb::AABB;
 use crate::interval::Interval;
 use crate::ray::Ray;
 use crate::material::Material;
@@ -31,6 +32,7 @@ fn set_face_normal(ray: Ray, normal: Vec3) -> (bool, Vec3) {
 
 pub trait HittableT {
     fn hit(&self, ray: Ray, ray_interval: Interval) -> Option<HitRecord>;
+    fn bounding_box(&self) -> AABB;
 }
 
 // ? wtf is this, read about it

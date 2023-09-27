@@ -1,5 +1,4 @@
 
-
 #[derive(Clone, Copy)]
 pub struct Interval {
     pub min: f64,
@@ -34,6 +33,34 @@ impl Interval {
         if x < self.min { return self.min; }
         if x > self.max { return self.max; }
         x
+    }
+
+    pub fn len(&self) -> f64 {
+        self.max - self.min
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.min >= self.max
+    }
+
+    pub fn expand(&self, delta: f64) -> Interval {
+        let padding = delta / 2.0;
+
+        Interval::new(self.min - padding, self.max + padding)
+    }
+
+    pub fn intersect(&self, other: Interval) -> Interval {
+        let intersection_min = self.min.max(other.min);
+        let intersection_max = self.max.min(other.max);
+
+        Interval::new(intersection_min, intersection_max)
+    }
+
+    pub fn unite(&self, other: Interval) -> Interval {
+        let union_min = self.min.min(other.min);
+        let union_max = self.max.max(other.max);
+
+        Interval::new(union_min, union_max)
     }
 }
 
