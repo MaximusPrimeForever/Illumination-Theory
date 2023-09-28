@@ -45,7 +45,8 @@ fn main() -> std::io::Result<()>{
     let core_count: usize = args[6].parse::<usize>().unwrap();
 
     // World
-    let world = rtweekend::cool_effects(8, 1.3);
+    // let world = rtweekend::cool_effects(8, 1.3);
+    let world = rtweekend::lit_world();
     // let world = rtweekend::one_weekend_endgame(8);
     
     
@@ -55,7 +56,7 @@ fn main() -> std::io::Result<()>{
     cam.image_height = (image_width as f64 / aspect_ratio) as usize;
     cam.vfov = vfov;
     cam.defocus_angle = 0.6;
-    cam.focus_dist = 12.0;
+    cam.focus_dist = 13.38;
     cam.look_from = Point3::new(13.0, 2.0, 3.0);
     cam.look_at = Point3::new(0.0, 1.5, 0.0);
     

@@ -23,6 +23,7 @@ impl HitRecord {
     }
 }
 
+/// Sets the normal to always face away from the surface the ray hit
 fn set_face_normal(ray: Ray, normal: Vec3) -> (bool, Vec3) {
     let front_face = ray.direction.dot(normal) < 0.0;
     let normal = if front_face { normal } else { -normal };

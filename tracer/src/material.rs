@@ -17,7 +17,7 @@ pub trait Material {
 }
 
 // ? wtf is this, read about it
-pub type MaterialSend = dyn Material + Send + Sync;
+pub type MaterialSync = dyn Material + Send + Sync;
 
 
 // Diffuse

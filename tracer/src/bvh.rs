@@ -53,11 +53,12 @@ impl BVH {
     }
 
     fn new_tree_random_axis_recurse(objects: &mut Vec<Arc<HittableSync>>, start: usize, end: usize) -> Self {
-        let axis_to_sort_by = rand::random::<usize>() % 3;
         let objects_span = end - start;
         let left_node: Arc<HittableSync>;
         let right_node: Arc<HittableSync>;
-
+        
+        // Comparator that compares by a random axis.
+        let axis_to_sort_by = rand::random::<usize>() % 3;
         let axis_comparator = |a: &Arc<HittableSync>, b: &Arc<HittableSync>| {
             a.bounding_box().axis(axis_to_sort_by).min.partial_cmp(&b.bounding_box().axis(axis_to_sort_by).min).unwrap()
         };

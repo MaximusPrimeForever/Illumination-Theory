@@ -3,21 +3,21 @@ use std::sync::Arc;
 use crate::aabb::AABB;
 use crate::interval::Interval;
 use crate::ray::Ray;
-use crate::material::MaterialSend;
+use crate::material::MaterialSync;
 use crate::vec3::{Vec3, Point3};
 use crate::hittable::{HittableT, HitRecord};
 
 pub struct Sphere {
     center: Point3,
     radius: f64,
-    material: Arc<MaterialSend>,
+    material: Arc<MaterialSync>,
     is_moving: bool,
     movement_direction: Vec3,
     bounding_box: AABB
 }
 
 impl Sphere {
-    pub fn new_stationary(center: Point3, radius: f64, material: Arc<MaterialSend>) -> Sphere {
+    pub fn new_stationary(center: Point3, radius: f64, material: Arc<MaterialSync>) -> Sphere {
         let radius_vec = Vec3::new(radius, radius, radius);
 
         Sphere {
@@ -34,7 +34,7 @@ impl Sphere {
     /// where as Peter decided to use 2 center points which the sphere moves between
     /// I think Peter's approach is weird and hardcoded, thus decided not to do it like him
     /// Besides, adding motion blur seems unnecessary
-    pub fn new_moving(center: Point3, radius: f64, material: Arc<MaterialSend>, direction: Vec3) -> Sphere {
+    pub fn new_moving(center: Point3, radius: f64, material: Arc<MaterialSync>, direction: Vec3) -> Sphere {
         Sphere {
             center: center,
             radius, material,

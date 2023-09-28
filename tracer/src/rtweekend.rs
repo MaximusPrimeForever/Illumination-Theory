@@ -8,7 +8,7 @@ use rand::random;
 
 use crate::{
     world::World,
-    material::{Lambertian, Metal, Dielectric, MaterialSend},
+    material::{Lambertian, Metal, Dielectric, MaterialSync},
     vec3::{Color, Point3, Vec3}, sphere::Sphere, light::Light,
     camera::Camera,
     render::render_scene,
@@ -100,7 +100,7 @@ pub fn one_weekend_endgame(grid_size: i32) -> World {
             );
 
             if (center - some_point).length() > 0.9 {
-                let sphere_material: Arc<MaterialSend>;
+                let sphere_material: Arc<MaterialSync>;
                 let sphere: Sphere;
 
                 // pick material
@@ -281,7 +281,7 @@ pub fn grid_of_glass(size: u32, distance: f64, radius: f64) -> World {
 
 pub fn lit_world() -> World {
     let mut objects: Vec<Arc<HittableSync>> = Vec::new();
-    let lights = Vec::new();
+    let mut lights = Vec::new();
 
     let ground_material = Arc::new(Lambertian{albedo: Color::new(0.5, 0.5, 0.5)});
     objects.push(Arc::new(
@@ -304,6 +304,12 @@ pub fn lit_world() -> World {
         Point3::new(0.0, 1.0, -2.0),
         1.0,
         Arc::new(Metal{albedo: Color::new(0.7, 0.6, 0.5), fuzz: 0.0})
+    )));
+
+    lights.push(Arc::new(Light::new(
+        Point3::new(-3.0, 5.0, 1.5),
+        Color::new(1.0, 1.0, 1.0),
+        1.0
     )));
     
     World::new(objects, lights)
@@ -330,7 +336,7 @@ pub fn one_weekend_motion_blur(grid_size: i32) -> World {
             );
 
             if (center - some_point).length() > 0.9 {
-                let sphere_material: Arc<MaterialSend>;
+                let sphere_material: Arc<MaterialSync>;
                 let sphere: Sphere;
 
                 // pick material

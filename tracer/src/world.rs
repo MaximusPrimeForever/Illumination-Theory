@@ -1,7 +1,6 @@
 use std::vec::Vec;
 use std::sync::Arc;
 
-use crate::aabb::AABB;
 use crate::bvh::BVH;
 use crate::interval::Interval;
 use crate::ray::Ray;
@@ -18,25 +17,18 @@ use crate::hittable::{HittableSync, HitRecord, HittableT};
 /// one.
 // #[derive(Default)]
 pub struct World {
-    objects: Vec<Arc<HittableSync>>,
     bvh: BVH,
-    pub lights: Vec<Arc<Light>>,
-    pub objects_bounding_box: AABB
+    pub lights: Vec<Arc<Light>>
 }
 
 impl World {
+    /// Build a BVH around the objects, and store lights information.
     pub fn new(mut objects: Vec<Arc<HittableSync>>, lights: Vec<Arc<Light>>) -> World {
         let bvh = BVH::new_tree_random_axis(&mut objects);
-        let bounding_box = AABB::new_from_hittables(&objects);
-        World { objects, bvh, lights, objects_bounding_box: bounding_box }
+        World { bvh, lights }
     }
 
-    #[allow(dead_code)]
-    pub fn clear(&mut self) {
-        self.objects.clear()
-    }
-
-    /// Iterates list of objects and tries to find the closest object a given ray intersects with.
+    /// Uses Bound Volume Hierarchy to optimize intersection computations.
     pub fn hit_object(&self, ray: Ray, ray_interval: Interval) -> Option<HitRecord> {
         self.bvh.hit(ray, ray_interval)
     }
