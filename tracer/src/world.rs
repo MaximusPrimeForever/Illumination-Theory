@@ -28,6 +28,11 @@ impl World {
         World { bvh, lights }
     }
 
+    pub fn new_objects_only(mut objects: Vec<Arc<HittableSync>>) -> World {
+        let bvh = BVH::new_tree_random_axis(&mut objects);
+        World { bvh, lights: Vec::new() }
+    }
+
     /// Uses Bound Volume Hierarchy to optimize intersection computations.
     pub fn hit_object(&self, ray: Ray, ray_interval: Interval) -> Option<HitRecord> {
         self.bvh.hit(ray, ray_interval)

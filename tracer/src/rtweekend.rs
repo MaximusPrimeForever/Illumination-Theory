@@ -12,7 +12,7 @@ use crate::{
     vec3::{Color, Point3, Vec3}, sphere::Sphere, light::Light,
     camera::Camera,
     render::render_scene,
-    buffer::write_img_ppm, hittable::HittableSync
+    buffer::write_img_ppm, hittable::HittableSync, texture::{SolidColorTexture, CheckerTexture}
 };
 
 
@@ -31,7 +31,7 @@ pub fn test_scene() {
     let mut objects: Vec<Arc<HittableSync>> = Vec::new();
     let mut lights = Vec::new();
 
-    let ground_material = Arc::new(Lambertian{albedo: Color::new(0.5, 0.5, 0.5)});
+    let ground_material = Arc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
     objects.push(Arc::new(
         Sphere::new_stationary(
             Point3::new(0.0, -1000.5, -1.0),
@@ -75,11 +75,11 @@ pub fn test_scene() {
     write_img_ppm(image_canvas, &mut output_image_file);
 }
 
-pub fn one_weekend_endgame(grid_size: i32) -> World {
+pub fn one_weekend_endgame(cam: &mut Camera, grid_size: i32) -> World {
     let mut objects: Vec<Arc<HittableSync>> = Vec::new();
     let lights = Vec::new();
 
-    let ground_material = Arc::new(Lambertian{albedo: Color::new(0.5, 0.5, 0.5)});
+    let ground_material = Arc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
     objects.push(Arc::new(
         Sphere::new_stationary(
             Point3::new(0.0, -1000.0, 0.0), 
@@ -106,7 +106,7 @@ pub fn one_weekend_endgame(grid_size: i32) -> World {
                 // pick material
                 if choose_material < 0.6 {
                     let albedo = Color::random() * Color::random();
-                    sphere_material = Arc::new(Lambertian{albedo});
+                    sphere_material = Arc::new(Lambertian::new(albedo));
 
                 } else if choose_material < 0.8 {
                     let albedo = Color::random() * Color::random();
@@ -131,7 +131,7 @@ pub fn one_weekend_endgame(grid_size: i32) -> World {
     objects.push(Arc::new(Sphere::new_stationary(
         Point3::new(-4.0, 1.0, 0.0),
         1.0,
-        Arc::new(Lambertian{albedo: Color::new(0.4, 0.2, 0.1)})
+        Arc::new(Lambertian::new(Color::new(0.4, 0.2, 0.1)))
     )));
 
     objects.push(Arc::new(Sphere::new_stationary(
@@ -139,6 +139,12 @@ pub fn one_weekend_endgame(grid_size: i32) -> World {
         1.0,
         Arc::new(Metal{albedo: Color::new(0.7, 0.6, 0.5), fuzz: 0.0})
     )));
+
+    // Camera
+    cam.defocus_angle = 0.6;
+    cam.focus_dist = 13.38;
+    cam.look_from = Point3::new(13.0, 2.0, 3.0);
+    cam.look_at = Point3::new(0.0, 1.5, 0.0);
 
     World::new(objects, lights)
 }
@@ -151,7 +157,7 @@ pub fn cool_effects(sphere_count: u32, distance: f64) -> World {
     objects.push(Arc::new(Sphere::new_stationary(
         Point3::new(0.0, -1000.0, 0.0),
         1000.0,
-        Arc::new(Lambertian{albedo: Color::new(0.5, 0.5, 0.5)})
+        Arc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)))
     )));
 
     // big shiny ball
@@ -203,7 +209,7 @@ pub fn row_of_glass(sphere_count: u32, distance: f64) -> World {
     objects.push(Arc::new(Sphere::new_stationary(
         Point3::new(0.0, -1000.0, 0.0),
         1000.0,
-        Arc::new(Lambertian{albedo: Color::new(0.5, 0.5, 0.5)})
+        Arc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)))
     )));
 
     for i in 0..sphere_count { 
@@ -219,17 +225,17 @@ pub fn row_of_glass(sphere_count: u32, distance: f64) -> World {
     objects.push(Arc::new(Sphere::new_stationary(
         Point3::new(final_row_z, 0.2, 0.25),
         0.1,
-        Arc::new(Lambertian{albedo: Color::new(2.0, 0.2, 0.2)})
+        Arc::new(Lambertian::new(Color::new(2.0, 0.2, 0.2)))
     )));
     objects.push(Arc::new(Sphere::new_stationary(
         Point3::new(final_row_z, 0.2, 0.0),
         0.1,
-        Arc::new(Lambertian{albedo: Color::new(0.2, 2.0, 0.2)})
+        Arc::new(Lambertian::new(Color::new(0.2, 2.0, 0.2)))
     )));
     objects.push(Arc::new(Sphere::new_stationary(
         Point3::new(final_row_z, 0.2, -0.25),
         0.1,
-        Arc::new(Lambertian{albedo: Color::new(0.2, 0.2, 2.0)})
+        Arc::new(Lambertian::new(Color::new(0.2, 0.2, 2.0)))
     )));
 
     World::new(objects, lights)
@@ -243,7 +249,7 @@ pub fn grid_of_glass(size: u32, distance: f64, radius: f64) -> World {
     objects.push(Arc::new(Sphere::new_stationary(
         Point3::new(0.0, -1000.0, 0.0),
         1000.0,
-        Arc::new(Lambertian{albedo: Color::new(0.5, 0.5, 0.5)})
+        Arc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)))
     )));
 
     let total_width = (size - 1) as f64 * (radius + distance);
@@ -256,7 +262,7 @@ pub fn grid_of_glass(size: u32, distance: f64, radius: f64) -> World {
     objects.push(Arc::new(Sphere::new_stationary(
         Point3::new(0.0, total_width / 2.0 + 1.0, 0.0),
         0.1,
-        Arc::new(Lambertian{albedo: Color::new(4.0, 0.2, 0.2)})
+        Arc::new(Lambertian::new(Color::new(4.0, 0.2, 0.2)))
     )));
 
     for y in 0..size { 
@@ -279,11 +285,11 @@ pub fn grid_of_glass(size: u32, distance: f64, radius: f64) -> World {
     World::new(objects, lights)
 }
 
-pub fn lit_world() -> World {
+pub fn lit_world(cam: &mut Camera) -> World {
     let mut objects: Vec<Arc<HittableSync>> = Vec::new();
     let mut lights = Vec::new();
 
-    let ground_material = Arc::new(Lambertian{albedo: Color::new(0.5, 0.5, 0.5)});
+    let ground_material = Arc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
     objects.push(Arc::new(
         Sphere::new_stationary(Point3::new(0.0, -1000.0, 0.0), 1000.0, ground_material)
     ));
@@ -297,7 +303,7 @@ pub fn lit_world() -> World {
     objects.push(Arc::new(Sphere::new_stationary(
         Point3::new(0.0, 1.0, 2.0),
         1.0,
-        Arc::new(Lambertian{albedo: Color::new(0.4, 0.2, 0.1)})
+        Arc::new(Lambertian::new(Color::new(0.4, 0.2, 0.1)))
     )));
 
     objects.push(Arc::new(Sphere::new_stationary(
@@ -311,15 +317,98 @@ pub fn lit_world() -> World {
         Color::new(1.0, 1.0, 1.0),
         1.0
     )));
+
+    // Camera
+    cam.defocus_angle = 0.6;
+    cam.focus_dist = 13.38;
+    cam.look_from = Point3::new(13.0, 2.0, 3.0);
+    cam.look_at = Point3::new(0.0, 1.5, 0.0);
     
     World::new(objects, lights)
+}
+
+pub fn lit_world_textures(cam: &mut Camera) -> World {
+    let mut objects: Vec<Arc<HittableSync>> = Vec::new();
+    let mut lights = Vec::new();
+
+    let ground_material = Arc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
+    objects.push(Arc::new(
+        Sphere::new_stationary(Point3::new(0.0, -1000.0, 0.0), 1000.0, ground_material)
+    ));
+
+    let solid_texture = SolidColorTexture::new(
+        Color::new(0.4, 0.2, 0.1)
+    );
+    objects.push(Arc::new(Sphere::new_stationary(
+        Point3::new(0.0, 1.0, 2.0),
+        1.0,
+        Arc::new(Lambertian::new_texture(Arc::new(solid_texture))))
+    ));
+    
+    objects.push(Arc::new(Sphere::new_stationary(
+        Point3::new(0.0, 1.0, 0.0),
+        1.0,
+        Arc::new(Metal{albedo: Color::new(0.7, 0.6, 0.5), fuzz: 0.0})
+    )));
+    
+    let checkered = CheckerTexture::new_color(
+        0.3,
+        Color::new(0.9, 0.9, 0.9),
+        Color::new(0.2, 0.3, 0.1),
+    );
+    objects.push(Arc::new(Sphere::new_stationary(
+        Point3::new(0.0, 1.0, -2.0),
+        1.0,
+        Arc::new(Lambertian::new_texture(Arc::new(checkered)))
+    )));
+
+    lights.push(Arc::new(Light::new(
+        Point3::new(-3.0, 5.0, 1.5),
+        Color::new(1.0, 1.0, 1.0),
+        1.0
+    )));
+
+    // Camera
+    cam.defocus_angle = 0.6;
+    cam.focus_dist = 13.38;
+    cam.look_from = Point3::new(13.0, 2.0, 3.0);
+    cam.look_at = Point3::new(0.0, 1.5, 0.0);
+    
+    World::new(objects, lights)
+}
+
+pub fn two_checkered_spheres(cam: &mut Camera) -> World {
+    let mut objects: Vec<Arc<HittableSync>> = Vec::new();
+    
+    let checkered = CheckerTexture::new_color(
+        0.3,
+        Color::new(0.9, 0.9, 0.9),
+        Color::new(0.2, 0.3, 0.1),
+    );
+    objects.push(Arc::new(Sphere::new_stationary(
+        Point3::new(0.0, 10.0, 0.0),
+        10.0,
+        Arc::new(Lambertian::new_texture(Arc::new(checkered.clone())))
+    )));
+    objects.push(Arc::new(Sphere::new_stationary(
+        Point3::new(0.0, -10.0, 0.0),
+        10.0,
+        Arc::new(Lambertian::new_texture(Arc::new(checkered)))
+    )));
+
+    // Camera
+    cam.defocus_angle = 0.0;
+    cam.look_from = Point3::new(13.0, 2.0, 3.0);
+    cam.look_at = Point3::new(0.0, 0.0, 0.0);
+    
+    World::new_objects_only(objects)
 }
 
 pub fn one_weekend_motion_blur(grid_size: i32) -> World {
     let mut objects: Vec<Arc<HittableSync>> = Vec::new();
     let lights = Vec::new();
 
-    let ground_material = Arc::new(Lambertian{albedo: Color::new(0.5, 0.5, 0.5)});
+    let ground_material = Arc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
     objects.push(Arc::new(
         Sphere::new_stationary(Point3::new(0.0, -1000.0, 0.0), 1000.0, ground_material)
     ));
@@ -343,7 +432,7 @@ pub fn one_weekend_motion_blur(grid_size: i32) -> World {
                 let mut is_moving = false;
                 if choose_material < 0.6 {
                     let albedo = Color::random() * Color::random();
-                    sphere_material = Arc::new(Lambertian{albedo});
+                    sphere_material = Arc::new(Lambertian::new(albedo));
                     is_moving = true;
 
                 } else if choose_material < 0.8 {
@@ -379,7 +468,7 @@ pub fn one_weekend_motion_blur(grid_size: i32) -> World {
     objects.push(Arc::new(Sphere::new_stationary(
         Point3::new(-4.0, 1.0, 0.0),
         1.0,
-        Arc::new(Lambertian{albedo: Color::new(0.4, 0.2, 0.1)})
+        Arc::new(Lambertian::new(Color::new(0.4, 0.2, 0.1)))
     )));
 
     objects.push(Arc::new(Sphere::new_stationary(

@@ -10,6 +10,7 @@ mod sphere;
 mod optics;
 mod camera;
 mod render;
+mod texture;
 mod interval;
 mod material;
 mod geometry;
@@ -44,25 +45,22 @@ fn main() -> std::io::Result<()>{
     let trace_depth: usize = args[5].parse::<usize>().unwrap();
     let core_count: usize = args[6].parse::<usize>().unwrap();
 
-    // World
-    // let world = rtweekend::cool_effects(8, 1.3);
-    let world = rtweekend::lit_world();
-    // let world = rtweekend::one_weekend_endgame(8);
-    
-    
-    // Camera    
+    // Control some parameters of camera from CLI
     let mut cam = Camera::default();
     cam.image_width = image_width;
     cam.image_height = (image_width as f64 / aspect_ratio) as usize;
     cam.vfov = vfov;
-    cam.defocus_angle = 0.6;
-    cam.focus_dist = 13.38;
-    cam.look_from = Point3::new(13.0, 2.0, 3.0);
-    cam.look_at = Point3::new(0.0, 1.5, 0.0);
     
+    // World
+    // World functions configure camera position, orientation, focus, etc.
+    // let world = rtweekend::cool_effects(8, 1.3);
+    // let world = rtweekend::lit_world_textures(&mut cam);
+    let world = rtweekend::two_checkered_spheres(&mut cam);
+    // let world = rtweekend::one_weekend_endgame(8);
+
     // Must be called!
     cam.initialize();
-
+    
     // Render
     let image_canvas = render_scene(
         core_count,

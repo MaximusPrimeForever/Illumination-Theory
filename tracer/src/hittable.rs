@@ -7,19 +7,20 @@ use crate::ray::Ray;
 use crate::material::Material;
 use crate::vec3::{Point3, Vec3};
 
-// #[derive(Default)]
 pub struct HitRecord {
     pub point: Point3,
     pub normal: Vec3,
     pub material: Arc<dyn Material>,
     pub t: f64,
+    pub u: f64, // row of texture coordinate
+    pub v: f64, // column of texture coordinate
     pub front_face: bool
 }
 
 impl HitRecord {
-    pub fn new(point: Point3, normal: Vec3, material: Arc<dyn Material>, t: f64, ray: Ray) -> HitRecord {
+    pub fn new(point: Point3, normal: Vec3, material: Arc<dyn Material>, t: f64, u: f64, v: f64, ray: Ray) -> HitRecord {
         let (front_face, outward_normal) = set_face_normal(ray, normal);
-        HitRecord { point, normal: outward_normal, material, t, front_face }
+        HitRecord { point, normal: outward_normal, material, t, u, v, front_face }
     }
 }
 

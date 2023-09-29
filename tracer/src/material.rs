@@ -1,6 +1,9 @@
+use std::sync::Arc;
+
 use rand::random;
 
 use crate::ray::Ray;
+use crate::texture::{TextureSync, SolidColorTexture};
 use crate::vec3::Vec3;
 use crate::color::COLOR_WHITE;
 use crate::{hittable::HitRecord, vec3::Color};
@@ -22,9 +25,18 @@ pub type MaterialSync = dyn Material + Send + Sync;
 
 // Diffuse
 // =======
-
 pub struct Lambertian {
-    pub albedo: Color
+    albedo: Arc<TextureSync>
+}
+
+impl Lambertian {
+    pub fn new(color: Color) -> Self {
+        Lambertian { albedo: Arc::new(SolidColorTexture::new(color)) }
+    }
+
+    pub fn new_texture(t: Arc<TextureSync>) -> Self {
+        Lambertian { albedo: t }
+    }
 }
 
 impl Material for Lambertian {
@@ -35,7 +47,7 @@ impl Material for Lambertian {
         if scatter_direction.near_zero() { scatter_direction = hitrec.normal; }
 
         Some((
-            self.albedo, 
+            self.albedo.value(hitrec.u, hitrec.v, &hitrec.point), 
             Ray::new(hitrec.point, scatter_direction, incident_ray.time)
         ))
     }
@@ -67,6 +79,7 @@ fn diffuse_uniform_without_normal(normal: Vec3) -> Vec3 {
 // Mirror
 // =======
 
+#[derive(Default)]
 pub struct Metal {
     pub albedo: Color,
     pub fuzz: f64
@@ -91,7 +104,7 @@ impl Material for Metal {
 
 // Dialectics
 // ==========
-
+#[derive(Default)]
 pub struct Dielectric {
     pub ir: f64 // index of refraction
 }
