@@ -56,8 +56,8 @@ impl Sphere {
     ///     <0 1 0> yields <0.50 1.00>       < 0 -1  0> yields <0.50 0.00>
     ///     <0 0 1> yields <0.25 0.50>       < 0  0 -1> yields <0.75 0.50>
     fn get_sphere_uv(&self, point: Point3) -> (f64, f64) {
-        let theta = -point.y().acos();
-        let phi = -point.z().atan2(point.x()) + PI;
+        let theta = (-point.y()).acos();
+        let phi = (-point.z()).atan2(point.x()) + PI;
 
         ((phi / (2.0 * PI)), (theta / PI))
     }

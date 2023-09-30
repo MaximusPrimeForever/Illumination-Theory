@@ -1,5 +1,8 @@
 use std::sync::Arc;
 
+use image::GenericImageView;
+
+use crate::interval::Interval;
 use crate::vec3::{Point3, Color};
 use crate::color::{COLOR_BLACK, COLOR_WHITE};
 
@@ -81,5 +84,40 @@ impl Texture for CheckerTexture {
             return self.odd.value(u, v, point);
         }
 
+    }
+}
+
+// Image Texture
+// =============
+pub struct ImageTexture {
+    image: image::DynamicImage
+}
+
+impl ImageTexture {
+    pub fn new(path: &str) -> ImageTexture {
+        ImageTexture { image: image::open(path).unwrap() }
+    }
+}
+
+impl Texture for ImageTexture {
+    fn value(&self, u: f64, v: f64, _: &Point3) -> Color {
+        if self.image.height() <= 0 {
+            return Color::new(0.0, 1.0, 1.0);
+        }
+
+        let u_clamped = Interval::new(0.0, 1.0).clamp(u);
+        let v_clamped = 1.0 - Interval::new(0.0, 1.0).clamp(v);
+
+        let i = u_clamped * (self.image.width() - 1) as f64;
+        let j = v_clamped * (self.image.height() - 1) as f64;
+        // println!("{} {}", i, j);
+        let pixel = self.image.get_pixel(i as u32, j as u32);
+        let color_scale = 1.0 / 255.0;
+
+        Color::new(
+            color_scale * pixel[0] as f64,
+            color_scale * pixel[1] as f64,
+            color_scale * pixel[2] as f64,
+        )
     }
 }

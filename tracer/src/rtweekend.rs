@@ -9,10 +9,10 @@ use rand::random;
 use crate::{
     world::World,
     material::{Lambertian, Metal, Dielectric, MaterialSync},
-    vec3::{Color, Point3, Vec3}, sphere::Sphere, light::Light,
+    vec3::{Color, Point3}, sphere::Sphere, light::Light,
     camera::Camera,
     render::render_scene,
-    buffer::write_img_ppm, hittable::HittableSync, texture::{SolidColorTexture, CheckerTexture}
+    buffer::write_img_ppm, hittable::HittableSync, texture::{SolidColorTexture, CheckerTexture, ImageTexture}
 };
 
 
@@ -404,78 +404,21 @@ pub fn two_checkered_spheres(cam: &mut Camera) -> World {
     World::new_objects_only(objects)
 }
 
-pub fn one_weekend_motion_blur(grid_size: i32) -> World {
+pub fn earth(cam: &mut Camera) -> World {
+    let earth_texture = ImageTexture::new("./resources/textures/earthmap.jpg");
+    let earth_surface = Lambertian::new_texture(Arc::new(earth_texture));
+    let globe = Sphere::new_stationary(
+        Point3::zero(),
+        2.0,
+        Arc::new(earth_surface)
+    );
+
+    cam.look_from = Point3::new(0.0, 0.0, 12.0);
+    cam.look_at = Point3::zero();
+    cam.defocus_angle = 0.0;
+
     let mut objects: Vec<Arc<HittableSync>> = Vec::new();
-    let lights = Vec::new();
+    objects.push(Arc::new(globe));
 
-    let ground_material = Arc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
-    objects.push(Arc::new(
-        Sphere::new_stationary(Point3::new(0.0, -1000.0, 0.0), 1000.0, ground_material)
-    ));
-
-    let some_point = Point3::new(4.0, 0.2, 0.0);
-
-    for a in -grid_size..grid_size {
-        for b in -grid_size..grid_size {
-            let choose_material = random::<f64>();
-            let center = Point3::new(
-                a as f64 + 0.9 * random::<f64>(),
-                0.2,
-                b as f64 + 0.9 * random::<f64>()
-            );
-
-            if (center - some_point).length() > 0.9 {
-                let sphere_material: Arc<MaterialSync>;
-                let sphere: Sphere;
-
-                // pick material
-                let mut is_moving = false;
-                if choose_material < 0.6 {
-                    let albedo = Color::random() * Color::random();
-                    sphere_material = Arc::new(Lambertian::new(albedo));
-                    is_moving = true;
-
-                } else if choose_material < 0.8 {
-                    let albedo = Color::random() * Color::random();
-                    let fuzz = random_f64_in_range(0.0, 0.5);
-                    sphere_material = Arc::new(Metal{albedo, fuzz});
-
-                } else {
-                    sphere_material = Arc::new(Dielectric{ir: 1.5});
-                }
-
-                if is_moving {
-                    let direction = Vec3::new(
-                        0.0, 
-                        random_f64_in_range(0.0, 0.5), 
-                        0.0
-                    );
-                    sphere = Sphere::new_moving(center, 0.2, sphere_material, direction);
-                } else {
-                    sphere = Sphere::new_stationary(center, 0.2, sphere_material);
-                }
-                objects.push(Arc::new(sphere));
-            }
-        }
-    }
-
-    objects.push(Arc::new(Sphere::new_stationary(
-        Point3::new(0.0, 1.0, 0.0),
-        1.0,
-        Arc::new(Dielectric{ir: 1.5})
-    )));
-    
-    objects.push(Arc::new(Sphere::new_stationary(
-        Point3::new(-4.0, 1.0, 0.0),
-        1.0,
-        Arc::new(Lambertian::new(Color::new(0.4, 0.2, 0.1)))
-    )));
-
-    objects.push(Arc::new(Sphere::new_stationary(
-        Point3::new(4.0, 1.0, 0.0),
-        1.0,
-        Arc::new(Metal{albedo: Color::new(0.7, 0.6, 0.5), fuzz: 0.0})
-    )));
-
-    World::new(objects, lights)
+    World::new_objects_only(objects)
 }

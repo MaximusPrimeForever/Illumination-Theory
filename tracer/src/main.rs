@@ -45,6 +45,15 @@ fn main() -> std::io::Result<()>{
     let trace_depth: usize = args[5].parse::<usize>().unwrap();
     let core_count: usize = args[6].parse::<usize>().unwrap();
 
+    // debug - because I didn't bother to check how to pass arguments to the
+    // vscode rust debugger
+    // let image_width = 400;
+    // let aspect_ratio = 16.0 / 9.0;
+    // let vfov = 20.0;
+    // let samples_per_pixel: usize = 50;
+    // let trace_depth: usize = 10;
+    // let core_count: usize = 1;
+
     // Control some parameters of camera from CLI
     let mut cam = Camera::default();
     cam.image_width = image_width;
@@ -55,7 +64,8 @@ fn main() -> std::io::Result<()>{
     // World functions configure camera position, orientation, focus, etc.
     // let world = rtweekend::cool_effects(8, 1.3);
     // let world = rtweekend::lit_world_textures(&mut cam);
-    let world = rtweekend::two_checkered_spheres(&mut cam);
+    // let world = rtweekend::two_checkered_spheres(&mut cam);
+    let world = rtweekend::earth(&mut cam);
     // let world = rtweekend::one_weekend_endgame(8);
 
     // Must be called!

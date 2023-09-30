@@ -1,5 +1,5 @@
 # Illumination-Theory
-![Alt text](resources/final_highres_bokeh.png)
+![Alt text](resources/repo/final_highres_bokeh.png)
 
 Ray tracer in written Rust.
 
@@ -26,7 +26,7 @@ The script allows you to configure the following values:
 
 **Note**: if rendering a complex scene with parameters turned up on all cores, the render WILL use up ALL of the CPU.
 
-![Alt text](resources/image.png)
+![Alt text](resources/repo/image.png)
 
 #### Default values
 Running the script without passing args will use:
@@ -67,7 +67,7 @@ git checkout antialiased_world
 ## Testing
 On August 2023, "Ray Tracing in One Weekend" was updated with a significant refactor (for the better), and while refactoring this code I broke a lot of things.  
 So, for the future, here's a test scene to make sure everything looks correct (located in `rtweekend.rs`):
-![Alt text](resources/test_scene.png)
+![Alt text](resources/repo/test_scene.png)
 
 Run:
 ```powershell
