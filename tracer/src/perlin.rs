@@ -3,33 +3,33 @@ use crate::vec3::Point3;
 
 pub struct Perlin {
     random_floats: Vec<f64>,
-    perm_x: Vec<i64>,
-    perm_y: Vec<i64>,
-    perm_z: Vec<i64>
+    perm_x: Vec<u64>,
+    perm_y: Vec<u64>,
+    perm_z: Vec<u64>
 }
 
 impl Perlin {
     pub fn noise(&self, point: &Point3) -> f64 {
-        let i = (4.0 * point.x()) as usize & 255;
-        let j = (4.0 * point.y()) as usize & 255;
-        let k = (4.0 * point.z()) as usize & 255;
+        let i = ((4.0 * point.x()) as i64 & 255) as usize;
+        let j = ((4.0 * point.y()) as i64 & 255) as usize;
+        let k = ((4.0 * point.z()) as i64 & 255) as usize;
 
         let index = (self.perm_x[i] ^ self.perm_y[j] ^ self.perm_z[k]) as usize;
         return self.random_floats[index]
     }
 
-    fn generate_perlin_permutation(point_count: usize) -> Vec<i64> {
-        let mut perm = Vec::<i64>::with_capacity(point_count);
+    fn generate_perlin_permutation(point_count: usize) -> Vec<u64> {
+        let mut perm = Vec::<u64>::with_capacity(point_count);
 
         for i in 0..point_count {
-            perm.push(i as i64);
+            perm.push(i as u64);
         }
 
         Perlin::permute(&mut perm);
         perm
     }
 
-    fn permute(array: &mut Vec<i64>) {
+    fn permute(array: &mut Vec<u64>) {
         for i in (array.len() - 1)..0 {
             let target = rand::random::<usize>() % i;
             array.swap(i, target);
