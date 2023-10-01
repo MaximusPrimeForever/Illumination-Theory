@@ -4,9 +4,9 @@ use crate::vec3::Point3;
 pub struct Perlin {
     random_floats: Vec<f64>,
     scale: f64,
-    perm_x: Vec<u64>,
-    perm_y: Vec<u64>,
-    perm_z: Vec<u64>
+    perm_x: Vec<usize>,
+    perm_y: Vec<usize>,
+    perm_z: Vec<usize>
 }
 
 impl Perlin {
@@ -25,27 +25,59 @@ impl Perlin {
         }
     }
 
-    pub fn noise(&self, point: &Point3) -> f64 {
-        let i = ((self.scale * point.x()) as i64 & (self.random_floats.len() - 1) as i64) as usize;
-        let j = ((self.scale * point.y()) as i64 & (self.random_floats.len() - 1) as i64) as usize;
-        let k = ((self.scale * point.z()) as i64 & (self.random_floats.len() - 1) as i64) as usize;
+    pub fn noise(&self, point: &Point3) -> f64 {        
+        let u = point.x() - point.x().floor();
+        let v = point.y() - point.y().floor();
+        let w = point.z() - point.z().floor();
 
-        let index = (self.perm_x[i] ^ self.perm_y[j] ^ self.perm_z[k]) as usize;
-        return self.random_floats[index]
+        let i = point.x().floor() as i64;
+        let j = point.y().floor() as i64;
+        let k = point.z().floor() as i64;
+        let mut arr = vec![vec![vec![0.0; 2]; 2]; 2];
+
+        for di in 0..2 {
+            for dj in 0..2 {
+                for dk in 0..2 {
+                    arr[di][dj][dk] = self.random_floats[
+                        self.perm_x[((i + di as i64) & 255 as i64) as usize]
+                        ^ self.perm_x[((j + dj as i64) & 255 as i64) as usize]
+                        ^ self.perm_x[((k + dk as i64) & 255 as i64) as usize]
+                    ]
+                }
+            }
+        }
+
+        Perlin::trilinear_interpolation(&arr, u, v, w)
     }
 
-    fn generate_perlin_permutation(point_count: usize) -> Vec<u64> {
-        let mut perm = Vec::<u64>::with_capacity(point_count);
+    fn trilinear_interpolation(arr: &Vec<Vec<Vec<f64>>>, u: f64, v: f64, w: f64) -> f64 {
+        let mut accum = 0.0;
+        for i in 0..arr.len() {
+            for j in 0..arr[0].len() {
+                for k in 0..arr[0][0].len() {
+                    accum += arr[i][j][k]
+                        * (i as f64 * u + (1 - i) as f64 * (1.0 - u))
+                        * (j as f64 * v + (1 - j) as f64 * (1.0 - v))
+                        * (k as f64 * w + (1 - k) as f64 * (1.0 - w));
+                }
+            }
+        }
+
+        accum
+    }
+
+    fn generate_perlin_permutation(point_count: usize) -> Vec<usize> {
+        let mut perm = Vec::<usize>::with_capacity(point_count);
 
         for i in 0..point_count {
-            perm.push(i as u64);
+            perm.push(i as usize);
         }
 
         Perlin::permute(&mut perm);
         perm
     }
 
-    fn permute(array: &mut Vec<u64>) {
+    fn permute(array: &mut Vec<usize>) {
         for i in (array.len() - 1)..0 {
             let target = rand::random::<usize>() % i;
             array.swap(i, target);

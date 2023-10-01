@@ -2,8 +2,8 @@ use std::sync::Arc;
 
 use image::GenericImageView;
 
-use crate::interval::Interval;
 use crate::perlin::Perlin;
+use crate::interval::Interval;
 use crate::vec3::{Point3, Color};
 use crate::color::{COLOR_BLACK, COLOR_WHITE};
 
