@@ -26,4 +26,4 @@ New-Item -ItemType Directory -Path $rendersDir -Force | Out-Null
 
 $env:RUSTFLAGS = "--allow dead_code"
 cargo run --release --manifest-path=.\tracer\Cargo.toml -- $image_width $aspect_ratio $vertical_fov $samples_per_pixel $trace_depth $thread_count
-Copy-Item -Path ".\output.ppm" -Destination "$rendersDir\$image_name.ppm" -Force
+Copy-Item -Path ".\output.png" -Destination "$rendersDir\$image_name.png" -Force

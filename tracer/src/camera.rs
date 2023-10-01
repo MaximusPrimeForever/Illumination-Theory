@@ -150,7 +150,6 @@ impl Camera {
         if trace_depth <= 0 { 
             // Once depth runs out, generate rays to all lights in the world
             // and for each ray check if it's a shadow ray or light ray
-            // return COLOR_BLACK;
             return world.hit_lights(ray.origin, T_MIN_TOLERANCE);
         }
         

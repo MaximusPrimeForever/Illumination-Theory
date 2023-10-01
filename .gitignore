@@ -16,6 +16,7 @@ Cargo.lock
 renders/**.ppm
 renders/**.png
 output.ppm
+output.png
 *.xmp
 
 .vscode/

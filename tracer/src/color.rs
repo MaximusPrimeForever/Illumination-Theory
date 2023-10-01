@@ -1,9 +1,6 @@
 use crate::interval::Interval;
 use crate::ray::Ray;
-use crate::buffer::Pixel;
 use crate::vec3::{Vec3, Color};
-
-pub const MAX_COLOR: f64 = 255.0;
 
 // Colors
 pub const COLOR_WHITE: Color = Color::new_const(1.0, 1.0, 1.0);
@@ -12,7 +9,7 @@ pub const COLOR_SKY_BLUE: Color = Color::new_const(0.5, 0.7, 1.0);
 pub const COLOR_BLACK: Color = Color::new_const(0.0, 0.0, 0.0);
 
 
-pub fn rasterize_color(pixel_color: Color, samples_per_pixel: usize) -> Pixel {
+pub fn rasterize_color(pixel_color: Color, samples_per_pixel: usize) -> image::Rgb<u8> {
     let mut r = pixel_color.x();
     let mut g = pixel_color.y();
     let mut b = pixel_color.z();
@@ -28,7 +25,7 @@ pub fn rasterize_color(pixel_color: Color, samples_per_pixel: usize) -> Pixel {
     let g: u8 = (256.0 * intensity.clamp(g)) as u8;
     let b: u8 = (256.0 * intensity.clamp(b)) as u8;
 
-    Pixel{r, g ,b}
+    image::Rgb([r, g, b])
 }
 
 /// Return the color of the sky gradient when a ray hit it.

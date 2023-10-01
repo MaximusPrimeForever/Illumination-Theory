@@ -85,6 +85,12 @@ pub struct Metal {
     pub fuzz: f64
 }
 
+impl Metal {
+    pub fn new(albedo: Color, fuzz: f64) -> Self {
+        Metal { albedo, fuzz }
+    }
+}
+
 impl Material for Metal {
     fn scatter(&self, incident_ray: &Ray, hitrec: &HitRecord) -> Option<(Color, Ray)> {
         let reflected_direction = reflect(incident_ray.direction.unit(), hitrec.normal);

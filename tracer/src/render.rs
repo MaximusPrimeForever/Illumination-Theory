@@ -6,7 +6,7 @@ use indicatif::{ProgressBar, ProgressStyle, MultiProgress};
 use crate::Color;
 use crate::world::World;
 use crate::camera::Camera;
-use crate::buffer::{Canvas, SliceBuffer, Pixel};
+use crate::buffer::{Canvas, SliceBuffer};
 use crate::color::rasterize_color;
 
 
@@ -117,10 +117,8 @@ fn render_slice(slice_buffer: Arc<Mutex<SliceBuffer>>,
                 trace_depth: usize,
                 multi_bar: Arc<MultiProgress>) {
     let mut slice_data = slice_buffer.lock().unwrap();
-    let height = slice_data.height;
-    let width = slice_data.width;
-
-    let mut slice_vec: Vec<Vec<Pixel>> = Vec::default();
+    let height = slice_data.pixels.height();
+    let width = slice_data.pixels.width();
 
     // Progress bar config
     let height_bar: ProgressBar = multi_bar.add(ProgressBar::new(height as u64));
@@ -131,14 +129,13 @@ fn render_slice(slice_buffer: Arc<Mutex<SliceBuffer>>,
     .progress_chars("##-")); 
 
     for i in 0..height {
-        let mut line_buffer: Vec<Pixel> = Vec::default();
         // height - i because the camera renders from the bottom left corner
-        let pixel_row = (slice_data.p_row + i) as f64;
+        let pixel_row = (slice_data.abs_row_delta + i as usize) as f64;
 
         // Render single line
         for j in 0..width {
             let mut pixel_color = Color::zero();
-            let pixel_col = (slice_data.p_col + j) as f64;
+            let pixel_col = (slice_data.abs_col_delta + j as usize) as f64;
 
             // Render single pixel
             for _ in 0..samples_per_pixel {
@@ -150,12 +147,15 @@ fn render_slice(slice_buffer: Arc<Mutex<SliceBuffer>>,
                 );
                 pixel_color += color;
             }
-            line_buffer.push(rasterize_color(pixel_color, samples_per_pixel));
+            // line_buffer.push(rasterize_color(pixel_color, samples_per_pixel));
+
+            let pixel = slice_data.pixels.get_pixel_mut(j as u32, i as u32);
+            *pixel = rasterize_color(pixel_color, samples_per_pixel);
         }
-        slice_vec.push(line_buffer);
+        // slice_vec.push(line_buffer);
         height_bar.inc(1);
     }
     height_bar.finish();
 
-    slice_data.pixels = slice_vec;
+    // slice_data.pixels = slice_vec;
 }

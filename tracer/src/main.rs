@@ -10,6 +10,7 @@ mod sphere;
 mod optics;
 mod camera;
 mod render;
+mod perlin;
 mod texture;
 mod interval;
 mod material;
@@ -18,12 +19,11 @@ mod hittable;
 mod rtweekend;
 
 use std::env;
-use std::fs::File;
 use std::sync::Arc;
 
 use camera::Camera;
 use render::render_scene;
-use buffer::write_img_ppm;
+// use buffer::write_img_ppm;
 
 use vec3::{Vec3, Point3, Color};
 
@@ -65,7 +65,8 @@ fn main() -> std::io::Result<()>{
     // let world = rtweekend::cool_effects(8, 1.3);
     // let world = rtweekend::lit_world_textures(&mut cam);
     // let world = rtweekend::two_checkered_spheres(&mut cam);
-    let world = rtweekend::earth(&mut cam);
+    // let world = rtweekend::earth(&mut cam);
+    let world = rtweekend::tiled_texture(&mut cam);
     // let world = rtweekend::one_weekend_endgame(8);
 
     // Must be called!
@@ -81,8 +82,7 @@ fn main() -> std::io::Result<()>{
     );
     
     // Output to file
-    let mut output_image_file = File::create("output.ppm")?;
-    write_img_ppm(image_canvas, &mut output_image_file);
+    image_canvas.save_png("output.png");
 
     Ok(())
 }

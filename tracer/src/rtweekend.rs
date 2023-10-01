@@ -1,18 +1,20 @@
 #![allow(dead_code)]
 /// This module contains mostly scene descriptions, and some util functions.
 
-use std::fs::File;
 use std::sync::Arc;
 
 use rand::random;
 
 use crate::{
+    light::Light,
     world::World,
-    material::{Lambertian, Metal, Dielectric, MaterialSync},
-    vec3::{Color, Point3}, sphere::Sphere, light::Light,
+    sphere::Sphere,
     camera::Camera,
-    render::render_scene,
-    buffer::write_img_ppm, hittable::HittableSync, texture::{SolidColorTexture, CheckerTexture, ImageTexture}
+    vec3::{Color, Point3},
+    hittable::HittableSync,
+    material::{Lambertian, Metal, Dielectric, MaterialSync},
+    texture::{SolidColorTexture, CheckerTexture, ImageTexture, NoiseTexture},
+    render::render_scene
 };
 
 
@@ -33,7 +35,7 @@ pub fn test_scene() {
 
     let ground_material = Arc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
     objects.push(Arc::new(
-        Sphere::new_stationary(
+        Sphere::new(
             Point3::new(0.0, -1000.5, -1.0),
             1000.0, 
             ground_material
@@ -45,7 +47,7 @@ pub fn test_scene() {
         albedo: Color::new(1.4, 1.2, 1.0) * 0.5, 
         fuzz: 0.0
     };
-    objects.push(Arc::new(Sphere::new_stationary(
+    objects.push(Arc::new(Sphere::new(
         Point3::new(0.0, 0.0, -1.0),
         0.5,
         Arc::new(shiny)
@@ -71,8 +73,7 @@ pub fn test_scene() {
     );
     
     // Output to file
-    let mut output_image_file = File::create("output.ppm").unwrap();
-    write_img_ppm(image_canvas, &mut output_image_file);
+    image_canvas.save_png("output.png")
 }
 
 pub fn one_weekend_endgame(cam: &mut Camera, grid_size: i32) -> World {
@@ -81,7 +82,7 @@ pub fn one_weekend_endgame(cam: &mut Camera, grid_size: i32) -> World {
 
     let ground_material = Arc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
     objects.push(Arc::new(
-        Sphere::new_stationary(
+        Sphere::new(
             Point3::new(0.0, -1000.0, 0.0), 
             1000.0, 
             ground_material
@@ -116,25 +117,25 @@ pub fn one_weekend_endgame(cam: &mut Camera, grid_size: i32) -> World {
                 } else {
                     sphere_material = Arc::new(Dielectric{ir: 1.5});
                 }
-                sphere = Sphere::new_stationary(center, 0.2, sphere_material);
+                sphere = Sphere::new(center, 0.2, sphere_material);
                 objects.push(Arc::new(sphere));
             }
         }
     }
 
-    objects.push(Arc::new(Sphere::new_stationary(
+    objects.push(Arc::new(Sphere::new(
         Point3::new(0.0, 1.0, 0.0),
         1.0,
         Arc::new(Dielectric{ir: 1.5})
     )));
     
-    objects.push(Arc::new(Sphere::new_stationary(
+    objects.push(Arc::new(Sphere::new(
         Point3::new(-4.0, 1.0, 0.0),
         1.0,
         Arc::new(Lambertian::new(Color::new(0.4, 0.2, 0.1)))
     )));
 
-    objects.push(Arc::new(Sphere::new_stationary(
+    objects.push(Arc::new(Sphere::new(
         Point3::new(4.0, 1.0, 0.0),
         1.0,
         Arc::new(Metal{albedo: Color::new(0.7, 0.6, 0.5), fuzz: 0.0})
@@ -154,7 +155,7 @@ pub fn cool_effects(sphere_count: u32, distance: f64) -> World {
     let lights = Vec::new();
 
     // ground
-    objects.push(Arc::new(Sphere::new_stationary(
+    objects.push(Arc::new(Sphere::new(
         Point3::new(0.0, -1000.0, 0.0),
         1000.0,
         Arc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)))
@@ -165,7 +166,7 @@ pub fn cool_effects(sphere_count: u32, distance: f64) -> World {
         albedo: Color::new(1.4, 1.2, 1.0) * 0.5, 
         fuzz: 0.0
     };
-    objects.push(Arc::new(Sphere::new_stationary(
+    objects.push(Arc::new(Sphere::new(
         Point3::new(0.0, 1.0, 0.0),
         1.0,
         Arc::new(shiny)
@@ -177,7 +178,7 @@ pub fn cool_effects(sphere_count: u32, distance: f64) -> World {
         let y = 0.2;
         let z = distance * (theta_rad * i as f64).sin();
 
-        objects.push(Arc::new(Sphere::new_stationary(
+        objects.push(Arc::new(Sphere::new(
             Point3::new(x, y, z),
             0.2, 
             Arc::new(Dielectric{ir: 1.5})
@@ -191,7 +192,7 @@ pub fn cool_effects(sphere_count: u32, distance: f64) -> World {
         let z = (distance) * (theta_rad * 1.5 * i as f64).sin();
 
         let albedo = Color::random() * Color::random() * 2.0;
-        objects.push(Arc::new(Sphere::new_stationary(
+        objects.push(Arc::new(Sphere::new(
             Point3::new(x, y, z),
             0.2, 
             Arc::new(Metal{albedo: albedo, fuzz: 0.0})
@@ -206,7 +207,7 @@ pub fn row_of_glass(sphere_count: u32, distance: f64) -> World {
     let lights = Vec::new();
 
     // ground
-    objects.push(Arc::new(Sphere::new_stationary(
+    objects.push(Arc::new(Sphere::new(
         Point3::new(0.0, -1000.0, 0.0),
         1000.0,
         Arc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)))
@@ -214,7 +215,7 @@ pub fn row_of_glass(sphere_count: u32, distance: f64) -> World {
 
     for i in 0..sphere_count { 
         // let albedo = Color::random() * Color::random() * 2.0;
-        objects.push(Arc::new(Sphere::new_stationary(
+        objects.push(Arc::new(Sphere::new(
             Point3::new((0.1 + distance) * i as f64, 0.2, 0.0),
             0.2, 
             Arc::new(Dielectric{ir: 1.5})
@@ -222,17 +223,17 @@ pub fn row_of_glass(sphere_count: u32, distance: f64) -> World {
     }
 
     let final_row_z = sphere_count as f64 * (0.2 + distance);
-    objects.push(Arc::new(Sphere::new_stationary(
+    objects.push(Arc::new(Sphere::new(
         Point3::new(final_row_z, 0.2, 0.25),
         0.1,
         Arc::new(Lambertian::new(Color::new(2.0, 0.2, 0.2)))
     )));
-    objects.push(Arc::new(Sphere::new_stationary(
+    objects.push(Arc::new(Sphere::new(
         Point3::new(final_row_z, 0.2, 0.0),
         0.1,
         Arc::new(Lambertian::new(Color::new(0.2, 2.0, 0.2)))
     )));
-    objects.push(Arc::new(Sphere::new_stationary(
+    objects.push(Arc::new(Sphere::new(
         Point3::new(final_row_z, 0.2, -0.25),
         0.1,
         Arc::new(Lambertian::new(Color::new(0.2, 0.2, 2.0)))
@@ -246,7 +247,7 @@ pub fn grid_of_glass(size: u32, distance: f64, radius: f64) -> World {
     let lights = Vec::new();
 
     // ground
-    objects.push(Arc::new(Sphere::new_stationary(
+    objects.push(Arc::new(Sphere::new(
         Point3::new(0.0, -1000.0, 0.0),
         1000.0,
         Arc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)))
@@ -259,7 +260,7 @@ pub fn grid_of_glass(size: u32, distance: f64, radius: f64) -> World {
         -total_width / 2.0
     );
 
-    objects.push(Arc::new(Sphere::new_stationary(
+    objects.push(Arc::new(Sphere::new(
         Point3::new(0.0, total_width / 2.0 + 1.0, 0.0),
         0.1,
         Arc::new(Lambertian::new(Color::new(4.0, 0.2, 0.2)))
@@ -269,7 +270,7 @@ pub fn grid_of_glass(size: u32, distance: f64, radius: f64) -> World {
         for z in 0..size {
             for x in 0..size {
                 // let albedo = Color::random() * Color::random() * 2.0;
-                objects.push(Arc::new(Sphere::new_stationary(
+                objects.push(Arc::new(Sphere::new(
                     Point3::new(
                         starting_point.x() + x as f64 * (radius + distance),
                         starting_point.y() + y as f64 * (radius + distance),
@@ -291,22 +292,22 @@ pub fn lit_world(cam: &mut Camera) -> World {
 
     let ground_material = Arc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
     objects.push(Arc::new(
-        Sphere::new_stationary(Point3::new(0.0, -1000.0, 0.0), 1000.0, ground_material)
+        Sphere::new(Point3::new(0.0, -1000.0, 0.0), 1000.0, ground_material)
     ));
 
-    objects.push(Arc::new(Sphere::new_stationary(
+    objects.push(Arc::new(Sphere::new(
         Point3::new(0.0, 1.0, 0.0),
         1.0,
         Arc::new(Dielectric{ir: 1.5})
     )));
     
-    objects.push(Arc::new(Sphere::new_stationary(
+    objects.push(Arc::new(Sphere::new(
         Point3::new(0.0, 1.0, 2.0),
         1.0,
         Arc::new(Lambertian::new(Color::new(0.4, 0.2, 0.1)))
     )));
 
-    objects.push(Arc::new(Sphere::new_stationary(
+    objects.push(Arc::new(Sphere::new(
         Point3::new(0.0, 1.0, -2.0),
         1.0,
         Arc::new(Metal{albedo: Color::new(0.7, 0.6, 0.5), fuzz: 0.0})
@@ -333,19 +334,19 @@ pub fn lit_world_textures(cam: &mut Camera) -> World {
 
     let ground_material = Arc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
     objects.push(Arc::new(
-        Sphere::new_stationary(Point3::new(0.0, -1000.0, 0.0), 1000.0, ground_material)
+        Sphere::new(Point3::new(0.0, -1000.0, 0.0), 1000.0, ground_material)
     ));
 
     let solid_texture = SolidColorTexture::new(
         Color::new(0.4, 0.2, 0.1)
     );
-    objects.push(Arc::new(Sphere::new_stationary(
+    objects.push(Arc::new(Sphere::new(
         Point3::new(0.0, 1.0, 2.0),
         1.0,
         Arc::new(Lambertian::new_texture(Arc::new(solid_texture))))
     ));
     
-    objects.push(Arc::new(Sphere::new_stationary(
+    objects.push(Arc::new(Sphere::new(
         Point3::new(0.0, 1.0, 0.0),
         1.0,
         Arc::new(Metal{albedo: Color::new(0.7, 0.6, 0.5), fuzz: 0.0})
@@ -356,7 +357,7 @@ pub fn lit_world_textures(cam: &mut Camera) -> World {
         Color::new(0.9, 0.9, 0.9),
         Color::new(0.2, 0.3, 0.1),
     );
-    objects.push(Arc::new(Sphere::new_stationary(
+    objects.push(Arc::new(Sphere::new(
         Point3::new(0.0, 1.0, -2.0),
         1.0,
         Arc::new(Lambertian::new_texture(Arc::new(checkered)))
@@ -385,12 +386,12 @@ pub fn two_checkered_spheres(cam: &mut Camera) -> World {
         Color::new(0.9, 0.9, 0.9),
         Color::new(0.2, 0.3, 0.1),
     );
-    objects.push(Arc::new(Sphere::new_stationary(
+    objects.push(Arc::new(Sphere::new(
         Point3::new(0.0, 10.0, 0.0),
         10.0,
         Arc::new(Lambertian::new_texture(Arc::new(checkered.clone())))
     )));
-    objects.push(Arc::new(Sphere::new_stationary(
+    objects.push(Arc::new(Sphere::new(
         Point3::new(0.0, -10.0, 0.0),
         10.0,
         Arc::new(Lambertian::new_texture(Arc::new(checkered)))
@@ -405,20 +406,60 @@ pub fn two_checkered_spheres(cam: &mut Camera) -> World {
 }
 
 pub fn earth(cam: &mut Camera) -> World {
+    let mut objects: Vec<Arc<HittableSync>> = Vec::new();
+
     let earth_texture = ImageTexture::new("./resources/textures/earthmap.jpg");
     let earth_surface = Lambertian::new_texture(Arc::new(earth_texture));
-    let globe = Sphere::new_stationary(
-        Point3::zero(),
+    let globe = Sphere::new(
+        Point3::new(0.0, 2.0, 0.0),
         2.0,
         Arc::new(earth_surface)
     );
+    objects.push(Arc::new(globe));
 
-    cam.look_from = Point3::new(0.0, 0.0, 12.0);
-    cam.look_at = Point3::zero();
+    let ground_material = Arc::new(Metal::new(
+        Color::new(0.5, 0.5, 0.5),
+        0.05
+    ));
+    objects.push(Arc::new(
+        Sphere::new(
+            Point3::new(0.0, -1000.0, -1.0),
+            1000.0, 
+            ground_material
+        )
+    ));
+
+    cam.look_from = Point3::new(20.0, 7.0, 0.0);
+    cam.look_at = Point3::new(0.0, 0.0, 0.0);
     cam.defocus_angle = 0.0;
 
+
+    World::new_objects_only(objects)
+}
+
+pub fn tiled_texture(cam: &mut Camera) -> World {
     let mut objects: Vec<Arc<HittableSync>> = Vec::new();
-    objects.push(Arc::new(globe));
+
+    let noise_texture = Arc::new(Lambertian::new_texture(Arc::new(NoiseTexture::default())));
+    objects.push(Arc::new(
+        Sphere::new(
+            Point3::new(0.0, -1000.0, 0.0),
+            1000.0, 
+            noise_texture.clone()
+        )
+    ));
+    
+    objects.push(Arc::new(
+        Sphere::new(
+            Point3::new(0.0, 2.0, 0.0),
+            2.0,
+            noise_texture
+        )
+    ));
+
+    cam.look_from = Point3::new(13.0, 2.0, 3.0);
+    cam.look_at = Point3::new(0.0, 0.0, 0.0);
+    cam.defocus_angle = 0.0;
 
     World::new_objects_only(objects)
 }

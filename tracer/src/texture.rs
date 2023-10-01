@@ -3,6 +3,7 @@ use std::sync::Arc;
 use image::GenericImageView;
 
 use crate::interval::Interval;
+use crate::perlin::Perlin;
 use crate::vec3::{Point3, Color};
 use crate::color::{COLOR_BLACK, COLOR_WHITE};
 
@@ -119,5 +120,18 @@ impl Texture for ImageTexture {
             color_scale * pixel[1] as f64,
             color_scale * pixel[2] as f64,
         )
+    }
+}
+
+// Noise Texture
+// ====================
+#[derive(Default)]
+pub struct NoiseTexture {
+    noise: Perlin
+}
+
+impl Texture for NoiseTexture {
+    fn value(&self, _: f64, _: f64, point: &Point3) -> Color {
+        Color::new(1.0, 1.0, 1.0) * self.noise.noise(point)
     }
 }
