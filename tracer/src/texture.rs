@@ -139,7 +139,12 @@ impl NoiseTexture {
 
 impl Texture for NoiseTexture {
     fn value(&self, _: f64, _: f64, point: &Point3) -> Color {
-        Color::new(1.0, 1.0, 1.0)
-        * self.noise.noise(&(*point * self.scale))
+        // Interestingly, Peter's code sends a scaled point (self.scale*point)
+        // to self.noise.turbulence(..), which generates a texture with a lot
+        // of small turbulences - which does not look like the intended marble
+        // he's aiming for in the book.
+        // But, passing the point unscaled to the turbulance function AND
+        // using the scaled point's Z component does result in the desired marble texture
+        Color::new(1.0, 1.0, 1.0) * 0.5 * (1.0 + (self.scale * point.z() + 10.0 * self.noise.turbulence(*point, 7)).sin())
     }
 }
