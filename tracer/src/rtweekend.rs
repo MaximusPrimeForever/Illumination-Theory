@@ -460,7 +460,7 @@ pub fn tiled_texture(cam: &mut Camera) -> World {
     ));
 
     cam.look_from = Point3::new(13.0, 2.0, 3.0);
-    cam.look_at = Point3::new(0.0, 0.0, 0.0);
+    cam.look_at = Point3::new(0.0, 0.5, 0.0);
     cam.defocus_angle = 0.0;
 
     World::new_objects_only(objects)
