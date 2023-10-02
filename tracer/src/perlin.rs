@@ -1,16 +1,17 @@
+use rand::Rng;
+
 use crate::vec3::Point3;
 
 
 pub struct Perlin {
     random_floats: Vec<f64>,
-    scale: f64,
     perm_x: Vec<usize>,
     perm_y: Vec<usize>,
     perm_z: Vec<usize>
 }
 
 impl Perlin {
-    pub fn new(point_count: usize, scale: f64) -> Self {
+    pub fn new(point_count: usize) -> Self {
         let mut rf = Vec::<f64>::with_capacity(point_count);
         for _ in 0..point_count {
             rf.push(rand::random::<f64>());
@@ -18,7 +19,6 @@ impl Perlin {
 
         Perlin { 
             random_floats: rf,
-            scale,
             perm_x: Perlin::generate_perlin_permutation(point_count),
             perm_y: Perlin::generate_perlin_permutation(point_count),
             perm_z: Perlin::generate_perlin_permutation(point_count)
@@ -26,9 +26,13 @@ impl Perlin {
     }
 
     pub fn noise(&self, point: &Point3) -> f64 {        
-        let u = point.x() - point.x().floor();
-        let v = point.y() - point.y().floor();
-        let w = point.z() - point.z().floor();
+        let mut u = point.x() - point.x().floor();
+        let mut v = point.y() - point.y().floor();
+        let mut w = point.z() - point.z().floor();
+
+        u = u * u * (3.0 - (2.0 * u));
+        v = v * v * (3.0 - (2.0 * v));
+        w = w * w * (3.0 - (2.0 * w));
 
         let i = point.x().floor() as i64;
         let j = point.y().floor() as i64;
@@ -40,8 +44,8 @@ impl Perlin {
                 for dk in 0..2 {
                     arr[di][dj][dk] = self.random_floats[
                         self.perm_x[((i + di as i64) & 255 as i64) as usize]
-                        ^ self.perm_x[((j + dj as i64) & 255 as i64) as usize]
-                        ^ self.perm_x[((k + dk as i64) & 255 as i64) as usize]
+                        ^ self.perm_y[((j + dj as i64) & 255 as i64) as usize]
+                        ^ self.perm_z[((k + dk as i64) & 255 as i64) as usize]
                     ]
                 }
             }
@@ -78,8 +82,8 @@ impl Perlin {
     }
 
     fn permute(array: &mut Vec<usize>) {
-        for i in (array.len() - 1)..0 {
-            let target = rand::random::<usize>() % i;
+        for i in (1..array.len()).rev() {
+            let target = rand::thread_rng().gen_range(0..i);
             array.swap(i, target);
         }
     }
@@ -95,7 +99,6 @@ impl Default for Perlin {
 
         Perlin { 
             random_floats: rf,
-            scale: 4.0,
             perm_x: Perlin::generate_perlin_permutation(point_count),
             perm_y: Perlin::generate_perlin_permutation(point_count),
             perm_z: Perlin::generate_perlin_permutation(point_count)

@@ -440,7 +440,9 @@ pub fn earth(cam: &mut Camera) -> World {
 pub fn tiled_texture(cam: &mut Camera) -> World {
     let mut objects: Vec<Arc<HittableSync>> = Vec::new();
 
-    let noise_texture = Arc::new(Lambertian::new_texture(Arc::new(NoiseTexture::default())));
+    let noise_texture = Arc::new(Lambertian::new_texture(Arc::new(
+        NoiseTexture::new(4.0)
+    )));
     objects.push(Arc::new(
         Sphere::new(
             Point3::new(0.0, -1000.0, 0.0),
