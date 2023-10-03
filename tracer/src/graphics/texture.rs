@@ -4,8 +4,8 @@ use image::GenericImageView;
 
 use crate::perlin::Perlin;
 use crate::interval::Interval;
-use crate::vec3::{Point3, Color};
-use crate::color::{COLOR_BLACK, COLOR_WHITE};
+use crate::math::vec3::{Point3, Color};
+use crate::rendering::color::{COLOR_BLACK, COLOR_WHITE};
 
 
 pub trait Texture {

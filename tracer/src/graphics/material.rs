@@ -3,13 +3,13 @@ use std::sync::Arc;
 use rand::random;
 
 use crate::ray::Ray;
-use crate::texture::{TextureSync, SolidColorTexture};
-use crate::vec3::Vec3;
-use crate::color::COLOR_WHITE;
-use crate::{hittable::HitRecord, vec3::Color};
-use crate::optics::{reflect, refract};
+use crate::hittable::HitRecord;
+use crate::math::vec3::{Vec3, Color};
+use crate::rendering::color::COLOR_WHITE;
+use crate::math::optics::{reflect, refract};
+use crate::graphics::texture::{TextureSync, SolidColorTexture};
 
-use crate::geometry::{
+use crate::utils::{
     get_random_point_in_unit_sphere,
     get_random_point_on_unit_sphere
 };

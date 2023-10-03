@@ -1,12 +1,12 @@
 use std::vec::Vec;
 use std::sync::Arc;
 
-use crate::bvh::BVH;
-use crate::interval::Interval;
 use crate::ray::Ray;
 use crate::light::Light;
-use crate::vec3::{Point3, Color};
-use crate::color::COLOR_BLACK;
+use crate::interval::Interval;
+use crate::graphics::bvh::BVH;
+use crate::math::vec3::{Point3, Color};
+use crate::rendering::color::COLOR_BLACK;
 use crate::hittable::{HittableSync, HitRecord, HittableT};
 
 

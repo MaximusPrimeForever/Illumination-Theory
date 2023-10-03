@@ -6,8 +6,7 @@ use indicatif::{ProgressBar, ProgressStyle, MultiProgress};
 use crate::Color;
 use crate::world::World;
 use crate::camera::Camera;
-use crate::buffer::{Canvas, SliceBuffer};
-use crate::color::rasterize_color;
+use crate::rendering::{buffer::{Canvas, SliceBuffer}, color::rasterize_color};
 
 
 

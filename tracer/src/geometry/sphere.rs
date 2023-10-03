@@ -1,11 +1,11 @@
-use std::f64::consts::PI;
 use std::sync::Arc;
+use std::f64::consts::PI;
 
-use crate::aabb::AABB;
-use crate::interval::Interval;
 use crate::ray::Ray;
-use crate::material::MaterialSync;
-use crate::vec3::{Vec3, Point3};
+use crate::interval::Interval;
+use crate::graphics::aabb::AABB;
+use crate::math::vec3::{Vec3, Point3};
+use crate::graphics::material::MaterialSync;
 use crate::hittable::{HittableT, HitRecord};
 
 pub struct Sphere {

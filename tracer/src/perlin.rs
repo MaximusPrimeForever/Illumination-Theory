@@ -1,6 +1,6 @@
 use rand::Rng;
 
-use crate::vec3::{Point3, Vec3};
+use crate::math::vec3::{Point3, Vec3};
 
 
 pub struct Perlin {

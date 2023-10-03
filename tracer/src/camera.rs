@@ -5,11 +5,9 @@ use rand::random;
 use crate::ray::Ray;
 use crate::world::World;
 use crate::interval::Interval;
-use crate::vec3::{Point3, Vec3, Color};
-use crate::geometry::random_in_unit_disk;
-
-use crate::color::sky_color;
-use crate::color::COLOR_BLACK;
+use crate::utils::random_in_unit_disk;
+use crate::math::vec3::{Point3, Vec3, Color};
+use crate::rendering::color::{sky_color, COLOR_BLACK};
 
 pub struct Camera {
     center: Point3,

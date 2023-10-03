@@ -1,6 +1,10 @@
 use std::sync::Arc;
 
-use crate::{aabb::AABB, hittable::{HittableT, HitRecord, HittableSync}, interval::Interval, ray::Ray};
+use crate::{
+    graphics::aabb::AABB,
+    hittable::{HittableT, HitRecord, HittableSync},
+    interval::Interval, ray::Ray
+};
 
 pub struct BVH {
     left_node: Arc<HittableSync>,

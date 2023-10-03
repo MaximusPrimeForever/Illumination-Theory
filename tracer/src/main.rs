@@ -1,31 +1,25 @@
 mod ray;
-mod bvh;
-mod vec3;
-mod aabb;
-mod color;
+mod math;
 mod world;
+mod utils;
 mod light;
-mod buffer;
-mod sphere;
-mod optics;
 mod camera;
-mod render;
 mod perlin;
-mod texture;
-mod interval;
-mod material;
+mod graphics;
 mod geometry;
+mod interval;
 mod hittable;
+mod rendering;
 mod rtweekend;
 
 use std::env;
 use std::sync::Arc;
 
 use camera::Camera;
-use render::render_scene;
+use rendering::render::render_scene;
 // use buffer::write_img_ppm;
 
-use vec3::{Vec3, Point3, Color};
+use math::vec3::{Vec3, Point3, Color};
 
 
 fn main() -> std::io::Result<()>{

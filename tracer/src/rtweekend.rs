@@ -8,13 +8,13 @@ use rand::random;
 use crate::{
     light::Light,
     world::World,
-    sphere::Sphere,
     camera::Camera,
-    vec3::{Color, Point3},
+    geometry::Sphere,
     hittable::HittableSync,
-    material::{Lambertian, Metal, Dielectric, MaterialSync},
-    texture::{SolidColorTexture, CheckerTexture, ImageTexture, NoiseTexture},
-    render::render_scene
+    math::vec3::{Color, Point3},
+    graphics::material::{Lambertian, Metal, Dielectric, MaterialSync},
+    graphics::texture::{SolidColorTexture, CheckerTexture, ImageTexture, NoiseTexture},
+    rendering::render::render_scene
 };
 
 

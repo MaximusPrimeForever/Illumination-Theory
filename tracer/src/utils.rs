@@ -1,5 +1,5 @@
 
-use crate::{vec3::{Vec3, Point3}, rtweekend::random_f64_in_range};
+use crate::{math::vec3::{Vec3, Point3}, rtweekend::random_f64_in_range};
 
 pub fn get_random_point_in_unit_sphere() -> Point3 {
     loop {

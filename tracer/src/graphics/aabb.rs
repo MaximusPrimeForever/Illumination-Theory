@@ -1,7 +1,8 @@
 use std::sync::Arc;
 
 use crate::hittable::HittableSync;
-use crate::{interval::Interval, vec3::Point3, ray::Ray};
+use crate::{interval::Interval, math::vec3::Point3, ray::Ray};
+
 
 #[derive(Default, Clone, Copy)]
 pub struct AABB {
@@ -31,6 +32,16 @@ impl AABB {
             y: box0.y.unite(box1.y),
             z: box0.z.unite(box1.z),
         }
+    }
+
+    pub fn pad(&self) -> AABB {
+        let delta = 0.0001;
+
+        let new_x = if self.x.len() >= delta { self.x.clone() } else { self.x.expand(delta) };
+        let new_y = if self.y.len() >= delta { self.y.clone() } else { self.y.expand(delta) };
+        let new_z = if self.z.len() >= delta { self.z.clone() } else { self.z.expand(delta) };
+
+        AABB::new(new_x, new_y, new_z)
     }
 
     pub fn new_from_hittables(objects: &Vec<Arc<HittableSync>>) -> AABB {
