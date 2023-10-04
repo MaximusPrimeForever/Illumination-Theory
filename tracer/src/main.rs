@@ -56,12 +56,15 @@ fn main() -> std::io::Result<()>{
     
     // World
     // World functions configure camera position, orientation, focus, etc.
+    // let world = rtweekend::one_weekend_endgame(8);
     // let world = rtweekend::cool_effects(8, 1.3);
     // let world = rtweekend::lit_world_textures(&mut cam);
     // let world = rtweekend::two_checkered_spheres(&mut cam);
     // let world = rtweekend::earth(&mut cam);
-    let world = rtweekend::tiled_texture(&mut cam);
-    // let world = rtweekend::one_weekend_endgame(8);
+    // let world = rtweekend::tiled_texture(&mut cam);
+    // let world = rtweekend::quad_scene(&mut cam);
+    // let world = rtweekend::quad_shadow_test(&mut cam);
+    let world = rtweekend::cornell_box(&mut cam);
 
     // Must be called!
     cam.initialize();

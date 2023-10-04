@@ -89,6 +89,14 @@ impl Metal {
     pub fn new(albedo: Color, fuzz: f64) -> Self {
         Metal { albedo, fuzz }
     }
+
+    pub fn new_mirror(albedo: Color) -> Self {
+        Metal { albedo, fuzz: 0.0 }
+    }
+
+    pub fn new_fuzzy(albedo: Color) -> Self {
+        Metal { albedo, fuzz: 1.0 }
+    }
 }
 
 impl Material for Metal {

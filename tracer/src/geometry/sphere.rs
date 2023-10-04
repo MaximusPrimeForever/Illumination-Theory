@@ -87,14 +87,13 @@ impl HittableT for Sphere {
         }
 
         let point = ray.at(root);
-        let material_rc = Arc::clone(&self.material);
         let outward_normal = (point - center) / self.radius;
         let (u, v) = self.get_sphere_uv(outward_normal);
 
         let rec = HitRecord::new(
             point,
             outward_normal,
-            material_rc,
+            self.material.clone(),
             root,
             u,
             v,

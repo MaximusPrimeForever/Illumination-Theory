@@ -9,12 +9,12 @@ use crate::{
     light::Light,
     world::World,
     camera::Camera,
-    geometry::Sphere,
+    geometry::{Sphere, Quad},
     hittable::HittableSync,
-    math::vec3::{Color, Point3},
+    math::vec3::{Color, Point3, Vec3},
     graphics::material::{Lambertian, Metal, Dielectric, MaterialSync},
     graphics::texture::{SolidColorTexture, CheckerTexture, ImageTexture, NoiseTexture},
-    rendering::render::render_scene
+    rendering::{render::render_scene, color::COLOR_WHITE}
 };
 
 
@@ -462,6 +462,175 @@ pub fn tiled_texture(cam: &mut Camera) -> World {
     cam.look_from = Point3::new(13.0, 2.0, 3.0);
     cam.look_at = Point3::new(0.0, 0.5, 0.0);
     cam.defocus_angle = 0.0;
+
+    World::new_objects_only(objects)
+}
+
+pub fn quad_scene(cam: &mut Camera) -> World {
+    let mut objects: Vec<Arc<HittableSync>> = Vec::new();
+
+    let red = Lambertian::new(Color::new(1.0, 0.2, 0.2));
+    let green = Lambertian::new(Color::new(0.2, 1.0, 0.2));
+    let blue = Lambertian::new(Color::new(0.2, 0.2, 1.0));
+    let orange = Lambertian::new(Color::new(1.0, 0.5, 0.0));
+    let teal = Lambertian::new(Color::new(0.2, 0.8, 0.8));
+
+    objects.push(Arc::new(Quad::new(
+        Point3::new(-3.0, -2.0, 5.0),
+        Vec3::new(0.0, 0.0, -4.0),
+        Vec3::new(0.0, 4.0, 0.0),
+        Arc::new(red)
+    )));
+
+    objects.push(Arc::new(Quad::new(
+        Point3::new(-2.0, -2.0, 0.0),
+        Vec3::new(4.0, 0.0, 0.0),
+        Vec3::new(0.0, 4.0, 0.0),
+        Arc::new(green)
+    )));
+
+    objects.push(Arc::new(Quad::new(
+        Point3::new(3.0, -2.0, 1.0),
+        Vec3::new(0.0, 0.0, 4.0),
+        Vec3::new(0.0, 4.0, 0.0),
+        Arc::new(blue)
+    )));
+
+    objects.push(Arc::new(Quad::new(
+        Point3::new(-2.0, 3.0, 1.0),
+        Vec3::new(4.0, 0.0, 0.0),
+        Vec3::new(0.0, 0.0, 4.0),
+        Arc::new(orange)
+    )));
+
+    objects.push(Arc::new(Quad::new(
+        Point3::new(-2.0, -3.0, 5.0),
+        Vec3::new(4.0, 0.0, 0.0),
+        Vec3::new(0.0, 0.0, -4.0),
+        Arc::new(teal)
+    )));
+
+    cam.look_from = Point3::new(0.0, 0.0, 9.0);
+    cam.look_at = Point3::zero();
+
+    World::new_objects_only(objects)
+}
+
+pub fn quad_shadow_test(cam: &mut Camera) -> World {
+    let mut objects: Vec<Arc<HittableSync>> = Vec::new();
+
+    let white = Arc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
+    let red = Arc::new(Lambertian::new(Color::new(1.0, 0.2, 0.2)));
+    let green = Arc::new(Lambertian::new(Color::new(0.2, 1.0, 0.2)));
+
+    // let ground_material = Arc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
+    // objects.push(Arc::new(
+    //     Sphere::new(Point3::new(0.0, -1000.0, 0.0), 1000.0, ground_material)
+    // ));
+
+    objects.push(Arc::new(Quad::new(
+        Point3::new(-10.5, 0.0, -10.0),
+        Vec3::new(20.0, 0.0, 0.0),
+        Vec3::new(0.0, 0.0, 20.0),
+        white
+    )));
+
+    objects.push(Arc::new(Quad::new(
+        Point3::new(-2.0, 2.0, -2.0),
+        Vec3::new(2.0, 0.0, 0.0),
+        Vec3::new(0.0, 0.0, 2.0),
+        red
+    )));
+
+    objects.push(Arc::new(
+        Sphere::new(
+            Point3::new(2.0, 1.0, -2.0),
+            1.0, 
+            green
+        )
+    ));
+
+    cam.look_from = Point3::new(0.0, 1.0, 3.0);
+    cam.look_at = Point3::new(0.0, 1.0, 0.0);
+
+    World::new_objects_only(objects)
+}
+
+pub fn cornell_box(cam: &mut Camera) -> World {
+    let mut objects: Vec<Arc<HittableSync>> = Vec::new();
+
+    let red = Lambertian::new(Color::new(1.0, 0.2, 0.2));
+    let green = Lambertian::new(Color::new(0.2, 1.0, 0.2));
+    let _blue = Lambertian::new(Color::new(0.2, 0.2, 1.0));
+    let _orange = Lambertian::new(Color::new(1.0, 0.5, 0.0));
+    let _teal = Lambertian::new(Color::new(0.2, 0.8, 0.8));
+
+    let white = Arc::new(Lambertian::new(Color::new(0.8, 0.8, 0.8)));
+
+    let width = 8.0;
+    let height = 8.0;
+    let length = 8.0;
+    let bottom_left_corner = Point3::new(
+        -(width / 2.0), -(height / 2.0), 0.0
+    );
+    
+    // front wall
+    objects.push(Arc::new(Quad::new(
+        bottom_left_corner.clone(),
+        Vec3::new(width, 0.0, 0.0),
+        Vec3::new(0.0, height, 0.0),
+        white.clone()
+    )));
+    
+    // floor
+    objects.push(Arc::new(Quad::new(
+        bottom_left_corner.clone(),
+        Vec3::new(width, 0.0, 0.0),
+        Vec3::new(0.0, 0.0, length),
+        white.clone()
+    )));
+
+    // ceiling
+    objects.push(Arc::new(Quad::new(
+        bottom_left_corner.clone() + Point3::new(0.0, height, 0.0),
+        Vec3::new(width, 0.0, 0.0),
+        Vec3::new(0.0, 0.0, length),
+        white.clone()
+    )));
+
+    // Two quads with a slit in the middle to let light in
+    // objects.push(Arc::new(Quad::new(
+    //     bottom_left_corner.clone() + Point3::new(0.0, height, 0.0),
+    //     Vec3::new(width / 2.0 - 1.0, 0.0, 0.0),
+    //     Vec3::new(0.0, 0.0, length),
+    //     white.clone()
+    // )));
+
+    // objects.push(Arc::new(Quad::new(
+    //     bottom_left_corner.clone() + Point3::new(width, height, 0.0),
+    //     Vec3::new(-(width / 2.0 - 1.0), 0.0, 0.0),
+    //     Vec3::new(0.0, 0.0, length),
+    //     white.clone()
+    // )));
+
+    // left wall
+    objects.push(Arc::new(Quad::new(
+        bottom_left_corner.clone(),
+        Vec3::new(0.0, 0.0, length),
+        Vec3::new(0.0, height, 0.0),
+        Arc::new(green)
+    )));
+
+    // right wall
+    objects.push(Arc::new(Quad::new(
+        bottom_left_corner.clone() + Point3::new(width, 0.0, 0.0),
+        Vec3::new(0.0, 0.0, length),
+        Vec3::new(0.0, height, 0.0),
+        Arc::new(red)
+    )));
+
+    cam.look_from = Point3::new(0.0, 0.0, 9.0);
+    cam.look_at = Point3::zero();
 
     World::new_objects_only(objects)
 }
