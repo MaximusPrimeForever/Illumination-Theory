@@ -62,9 +62,9 @@ fn main() -> std::io::Result<()>{
     // let world = rtweekend::two_checkered_spheres(&mut cam);
     // let world = rtweekend::earth(&mut cam);
     // let world = rtweekend::tiled_texture(&mut cam);
-    // let world = rtweekend::quad_scene(&mut cam);
+    let world = rtweekend::quad_scene(&mut cam);
     // let world = rtweekend::quad_shadow_test(&mut cam);
-    let world = rtweekend::cornell_box(&mut cam);
+    // let world = rtweekend::cornell_box(&mut cam);
 
     // Must be called!
     cam.initialize();
