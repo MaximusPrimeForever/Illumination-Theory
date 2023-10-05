@@ -32,7 +32,7 @@ pub fn rasterize_color(pixel_color: Color, samples_per_pixel: usize) -> image::R
 /// Blends smoothly between white, and light blue.
 pub fn sky_color(ray: Ray) -> Color {
     let unit_direction: Vec3 = ray.direction.unit();
-    let h = 0.5 * (unit_direction.y() + 1.0) * 1.5;
+    let h = 0.5 * (unit_direction.y() + 1.0) * 1.0;
 
     (1.0 - h) * COLOR_WHITE + h * COLOR_SKY_BLUE
 }

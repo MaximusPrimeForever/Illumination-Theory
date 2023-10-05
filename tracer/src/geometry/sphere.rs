@@ -8,11 +8,12 @@ use crate::math::vec3::{Vec3, Point3};
 use crate::graphics::material::MaterialSync;
 use crate::hittable::{HittableT, HitRecord};
 
+#[derive(Clone)]
 pub struct Sphere {
-    center: Point3,
-    radius: f64,
-    material: Arc<MaterialSync>,
-    bounding_box: AABB
+    pub center: Point3,
+    pub radius: f64,
+    pub material: Arc<MaterialSync>,
+    pub bounding_box: AABB
 }
 
 impl Sphere {

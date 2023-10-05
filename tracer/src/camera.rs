@@ -167,21 +167,22 @@ impl Camera {
             None => {
                 // Ray did not hit any object
                 let sky_color = sky_color(ray);
+                return sky_color
     
-                // return the sky color if the ray hasn't bounced around
-                // this results in a nice color for the sky
-                if !has_bounced {
-                    return sky_color;
-                }
+                // // return the sky color if the ray hasn't bounced around
+                // // this results in a nice color for the sky
+                // if !has_bounced {
+                //     return sky_color;
+                // }
 
-                if world.lights.len() == 0 {
-                    return sky_color;
-                }
+                // if world.lights.len() == 0 {
+                //     return sky_color;
+                // }
                 
-                // Compute light value based on sky and nearby lights
-                // very crude and lame
-                let lights_color = world.hit_lights(ray.origin, T_MIN_TOLERANCE);
-                return lights_color * 0.8 + sky_color * 0.2;
+                // // Compute light value based on sky and nearby lights
+                // // very crude and lame
+                // let lights_color = world.hit_lights(ray.origin, T_MIN_TOLERANCE);
+                // return lights_color * 0.8 + sky_color * 0.2;
             }
         }
     }

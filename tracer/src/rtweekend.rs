@@ -6,14 +6,14 @@ use std::sync::Arc;
 use rand::random;
 
 use crate::{
-    light::Light,
     world::World,
     camera::Camera,
-    geometry::{Sphere, Quad},
+    geometry::{Sphere, Quad, Sphereflake},
     hittable::HittableSync,
     math::vec3::{Color, Point3, Vec3},
     graphics::material::{Lambertian, Metal, Dielectric, MaterialSync},
     graphics::texture::{SolidColorTexture, CheckerTexture, ImageTexture, NoiseTexture},
+    graphics::light::Light,
     rendering::{render::render_scene, color::COLOR_WHITE}
 };
 
@@ -22,6 +22,18 @@ use crate::{
 /// [min, max)
 pub fn random_f64_in_range(min: f64, max: f64) -> f64 {
     min + random::<f64>() * (max - min)
+}
+
+fn generate_default_plane(plane_size: f64, color: Option<Color>) -> Quad {
+    let plane_color = color.unwrap_or(Color::new(0.8, 0.8, 0.8));
+    let plane_material = Arc::new(Lambertian::new(plane_color));
+
+    Quad::new(
+        Point3::new(-(plane_size / 2.0), 0.0, -(plane_size / 2.0)),
+        Vec3::new(plane_size, 0.0, 0.0),
+        Vec3::new(0.0, 0.0, plane_size),
+        plane_material
+    )
 }
 
 pub fn test_scene() {
@@ -523,11 +535,6 @@ pub fn quad_shadow_test(cam: &mut Camera) -> World {
     let red = Arc::new(Lambertian::new(Color::new(1.0, 0.2, 0.2)));
     let green = Arc::new(Lambertian::new(Color::new(0.2, 1.0, 0.2)));
 
-    // let ground_material = Arc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
-    // objects.push(Arc::new(
-    //     Sphere::new(Point3::new(0.0, -1000.0, 0.0), 1000.0, ground_material)
-    // ));
-
     objects.push(Arc::new(Quad::new(
         Point3::new(-10.5, 0.0, -10.0),
         Vec3::new(20.0, 0.0, 0.0),
@@ -631,6 +638,30 @@ pub fn cornell_box(cam: &mut Camera) -> World {
 
     cam.look_from = Point3::new(0.0, 0.0, 9.0);
     cam.look_at = Point3::zero();
+
+    World::new_objects_only(objects)
+}
+
+pub fn sphereflake_on_sandy_plane(cam: &mut Camera) -> World {
+    let mut objects: Vec<Arc<HittableSync>> = Vec::new();
+    let plane_size = 30.0;
+
+    // Big sand colored plane
+    objects.push(Arc::new(generate_default_plane(
+        plane_size,
+        Some(Color::new(0.99607843, 0.87843137, 0.60784314) * Color::new(2.0, 2.0, 1.0 ))
+    )));
+
+    let sphereflake = Sphereflake::new_upright(
+        Point3::new(0.0, 1.0, 0.0),
+        1.0, 
+        Arc::new(Metal::new_mirror(Color::new(0.2, 0.2, 0.2))),
+        5
+    );
+    objects.append(&mut sphereflake.bvh_conversion());
+
+    cam.look_from = Point3::new(-3.0, 6.0, -8.0);
+    cam.look_at = Point3::new(0.0, 1.0, 0.0);
 
     World::new_objects_only(objects)
 }

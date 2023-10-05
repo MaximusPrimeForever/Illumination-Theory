@@ -69,6 +69,42 @@ impl Vec3 {
             &self.e[0] * v.e[1] - &self.e[1] * v.e[0]
         )
     }
+    
+    /// Rotate vector around X axis
+    /// theta is in radians
+    pub fn rotate_x(&self, theta: f64) -> Vec3 {
+        Vec3::new(
+            self.x(),
+            self.y() * theta.cos() - self.z() * theta.sin(),
+            self.y() * theta.sin() + self.z() * theta.cos()
+        )
+    }
+
+    /// Rotate vector around Y axis
+    /// theta is in radians
+    pub fn rotate_y(&self, theta: f64) -> Vec3 {
+        Vec3::new(
+            self.x() * theta.cos() + self.z() * theta.sin(),
+            self.y(),
+            -self.x() * theta.sin() + self.z() * theta.cos()
+        )
+    }
+
+    /// Rotate vector around Z axis
+    /// theta is in radians
+    pub fn rotate_z(&self, theta: f64) -> Vec3 {
+        Vec3::new(
+            self.x() * theta.cos() - self.y() * theta.sin(),
+            self.x() * theta.sin() + self.y() * theta.cos(),
+            self.z()
+        )
+    }
+
+    /// Rotate vector on axis described by unit vector k
+    /// (Rodrigues rotation)
+    pub fn rotate_rodrigues(&self, theta: f64, k: Vec3) -> Vec3 {
+        *self * theta.cos() + k.cross(*self) * theta.sin() + k * (k.dot(*self) * (1.0 - theta.cos()))
+    }
 
 }
 

@@ -2,7 +2,6 @@ mod ray;
 mod math;
 mod world;
 mod utils;
-mod light;
 mod camera;
 mod perlin;
 mod graphics;
@@ -43,7 +42,7 @@ fn main() -> std::io::Result<()>{
     // vscode rust debugger
     // let image_width = 400;
     // let aspect_ratio = 16.0 / 9.0;
-    // let vfov = 20.0;
+    // let vfov: f64 = 20.0;
     // let samples_per_pixel: usize = 50;
     // let trace_depth: usize = 10;
     // let core_count: usize = 1;
@@ -62,7 +61,8 @@ fn main() -> std::io::Result<()>{
     // let world = rtweekend::two_checkered_spheres(&mut cam);
     // let world = rtweekend::earth(&mut cam);
     // let world = rtweekend::tiled_texture(&mut cam);
-    let world = rtweekend::quad_scene(&mut cam);
+    // let world = rtweekend::quad_scene(&mut cam);
+    let world = rtweekend::sphereflake_on_sandy_plane(&mut cam);
     // let world = rtweekend::quad_shadow_test(&mut cam);
     // let world = rtweekend::cornell_box(&mut cam);
 
