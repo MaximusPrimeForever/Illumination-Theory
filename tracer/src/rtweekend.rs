@@ -581,20 +581,16 @@ pub fn quad_shadow_test(cam: &mut Camera) -> World {
 pub fn cornell_box(cam: &mut Camera) -> World {
     let mut world = World::new();
 
-    let red = Lambertian::new(Color::new(1.0, 0.2, 0.2));
-    let green = Lambertian::new(Color::new(0.2, 1.0, 0.2));
-    let _blue = Lambertian::new(Color::new(0.2, 0.2, 1.0));
-    let _orange = Lambertian::new(Color::new(1.0, 0.5, 0.0));
-    let _teal = Lambertian::new(Color::new(0.2, 0.8, 0.8));
-
-    let white = Arc::new(Lambertian::new(Color::new(0.8, 0.8, 0.8)));
-    let light = Arc::new(DiffuseLight::new_color(COLOR_WHITE * 8.0));
+    let red = Arc::new(Lambertian::new(Color::new(0.65, 0.05, 0.05)));
+    let green = Arc::new(Lambertian::new(Color::new(0.12, 0.45, 0.15)));
+    let white = Arc::new(Lambertian::new(Color::new(0.73, 0.73, 0.73)));
+    let light = Arc::new(DiffuseLight::new_color(COLOR_WHITE * 15.0));
 
     let width = 100.0;
     let height = width;
     let length = width;
     let light_width = width * 0.2;
-    let light_length = light_width;
+     let light_length = light_width;
     let bottom_left_corner = Point3::new(
         -(width / 2.0), -(height / 2.0), 0.0
     );
@@ -636,7 +632,7 @@ pub fn cornell_box(cam: &mut Camera) -> World {
         bottom_left_corner.clone(),
         Vec3::new(0.0, 0.0, length),
         Vec3::new(0.0, height, 0.0),
-        Arc::new(green)
+        green
     )));
 
     // right wall
@@ -644,7 +640,7 @@ pub fn cornell_box(cam: &mut Camera) -> World {
         bottom_left_corner.clone() + Point3::new(width, 0.0, 0.0),
         Vec3::new(0.0, 0.0, length),
         Vec3::new(0.0, height, 0.0),
-        Arc::new(red)
+        red
     )));
 
     // boxes
