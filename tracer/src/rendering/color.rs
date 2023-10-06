@@ -1,5 +1,5 @@
 use crate::ray::Ray;
-use crate::interval::Interval;
+use crate::math::interval::Interval;
 use crate::math::vec3::{Vec3, Color};
 
 // Colors

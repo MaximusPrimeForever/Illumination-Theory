@@ -2,14 +2,14 @@ use std::vec::Vec;
 use std::sync::Arc;
 
 use crate::ray::Ray;
-use crate::interval::Interval;
+use crate::math::interval::Interval;
 use crate::graphics::{
     bvh::BVH,
     light::Light
 };
 use crate::math::vec3::{Point3, Color};
 use crate::rendering::color::COLOR_BLACK;
-use crate::hittable::{HittableSync, HitRecord, HittableT};
+use crate::geometry::hittable::{HittableSync, HitRecord, HittableT};
 
 
 /// This class optimizes intersections with a group of objects

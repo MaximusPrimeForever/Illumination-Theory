@@ -4,7 +4,7 @@ use rand::random;
 
 use crate::ray::Ray;
 use crate::world::World;
-use crate::interval::Interval;
+use crate::math::interval::Interval;
 use crate::utils::random_in_unit_disk;
 use crate::math::vec3::{Point3, Vec3, Color};
 use crate::rendering::color::COLOR_BLACK;

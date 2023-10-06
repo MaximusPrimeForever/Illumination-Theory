@@ -3,7 +3,7 @@ use std::sync::Arc;
 use image::GenericImageView;
 
 use crate::perlin::Perlin;
-use crate::interval::Interval;
+use crate::math::interval::Interval;
 use crate::math::vec3::{Point3, Color};
 use crate::rendering::color::{COLOR_BLACK, COLOR_WHITE};
 

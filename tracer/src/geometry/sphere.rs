@@ -2,11 +2,11 @@ use std::sync::Arc;
 use std::f64::consts::PI;
 
 use crate::ray::Ray;
-use crate::interval::Interval;
+use crate::math::interval::Interval;
 use crate::graphics::aabb::AABB;
 use crate::math::vec3::{Vec3, Point3};
 use crate::graphics::material::MaterialSync;
-use crate::hittable::{HittableT, HitRecord};
+use crate::geometry::hittable::{HittableT, HitRecord};
 
 #[derive(Clone)]
 pub struct Sphere {

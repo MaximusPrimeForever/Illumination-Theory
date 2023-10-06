@@ -3,7 +3,8 @@ use std::f64::consts::PI;
 
 use crate::{
     math::vec3::{Vec3, Point3},
-    hittable::HittableSync, graphics::material::MaterialSync
+    geometry::hittable::HittableSync,
+    graphics::material::MaterialSync
 };
 
 use super::Sphere;

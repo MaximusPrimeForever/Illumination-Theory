@@ -1,6 +1,8 @@
 use std::sync::Arc;
 
 use crate::{Point3, Color};
+use crate::geometry::hittable::HitRecord;
+use crate::ray::Ray;
 
 use super::{
     texture::{TextureSync, SolidColorTexture},
@@ -42,7 +44,7 @@ impl DiffuseLight {
 }
 
 impl Material for DiffuseLight {
-    fn scatter(&self, _: &crate::ray::Ray, _: &crate::hittable::HitRecord) -> Option<(Color, crate::ray::Ray)> {
+    fn scatter(&self, _: &Ray, _: &HitRecord) -> Option<(Color, Ray)> {
         None
     }
 

@@ -6,8 +6,6 @@ mod camera;
 mod perlin;
 mod graphics;
 mod geometry;
-mod interval;
-mod hittable;
 mod rendering;
 mod rtweekend;
 

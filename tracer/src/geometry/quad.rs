@@ -2,7 +2,9 @@ use std::sync::Arc;
 
 use crate::{
     math::{vec3::{Point3, Vec3}, consts::NEAR_ZERO_THRESHOLD},
-    graphics::{aabb::AABB, material::MaterialSync}, hittable::{HittableT, HitRecord}
+    graphics::{aabb::AABB, material::MaterialSync},
+    geometry::hittable::{HittableT, HitRecord},
+    math::interval::Interval
 };
 
 /// The quad is defined by a bottom left coordinate from origin
@@ -49,7 +51,7 @@ impl HittableT for Quad {
     
     /// the ray-plane intersection is defined as:
     /// t = (D - n ⋅ P) / (n ⋅ d)
-    fn hit(&self, ray: crate::ray::Ray, ray_interval: crate::interval::Interval) -> Option<crate::hittable::HitRecord> {
+    fn hit(&self, ray: crate::ray::Ray, ray_interval: Interval) -> Option<HitRecord> {
         let denom = self.normal.dot(ray.direction);
         
         // n ⋅ d is close to zero which means ray is parallel to plane

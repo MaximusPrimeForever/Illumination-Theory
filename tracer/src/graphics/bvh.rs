@@ -2,8 +2,8 @@ use std::sync::Arc;
 
 use crate::{
     graphics::aabb::AABB,
-    hittable::{HittableT, HitRecord, HittableSync},
-    interval::Interval, ray::Ray
+    math::interval::Interval, ray::Ray,
+    geometry::hittable::{HittableT, HitRecord, HittableSync}
 };
 
 pub struct BVH {

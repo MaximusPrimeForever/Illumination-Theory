@@ -8,8 +8,8 @@ use rand::random;
 use crate::{
     world::World,
     camera::Camera,
-    hittable::HittableSync,
     math::vec3::{Color, Point3, Vec3},
+    geometry::hittable::HittableSync,
     geometry::{Sphere, Quad, Sphereflake},
 
     graphics::light::DiffuseLight,

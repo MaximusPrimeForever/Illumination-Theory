@@ -2,7 +2,7 @@
 use std::sync::Arc;
 
 use crate::ray::Ray;
-use crate::interval::Interval;
+use crate::math::interval::Interval;
 use crate::math::vec3::{Point3, Vec3};
 use crate::graphics::{material::Material, aabb::AABB};
 
