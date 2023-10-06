@@ -1,7 +1,7 @@
 # Illumination-Theory
 ![Alt text](resources/repo/final_highres_bokeh.png)
 
-Ray tracer in written Rust.
+Ray tracer in Rust.
 
 Following this: https://raytracing.github.io/.  
 With some modifications:
