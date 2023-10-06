@@ -146,8 +146,6 @@ fn render_slice(slice_buffer: Arc<Mutex<SliceBuffer>>,
                 );
                 pixel_color += color;
             }
-            // line_buffer.push(rasterize_color(pixel_color, samples_per_pixel));
-
             let pixel = slice_data.pixels.get_pixel_mut(j as u32, i as u32);
             *pixel = rasterize_color(pixel_color, samples_per_pixel);
         }

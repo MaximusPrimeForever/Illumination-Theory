@@ -15,7 +15,7 @@ use crate::{
     graphics::light::DiffuseLight,
     graphics::material::{Lambertian, Metal, Dielectric, MaterialSync},
     graphics::texture::{SolidColorTexture, CheckerTexture, ImageTexture, NoiseTexture},
-    rendering::{render::render_scene, color::{COLOR_SKY_BLUE, COLOR_BLACK}}
+    rendering::{render::render_scene, color::{COLOR_SKY_BLUE, COLOR_BLACK, COLOR_WHITE}}
 };
 
 
@@ -94,7 +94,7 @@ pub fn test_scene() {
 
     // lights
     
-    let world = World::new(objects);
+    let world = World::new_from_objects(objects);
 
     // Must be called!
     cam.initialize();
@@ -183,7 +183,7 @@ pub fn one_weekend_endgame(cam: &mut Camera, grid_size: i32) -> World {
     cam.look_at = Point3::new(0.0, 1.5, 0.0);
     cam.background = COLOR_SKY_BLUE;
 
-    World::new(objects)
+    World::new_from_objects(objects)
 }
 
 pub fn cool_effects(sphere_count: u32, distance: f64) -> World {
@@ -234,7 +234,7 @@ pub fn cool_effects(sphere_count: u32, distance: f64) -> World {
         )));
     }
 
-    World::new(objects)
+    World::new_from_objects(objects)
 }
 
 pub fn row_of_glass(sphere_count: u32, distance: f64) -> World {
@@ -273,7 +273,7 @@ pub fn row_of_glass(sphere_count: u32, distance: f64) -> World {
         Arc::new(Lambertian::new(Color::new(0.2, 0.2, 2.0)))
     )));
 
-    World::new(objects)
+    World::new_from_objects(objects)
 }
 
 pub fn grid_of_glass(size: u32, distance: f64, radius: f64) -> World {
@@ -316,7 +316,7 @@ pub fn grid_of_glass(size: u32, distance: f64, radius: f64) -> World {
         }
     }
 
-    World::new(objects)
+    World::new_from_objects(objects)
 }
 
 pub fn lit_world(cam: &mut Camera) -> World {
@@ -353,7 +353,7 @@ pub fn lit_world(cam: &mut Camera) -> World {
     cam.look_at = Point3::new(0, 2, 0);
     cam.background = COLOR_BLACK;
 
-    World::new(objects)
+    World::new_from_objects(objects)
 }
 
 pub fn lit_world_textures(cam: &mut Camera) -> World {
@@ -397,7 +397,7 @@ pub fn lit_world_textures(cam: &mut Camera) -> World {
     cam.look_at = Point3::new(0.0, 1.5, 0.0);
     cam.background = COLOR_SKY_BLUE;
     
-    World::new(objects)
+    World::new_from_objects(objects)
 }
 
 pub fn two_checkered_spheres(cam: &mut Camera) -> World {
@@ -425,7 +425,7 @@ pub fn two_checkered_spheres(cam: &mut Camera) -> World {
     cam.look_at = Point3::new(0.0, 0.0, 0.0);
     cam.background = COLOR_SKY_BLUE;
     
-    World::new(objects)
+    World::new_from_objects(objects)
 }
 
 pub fn earth(cam: &mut Camera) -> World {
@@ -458,7 +458,7 @@ pub fn earth(cam: &mut Camera) -> World {
     cam.background = COLOR_SKY_BLUE;
 
 
-    World::new(objects)
+    World::new_from_objects(objects)
 }
 
 pub fn marble_texture(cam: &mut Camera) -> World {
@@ -488,7 +488,7 @@ pub fn marble_texture(cam: &mut Camera) -> World {
     cam.defocus_angle = 0.0;
     cam.background = COLOR_SKY_BLUE;
 
-    World::new(objects)
+    World::new_from_objects(objects)
 }
 
 pub fn quad_scene(cam: &mut Camera) -> World {
@@ -539,7 +539,7 @@ pub fn quad_scene(cam: &mut Camera) -> World {
     cam.look_at = Point3::zero();
     cam.background = COLOR_SKY_BLUE;
 
-    World::new(objects)
+    World::new_from_objects(objects)
 }
 
 pub fn quad_shadow_test(cam: &mut Camera) -> World {
@@ -575,11 +575,11 @@ pub fn quad_shadow_test(cam: &mut Camera) -> World {
     cam.look_at = Point3::new(0.0, 1.0, 0.0);
     cam.background = COLOR_SKY_BLUE;
 
-    World::new(objects)
+    World::new_from_objects(objects)
 }
 
 pub fn cornell_box(cam: &mut Camera) -> World {
-    let mut objects: Vec<Arc<HittableSync>> = Vec::new();
+    let mut world = World::new();
 
     let red = Lambertian::new(Color::new(1.0, 0.2, 0.2));
     let green = Lambertian::new(Color::new(0.2, 1.0, 0.2));
@@ -588,16 +588,19 @@ pub fn cornell_box(cam: &mut Camera) -> World {
     let _teal = Lambertian::new(Color::new(0.2, 0.8, 0.8));
 
     let white = Arc::new(Lambertian::new(Color::new(0.8, 0.8, 0.8)));
+    let light = Arc::new(DiffuseLight::new_color(COLOR_WHITE * 8.0));
 
-    let width = 8.0;
-    let height = 8.0;
-    let length = 8.0;
+    let width = 100.0;
+    let height = width;
+    let length = width;
+    let light_width = width * 0.2;
+    let light_length = light_width;
     let bottom_left_corner = Point3::new(
         -(width / 2.0), -(height / 2.0), 0.0
     );
     
     // front wall
-    objects.push(Arc::new(Quad::new(
+    world.add_hittable(Arc::new(Quad::new(
         bottom_left_corner.clone(),
         Vec3::new(width, 0.0, 0.0),
         Vec3::new(0.0, height, 0.0),
@@ -605,7 +608,7 @@ pub fn cornell_box(cam: &mut Camera) -> World {
     )));
     
     // floor
-    objects.push(Arc::new(Quad::new(
+    world.add_hittable(Arc::new(Quad::new(
         bottom_left_corner.clone(),
         Vec3::new(width, 0.0, 0.0),
         Vec3::new(0.0, 0.0, length),
@@ -613,30 +616,23 @@ pub fn cornell_box(cam: &mut Camera) -> World {
     )));
 
     // ceiling
-    objects.push(Arc::new(Quad::new(
+    world.add_hittable(Arc::new(Quad::new(
         bottom_left_corner.clone() + Point3::new(0.0, height, 0.0),
         Vec3::new(width, 0.0, 0.0),
         Vec3::new(0.0, 0.0, length),
         white.clone()
     )));
 
-    // Two quads with a slit in the middle to let light in
-    // objects.push(Arc::new(Quad::new(
-    //     bottom_left_corner.clone() + Point3::new(0.0, height, 0.0),
-    //     Vec3::new(width / 2.0 - 1.0, 0.0, 0.0),
-    //     Vec3::new(0.0, 0.0, length),
-    //     white.clone()
-    // )));
-
-    // objects.push(Arc::new(Quad::new(
-    //     bottom_left_corner.clone() + Point3::new(width, height, 0.0),
-    //     Vec3::new(-(width / 2.0 - 1.0), 0.0, 0.0),
-    //     Vec3::new(0.0, 0.0, length),
-    //     white.clone()
-    // )));
+    // light
+    world.add_hittable(Arc::new(Quad::new(
+        bottom_left_corner.clone() + Point3::new((width - light_width) / 2.0, height - 1.0, (length - light_length) / 2.0),
+        Vec3::new(light_width, 0.0, 0.0),
+        Vec3::new(0.0, 0.0, light_length),
+        light
+    )));
 
     // left wall
-    objects.push(Arc::new(Quad::new(
+    world.add_hittable(Arc::new(Quad::new(
         bottom_left_corner.clone(),
         Vec3::new(0.0, 0.0, length),
         Vec3::new(0.0, height, 0.0),
@@ -644,40 +640,42 @@ pub fn cornell_box(cam: &mut Camera) -> World {
     )));
 
     // right wall
-    objects.push(Arc::new(Quad::new(
+    world.add_hittable(Arc::new(Quad::new(
         bottom_left_corner.clone() + Point3::new(width, 0.0, 0.0),
         Vec3::new(0.0, 0.0, length),
         Vec3::new(0.0, height, 0.0),
         Arc::new(red)
     )));
 
-    cam.look_from = Point3::new(0.0, 0.0, 9.0);
+    cam.look_from = Point3::new(0.0, 0.0, length * 2.5);
     cam.look_at = Point3::zero();
+    cam.vfov = 40.0;
 
-    World::new(objects)
+    world.initialize();
+    world
 }
 
 pub fn sphereflake_on_sandy_plane(cam: &mut Camera) -> World {
-    let mut objects: Vec<Arc<HittableSync>> = Vec::new();
+    let mut world = World::new();
     let plane_size = 30.0;
 
     // Big sand colored plane
-    objects.push(Arc::new(generate_default_plane(
+    world.add_hittable(Arc::new(generate_default_plane(
         plane_size,
         Some(Color::new(0.99607843, 0.87843137, 0.60784314) * Color::new(2.0, 2.0, 1.0 ))
     )));
 
-    let sphereflake = Sphereflake::new_upright(
+    world.add_hittable_composite(&Sphereflake::new_upright(
         Point3::new(0.0, 1.0, 0.0),
         1.0, 
         Arc::new(Metal::new_mirror(Color::new(0.2, 0.2, 0.2))),
         5
-    );
-    objects.append(&mut sphereflake.bvh_conversion());
+    ));
 
     cam.look_from = Point3::new(-3.0, 6.0, -8.0);
     cam.look_at = Point3::new(0.0, 1.0, 0.0);
     cam.background = COLOR_SKY_BLUE;
 
-    World::new(objects)
+    world.initialize();
+    world
 }

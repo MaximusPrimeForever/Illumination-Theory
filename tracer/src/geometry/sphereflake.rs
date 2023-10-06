@@ -7,7 +7,7 @@ use crate::{
     graphics::material::MaterialSync
 };
 
-use super::Sphere;
+use super::{Sphere, hittable::HittableComposite};
 
 
 /// Sphere with 9 children, each with a radius 1/3 of the parent
@@ -98,14 +98,16 @@ impl Sphereflake {
             children
         }
     }
+}
 
+impl HittableComposite for Sphereflake {
     /// Recursively return a vector of all children
-    pub fn bvh_conversion(&self) -> Vec<Arc<HittableSync>> {
+    fn to_hittable(&self) -> Vec<Arc<HittableSync>> {
         let mut spheres: Vec<Arc<HittableSync>> = Vec::new();
         spheres.push(Arc::new(self.initial_sphere.clone()));
 
         for child in &self.children {
-            let mut grandsons = child.bvh_conversion();
+            let mut grandsons = child.to_hittable();
             spheres.append(&mut grandsons);
         }
 

@@ -31,6 +31,7 @@ fn set_face_normal(ray: Ray, normal: Vec3) -> (bool, Vec3) {
     (front_face, normal)
 }
 
+
 pub trait HittableT {
     fn hit(&self, ray: Ray, ray_interval: Interval) -> Option<HitRecord>;
     fn bounding_box(&self) -> AABB;
@@ -38,3 +39,10 @@ pub trait HittableT {
 
 // ? wtf is this, read about it
 pub type HittableSync = dyn HittableT + Send + Sync;
+
+/// Intended to be implemented by Geometry that is built from other basic shapes.
+/// E.g. Sphereflake, Box, etc.
+/// This simply returns a Vector of primitives which are then passed to the BVH.
+pub trait HittableComposite {
+    fn to_hittable(&self) -> Vec<Arc<HittableSync>>;
+}

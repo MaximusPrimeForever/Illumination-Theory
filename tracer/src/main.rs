@@ -62,8 +62,8 @@ fn main() -> std::io::Result<()>{
     // let world = rtweekend::quad_scene(&mut cam);
     // let world = rtweekend::sphereflake_on_sandy_plane(&mut cam);
     // let world = rtweekend::quad_shadow_test(&mut cam);
-    // let world = rtweekend::cornell_box(&mut cam);
-    let world = rtweekend::lit_world(&mut cam);
+    let world = rtweekend::cornell_box(&mut cam);
+    // let world = rtweekend::lit_world(&mut cam);
 
     // Must be called!
     cam.initialize();
