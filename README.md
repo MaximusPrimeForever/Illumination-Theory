@@ -17,11 +17,11 @@ git clone https://github.com/MaximusPrimeForever/Illumination-Theory.git
 
 ### Options
 The script allows you to configure the following values:
-- Image width
+- Image width - in pixels (higher resolution generally results in a cleaner image).
 - Aspect ratio - ratio of image width and height.
 - Vertical FOV - how wide the image is vertically (affects horizontal FOV as well of course).
-- Sample rate - how many rays are simulated per pixel.
-- Trace depth - how many times a ray can bounce around the scene until it dies.
+- Sample rate - how many rays are simulated per pixel (higher values generate a cleaner image).
+- Trace depth - how many times a ray can bounce around the scene until it dies  (higher values generate better reflections/refractions).
 - Thread count - how many threads to run in parallel while rendering. This can be increased past the actual CPU core count to divide the image into smaller parts, and thus potentially increasing performance.
 
 **Note**: if rendering a complex scene with parameters turned up on all cores, the render WILL use up ALL of the CPU.
@@ -34,7 +34,8 @@ Running the script without passing args will use:
 - Sample rate = 100
 - Trace depth = 10
 - Core count = 0 - meaning all cores.
-
+- Vertical FOV = 60
+- Aspect Ratio = 1.7777 (roughly 16:9)
 
 ### On Linux
 Run the script:
@@ -53,7 +54,11 @@ chmod +x ./render.sh
 Run the script:
 ```powershell
 cd Illumination-Theory
+
 .\run.ps1 image
+
+# specifiying a bunch of parameters
+.\run.ps1 rectangle_diffuse_light -thread_count 32 -trace_depth 30 -vertical_fov 25 -aspect_ratio 1.7777 -image_width 600 -samples_per_pixel 100
 ```
 
 ## Images

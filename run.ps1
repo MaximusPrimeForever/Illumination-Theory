@@ -2,7 +2,7 @@ param (
     [string]$image_name,
     [bool]$run_test = $false,
     [uint]$image_width = 400,
-    [float]$aspect_ratio = 1.5,
+    [float]$aspect_ratio = 1.7777,
     [float]$vertical_fov = 60,
     [uint]$samples_per_pixel = 100,
     [uint]$trace_depth = 10,
