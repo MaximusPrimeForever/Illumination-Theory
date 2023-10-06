@@ -17,6 +17,7 @@ renders/**.ppm
 renders/**.png
 output.ppm
 output.png
+test_scene.png
 *.xmp
 
 .vscode/

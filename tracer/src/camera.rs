@@ -7,7 +7,7 @@ use crate::world::World;
 use crate::interval::Interval;
 use crate::utils::random_in_unit_disk;
 use crate::math::vec3::{Point3, Vec3, Color};
-use crate::rendering::color::{sky_color, COLOR_BLACK};
+use crate::rendering::color::COLOR_BLACK;
 
 pub struct Camera {
     center: Point3,
@@ -33,6 +33,7 @@ pub struct Camera {
     // Renderer
     pub image_width: usize,
     pub image_height: usize,
+    pub background: Color,
 
     // Aux
     pub is_initialized: bool
@@ -61,6 +62,7 @@ impl Default for Camera {
             vup: Vec3::new(0.0, 1.0, 0.0),
             image_width: 640,
             image_height: 360,
+            background: COLOR_BLACK,
             is_initialized: false
         }
     }
@@ -113,7 +115,7 @@ impl Camera {
             panic!("Camera must be initialized before rendering.");
         }
         let ray = self.generate_ray(row, col);
-        self.ray_color(ray, world, trace_depth, false)
+        self.ray_color(ray, world, trace_depth)
     }
 
     /// Get a randomly-sampled camera ray for the pixel at location i,j, originating from
@@ -144,46 +146,33 @@ impl Camera {
     }
 
     /// Render the color of a single ray shot into the world.
-    fn ray_color(&self, ray: Ray, world: &Arc<World>, trace_depth: usize, has_bounced: bool) -> Color {
+    fn ray_color(&self, ray: Ray, world: &Arc<World>, trace_depth: usize) -> Color {
         if trace_depth <= 0 { 
-            // Once depth runs out, generate rays to all lights in the world
-            // and for each ray check if it's a shadow ray or light ray
-            return world.hit_lights(ray.origin, T_MIN_TOLERANCE);
+            return COLOR_BLACK;
         }
-        
-        match world.hit_object(ray, Interval::new(T_MIN_TOLERANCE, f64::INFINITY)) {
-            Some(rec) => {
-                match rec.material.scatter(&ray, &rec) {
-                    Some((attenuation, scattered)) => {
-                        attenuation * self.ray_color(
-                            scattered, 
-                            world, 
-                            trace_depth - 1,
-                            true)
-                    }
-                    None => { COLOR_BLACK }
-                }
-            }
-            None => {
-                // Ray did not hit any object
-                let sky_color = sky_color(ray);
-                return sky_color
-    
-                // // return the sky color if the ray hasn't bounced around
-                // // this results in a nice color for the sky
-                // if !has_bounced {
-                //     return sky_color;
-                // }
 
-                // if world.lights.len() == 0 {
-                //     return sky_color;
-                // }
-                
-                // // Compute light value based on sky and nearby lights
-                // // very crude and lame
-                // let lights_color = world.hit_lights(ray.origin, T_MIN_TOLERANCE);
-                // return lights_color * 0.8 + sky_color * 0.2;
-            }
+        // if ray hits nothing, return color background
+        // TODO: Add support for an advanced background? something like the sky gradient
+        let hitrec_result = world.shoot_ray(ray, Interval::new(T_MIN_TOLERANCE, f64::INFINITY));
+        if hitrec_result.is_none() {
+            return self.background;
         }
+        let hitrec = hitrec_result.unwrap();
+
+        let color_from_emission = hitrec.material.emitted(hitrec.u, hitrec.v, &hitrec.point);
+        let scatter_result = hitrec.material.scatter(&ray, &hitrec);
+
+        // Regular materials return a result
+        // Emissive materials return None from their scatter() method, so here we return the 
+        // emissive material's color
+        if scatter_result.is_none() {
+            return color_from_emission;
+        }
+
+        let (attenuation, scattered) = scatter_result.unwrap();
+        let color_from_scatter = attenuation * self.ray_color(scattered, world, trace_depth - 1);
+
+        // ??? why add the emission color?
+        color_from_emission + color_from_scatter
     }
 }

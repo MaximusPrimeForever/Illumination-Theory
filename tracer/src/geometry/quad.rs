@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use crate::{
-    math::vec3::{Point3, Vec3},
+    math::{vec3::{Point3, Vec3}, consts::NEAR_ZERO_THRESHOLD},
     graphics::{aabb::AABB, material::MaterialSync}, hittable::{HittableT, HitRecord}
 };
 
@@ -53,7 +53,7 @@ impl HittableT for Quad {
         let denom = self.normal.dot(ray.direction);
         
         // n ⋅ d is close to zero which means ray is parallel to plane
-        if denom.abs() < 1e-8 {
+        if denom.abs() < NEAR_ZERO_THRESHOLD {
             return None;
         }
 

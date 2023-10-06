@@ -2,6 +2,8 @@ use std::ops;
 use rand::random;
 use crate::rtweekend::random_f64_in_range;
 
+use super::consts::NEAR_ZERO_THRESHOLD;
+
 #[derive(Clone, Copy, Default)]
 pub struct Vec3 {
     e: [f64; 3]
@@ -10,12 +12,15 @@ pub struct Vec3 {
 pub type Point3 = Vec3;
 pub type Color = Vec3;
 
-const NEAR_ZERO_THRESHOLD: f64 = 1e-8;
-
 impl Vec3 {
     pub fn origin() -> Vec3 { Vec3{e: [0.0, 0.0, 0.0]} }
     pub fn zero() -> Vec3 { Vec3{e: [0.0, 0.0, 0.0]} }
-    pub fn new(e1: f64, e2: f64, e3: f64) -> Vec3 { Vec3{e: [e1, e2, e3]} }
+    
+    pub fn new<T>(x: T, y: T, z: T) -> Vec3
+    where T: Into<f64>, {
+        Vec3 { e: [x.into(), y.into(), z.into()] }
+    }
+
     pub const fn new_const(e1: f64, e2: f64, e3: f64) -> Vec3 {
         Vec3{e: [e1, e2, e3]} 
     }

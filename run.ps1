@@ -12,7 +12,6 @@ param (
 if ($run_test -eq $true) {
     $env:RUSTFLAGS = "--allow dead_code"
     cargo run --release --manifest-path=.\tracer\Cargo.toml
-    Copy-Item -Path ".\output.ppm" -Destination "$rendersDir\$image_name.ppm" -Force
     exit 0
 }
 

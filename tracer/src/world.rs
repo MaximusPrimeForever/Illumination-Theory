@@ -25,18 +25,17 @@ pub struct World {
 
 impl World {
     /// Build a BVH around the objects, and store lights information.
-    pub fn new(mut objects: Vec<Arc<HittableSync>>, lights: Vec<Arc<Light>>) -> World {
-        let bvh = BVH::new_tree_random_axis(&mut objects);
-        World { bvh, lights }
-    }
-
-    pub fn new_objects_only(mut objects: Vec<Arc<HittableSync>>) -> World {
+    pub fn new(mut objects: Vec<Arc<HittableSync>>) -> World {
         let bvh = BVH::new_tree_random_axis(&mut objects);
         World { bvh, lights: Vec::new() }
     }
 
+    pub fn add_light(&mut self, light: Light) {
+        self.lights.push(Arc::new(light));
+    }
+
     /// Uses Bound Volume Hierarchy to optimize intersection computations.
-    pub fn hit_object(&self, ray: Ray, ray_interval: Interval) -> Option<HitRecord> {
+    pub fn shoot_ray(&self, ray: Ray, ray_interval: Interval) -> Option<HitRecord> {
         self.bvh.hit(ray, ray_interval)
     }
 
@@ -55,7 +54,7 @@ impl World {
             let ray = Ray::new(point, direction, 0.0);
             
             let t_max = (light.origin - point).length();
-            match &self.hit_object(ray, Interval::new(t_min, t_max)) {
+            match &self.shoot_ray(ray, Interval::new(t_min, t_max)) {
                 // shadow rays are black - cuz i said so
                 Some(_) => {
                     color += COLOR_BLACK;

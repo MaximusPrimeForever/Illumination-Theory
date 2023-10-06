@@ -8,13 +8,14 @@ use rand::random;
 use crate::{
     world::World,
     camera::Camera,
-    geometry::{Sphere, Quad, Sphereflake},
     hittable::HittableSync,
     math::vec3::{Color, Point3, Vec3},
+    geometry::{Sphere, Quad, Sphereflake},
+
+    graphics::light::DiffuseLight,
     graphics::material::{Lambertian, Metal, Dielectric, MaterialSync},
     graphics::texture::{SolidColorTexture, CheckerTexture, ImageTexture, NoiseTexture},
-    graphics::light::Light,
-    rendering::{render::render_scene, color::COLOR_WHITE}
+    rendering::{render::render_scene, color::{COLOR_SKY_BLUE, COLOR_BLACK}}
 };
 
 
@@ -39,58 +40,80 @@ fn generate_default_plane(plane_size: f64, color: Option<Color>) -> Quad {
 pub fn test_scene() {
     // Camera    
     let mut cam = Camera::default();
-    cam.look_from = Point3::new(0.0, 0.0, 1.0);
-    cam.look_at = Point3::new(0.0, 0.0, -1.0);
+    cam.look_from = Point3::new(0.8, 1.0, 2.0);
+    cam.look_at = Point3::new(0.8, 0.0, -1.0);
+    cam.background = Color::new(0.7, 0.8, 1.1);
 
     let mut objects: Vec<Arc<HittableSync>> = Vec::new();
-    let mut lights = Vec::new();
 
-    let ground_material = Arc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
-    objects.push(Arc::new(
-        Sphere::new(
-            Point3::new(0.0, -1000.5, -1.0),
-            1000.0, 
-            ground_material
-        )
-    ));
+    // plane
+    objects.push(Arc::new(generate_default_plane(30.0, Some(Color::new(0.5, 0.5, 0.5)))));
     
-    // big shiny ball
-    let shiny = Metal{
-        albedo: Color::new(1.4, 1.2, 1.0) * 0.5, 
-        fuzz: 0.0
-    };
+    // spheres
+    let sphere_radius = 0.3;
     objects.push(Arc::new(Sphere::new(
-        Point3::new(0.0, 0.0, -1.0),
-        0.5,
-        Arc::new(shiny)
+        Point3::new(0.0, sphere_radius, 0.0),
+        sphere_radius,
+        Arc::new(Dielectric{ir: 1.5})
     )));
     
-    lights.push(Arc::new(Light::new(
-        Point3::new(-3.0, 5.0, 1.5),
-        Color::new(1.0, 1.0, 1.0),
-        1.0
+    objects.push(Arc::new(Sphere::new(
+        Point3::new(-sphere_radius*2.0 - 0.1, sphere_radius, 0.0),
+        sphere_radius,
+        Arc::new(Lambertian::new(Color::new(0.4, 0.2, 0.1)))
+    )));
+
+    objects.push(Arc::new(Sphere::new(
+        Point3::new(sphere_radius*2.0 + 0.1, sphere_radius, 0.0),
+        sphere_radius,
+        Arc::new(Metal{albedo: Color::new(0.7, 0.6, 0.5), fuzz: 0.0})
+    )));
+
+    // quads
+    objects.push(Arc::new(Quad::new(
+        Point3::new(1.1, 0.0, 0.0),
+        Vec3::new(0.3, 0.0, 0.0),
+        Vec3::new(0.0, 0.6, 0.0),
+        Arc::new(Lambertian::new(Color::new(0.9, 0.1, 0.1)))
     )));
     
-    let world = World::new(objects, lights);
+    // fuzzy mirror
+    objects.push(Arc::new(Quad::new(
+        Point3::new(-3.0, 0.0, -0.8),
+        Vec3::new(8.0, 0.0, 0.0),
+        Vec3::new(0.0, 1.2, 0.0),
+        Arc::new(Metal{albedo: Color::new(0.8, 0.7, 0.6), fuzz: 0.05})
+    )));
+
+    objects.push(Arc::new(Quad::new(
+        Point3::new(1.5, 0.0, 0.0),
+        Vec3::new(0.3, 0.0, 0.0),
+        Vec3::new(0.0, 0.6, 0.0),
+        Arc::new(Metal{albedo: Color::new(0.1, 0.1, 0.9), fuzz: 0.0})
+    )));
+
+    // lights
+    
+    let world = World::new(objects);
+
     // Must be called!
     cam.initialize();
 
     // Render
     let image_canvas = render_scene(
-        1,
+        0,
         Arc::new(world),
         Arc::new(cam),
-        10,
+        100,
         10
     );
     
     // Output to file
-    image_canvas.save_png("output.png")
+    image_canvas.save_png("test_scene.png")
 }
 
 pub fn one_weekend_endgame(cam: &mut Camera, grid_size: i32) -> World {
     let mut objects: Vec<Arc<HittableSync>> = Vec::new();
-    let lights = Vec::new();
 
     let ground_material = Arc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
     objects.push(Arc::new(
@@ -158,13 +181,13 @@ pub fn one_weekend_endgame(cam: &mut Camera, grid_size: i32) -> World {
     cam.focus_dist = 13.38;
     cam.look_from = Point3::new(13.0, 2.0, 3.0);
     cam.look_at = Point3::new(0.0, 1.5, 0.0);
+    cam.background = COLOR_SKY_BLUE;
 
-    World::new(objects, lights)
+    World::new(objects)
 }
 
 pub fn cool_effects(sphere_count: u32, distance: f64) -> World {
     let mut objects: Vec<Arc<HittableSync>> = Vec::new();
-    let lights = Vec::new();
 
     // ground
     objects.push(Arc::new(Sphere::new(
@@ -211,12 +234,11 @@ pub fn cool_effects(sphere_count: u32, distance: f64) -> World {
         )));
     }
 
-    World::new(objects, lights)
+    World::new(objects)
 }
 
 pub fn row_of_glass(sphere_count: u32, distance: f64) -> World {
     let mut objects: Vec<Arc<HittableSync>> = Vec::new();
-    let lights = Vec::new();
 
     // ground
     objects.push(Arc::new(Sphere::new(
@@ -251,12 +273,11 @@ pub fn row_of_glass(sphere_count: u32, distance: f64) -> World {
         Arc::new(Lambertian::new(Color::new(0.2, 0.2, 2.0)))
     )));
 
-    World::new(objects, lights)
+    World::new(objects)
 }
 
 pub fn grid_of_glass(size: u32, distance: f64, radius: f64) -> World {
     let mut objects: Vec<Arc<HittableSync>> = Vec::new();
-    let lights = Vec::new();
 
     // ground
     objects.push(Arc::new(Sphere::new(
@@ -295,54 +316,48 @@ pub fn grid_of_glass(size: u32, distance: f64, radius: f64) -> World {
         }
     }
 
-    World::new(objects, lights)
+    World::new(objects)
 }
 
 pub fn lit_world(cam: &mut Camera) -> World {
     let mut objects: Vec<Arc<HittableSync>> = Vec::new();
-    let mut lights = Vec::new();
 
-    let ground_material = Arc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
+    let noise_texture = Arc::new(Lambertian::new_texture(Arc::new(
+        NoiseTexture::new(4.0)
+    )));
     objects.push(Arc::new(
-        Sphere::new(Point3::new(0.0, -1000.0, 0.0), 1000.0, ground_material)
+        Sphere::new(
+            Point3::new(0.0, -1000.0, 0.0),
+            1000.0, 
+            noise_texture.clone()
+        )
+    ));
+    
+    objects.push(Arc::new(
+        Sphere::new(
+            Point3::new(0.0, 2.0, 0.0),
+            2.0,
+            noise_texture
+        )
     ));
 
-    objects.push(Arc::new(Sphere::new(
-        Point3::new(0.0, 1.0, 0.0),
-        1.0,
-        Arc::new(Dielectric{ir: 1.5})
-    )));
-    
-    objects.push(Arc::new(Sphere::new(
-        Point3::new(0.0, 1.0, 2.0),
-        1.0,
-        Arc::new(Lambertian::new(Color::new(0.4, 0.2, 0.1)))
+    let diffuse_light = DiffuseLight::new_color(Color::new(4.0, 4.0, 4.0));
+    objects.push(Arc::new(Quad::new(
+        Point3::new(3, 1, -2),
+        Vec3::new(2, 0, 0),
+        Vec3::new(0, 2, 0),
+        Arc::new(diffuse_light)
     )));
 
-    objects.push(Arc::new(Sphere::new(
-        Point3::new(0.0, 1.0, -2.0),
-        1.0,
-        Arc::new(Metal{albedo: Color::new(0.7, 0.6, 0.5), fuzz: 0.0})
-    )));
+    cam.look_from = Point3::new(26, 3, 6);
+    cam.look_at = Point3::new(0, 2, 0);
+    cam.background = COLOR_BLACK;
 
-    lights.push(Arc::new(Light::new(
-        Point3::new(-3.0, 5.0, 1.5),
-        Color::new(1.0, 1.0, 1.0),
-        1.0
-    )));
-
-    // Camera
-    cam.defocus_angle = 0.6;
-    cam.focus_dist = 13.38;
-    cam.look_from = Point3::new(13.0, 2.0, 3.0);
-    cam.look_at = Point3::new(0.0, 1.5, 0.0);
-    
-    World::new(objects, lights)
+    World::new(objects)
 }
 
 pub fn lit_world_textures(cam: &mut Camera) -> World {
     let mut objects: Vec<Arc<HittableSync>> = Vec::new();
-    let mut lights = Vec::new();
 
     let ground_material = Arc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
     objects.push(Arc::new(
@@ -375,19 +390,14 @@ pub fn lit_world_textures(cam: &mut Camera) -> World {
         Arc::new(Lambertian::new_texture(Arc::new(checkered)))
     )));
 
-    lights.push(Arc::new(Light::new(
-        Point3::new(-3.0, 5.0, 1.5),
-        Color::new(1.0, 1.0, 1.0),
-        1.0
-    )));
-
     // Camera
     cam.defocus_angle = 0.6;
     cam.focus_dist = 13.38;
     cam.look_from = Point3::new(13.0, 2.0, 3.0);
     cam.look_at = Point3::new(0.0, 1.5, 0.0);
+    cam.background = COLOR_SKY_BLUE;
     
-    World::new(objects, lights)
+    World::new(objects)
 }
 
 pub fn two_checkered_spheres(cam: &mut Camera) -> World {
@@ -413,8 +423,9 @@ pub fn two_checkered_spheres(cam: &mut Camera) -> World {
     cam.defocus_angle = 0.0;
     cam.look_from = Point3::new(13.0, 2.0, 3.0);
     cam.look_at = Point3::new(0.0, 0.0, 0.0);
+    cam.background = COLOR_SKY_BLUE;
     
-    World::new_objects_only(objects)
+    World::new(objects)
 }
 
 pub fn earth(cam: &mut Camera) -> World {
@@ -444,12 +455,13 @@ pub fn earth(cam: &mut Camera) -> World {
     cam.look_from = Point3::new(20.0, 7.0, 0.0);
     cam.look_at = Point3::new(0.0, 0.0, 0.0);
     cam.defocus_angle = 0.0;
+    cam.background = COLOR_SKY_BLUE;
 
 
-    World::new_objects_only(objects)
+    World::new(objects)
 }
 
-pub fn tiled_texture(cam: &mut Camera) -> World {
+pub fn marble_texture(cam: &mut Camera) -> World {
     let mut objects: Vec<Arc<HittableSync>> = Vec::new();
 
     let noise_texture = Arc::new(Lambertian::new_texture(Arc::new(
@@ -474,8 +486,9 @@ pub fn tiled_texture(cam: &mut Camera) -> World {
     cam.look_from = Point3::new(13.0, 2.0, 3.0);
     cam.look_at = Point3::new(0.0, 0.5, 0.0);
     cam.defocus_angle = 0.0;
+    cam.background = COLOR_SKY_BLUE;
 
-    World::new_objects_only(objects)
+    World::new(objects)
 }
 
 pub fn quad_scene(cam: &mut Camera) -> World {
@@ -524,8 +537,9 @@ pub fn quad_scene(cam: &mut Camera) -> World {
 
     cam.look_from = Point3::new(0.0, 0.0, 9.0);
     cam.look_at = Point3::zero();
+    cam.background = COLOR_SKY_BLUE;
 
-    World::new_objects_only(objects)
+    World::new(objects)
 }
 
 pub fn quad_shadow_test(cam: &mut Camera) -> World {
@@ -559,8 +573,9 @@ pub fn quad_shadow_test(cam: &mut Camera) -> World {
 
     cam.look_from = Point3::new(0.0, 1.0, 3.0);
     cam.look_at = Point3::new(0.0, 1.0, 0.0);
+    cam.background = COLOR_SKY_BLUE;
 
-    World::new_objects_only(objects)
+    World::new(objects)
 }
 
 pub fn cornell_box(cam: &mut Camera) -> World {
@@ -639,7 +654,7 @@ pub fn cornell_box(cam: &mut Camera) -> World {
     cam.look_from = Point3::new(0.0, 0.0, 9.0);
     cam.look_at = Point3::zero();
 
-    World::new_objects_only(objects)
+    World::new(objects)
 }
 
 pub fn sphereflake_on_sandy_plane(cam: &mut Camera) -> World {
@@ -662,6 +677,7 @@ pub fn sphereflake_on_sandy_plane(cam: &mut Camera) -> World {
 
     cam.look_from = Point3::new(-3.0, 6.0, -8.0);
     cam.look_at = Point3::new(0.0, 1.0, 0.0);
+    cam.background = COLOR_SKY_BLUE;
 
-    World::new_objects_only(objects)
+    World::new(objects)
 }

@@ -73,4 +73,4 @@ Run:
 ```powershell
 .\run.ps1 -run_test $True
 ```
-Output image `output.ppm` will be next to the script.
+Output image `test_scene.png` will be next to the script. if `-run_test $True` is present all other flags are ignored.

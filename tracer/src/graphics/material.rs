@@ -4,8 +4,8 @@ use rand::random;
 
 use crate::ray::Ray;
 use crate::hittable::HitRecord;
-use crate::math::vec3::{Vec3, Color};
-use crate::rendering::color::COLOR_WHITE;
+use crate::math::vec3::{Vec3, Color, Point3};
+use crate::rendering::color::{COLOR_WHITE, COLOR_BLACK};
 use crate::math::optics::{reflect, refract};
 use crate::graphics::texture::{TextureSync, SolidColorTexture};
 
@@ -17,6 +17,11 @@ use crate::utils::{
 
 pub trait Material {
     fn scatter(&self, incident_ray: &Ray, hitrec: &HitRecord) -> Option<(Color, Ray)>;
+
+    #[allow(unused_variables)]
+    fn emitted(&self, u: f64, v: f64, point: &Point3) -> Color {
+        COLOR_BLACK
+    }
 }
 
 // ? wtf is this, read about it
