@@ -10,7 +10,7 @@ use crate::{
     camera::Camera,
     math::vec3::{Color, Point3, Vec3},
     geometry::hittable::HittableSync,
-    geometry::{Sphere, Quad, Sphereflake},
+    geometry::{Sphere, Quad, Sphereflake, Boxx},
 
     graphics::light::DiffuseLight,
     graphics::material::{Lambertian, Metal, Dielectric, MaterialSync},
@@ -646,6 +646,22 @@ pub fn cornell_box(cam: &mut Camera) -> World {
         Vec3::new(0.0, height, 0.0),
         Arc::new(red)
     )));
+
+    // boxes
+    let tall_box_brc = bottom_left_corner + Point3::new(width / 5.0, 0.0, length / 10.0);
+    world.add_hittable_composite(&Boxx::new(
+        tall_box_brc,
+        tall_box_brc + Vec3::new(width / 3.5, height / 1.8, length / 3.0),
+        white.clone()
+    ));
+
+    let cube_box_side = width / 3.5;
+    let cube_box_brc = bottom_left_corner + Point3::new(width / 2.0, 0.0, length / 2.0);
+    world.add_hittable_composite(&Boxx::new(
+        cube_box_brc,
+        cube_box_brc + Vec3::new(cube_box_side, cube_box_side, cube_box_side),
+        white.clone()
+    ));
 
     cam.look_from = Point3::new(0.0, 0.0, length * 2.5);
     cam.look_at = Point3::zero();
