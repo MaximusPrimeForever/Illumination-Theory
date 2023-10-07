@@ -8,9 +8,9 @@ use crate::geometry::hittable::HittableSync;
 
 #[derive(Default, Clone, Copy)]
 pub struct AABB {
-    x: Interval,
-    y: Interval,
-    z: Interval
+    pub x: Interval,
+    pub y: Interval,
+    pub z: Interval
 }
 
 impl AABB {
@@ -28,14 +28,6 @@ impl AABB {
         }
     }
 
-    pub fn new_from_aabb(box0: AABB, box1: AABB) -> AABB {
-        AABB { 
-            x: box0.x.unite(box1.x),
-            y: box0.y.unite(box1.y),
-            z: box0.z.unite(box1.z),
-        }
-    }
-
     pub fn pad(&self) -> AABB {
         let delta = 0.0001;
 
@@ -49,7 +41,7 @@ impl AABB {
     pub fn new_from_hittables(objects: &Vec<Arc<HittableSync>>) -> AABB {
         let mut bounding_box = AABB::default();
         for obj in objects {
-            bounding_box = AABB::new_from_aabb(bounding_box, obj.bounding_box());
+            bounding_box += obj.bounding_box();
         }
 
         bounding_box
@@ -87,6 +79,24 @@ impl AABB {
         }
 
         true
+    }
+}
+
+impl std::ops::Add<AABB> for AABB {
+    type Output = AABB;
+
+    fn add(self, rhs: AABB) -> Self::Output {
+        AABB { 
+            x: self.x.unite(rhs.x),
+            y: self.y.unite(rhs.y),
+            z: self.z.unite(rhs.z),
+        }
+    }
+}
+
+impl std::ops::AddAssign<AABB> for AABB {
+    fn add_assign(&mut self, rhs: AABB) {
+        *self = *self + rhs;
     }
 }
 

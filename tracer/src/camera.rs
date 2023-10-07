@@ -3,9 +3,9 @@ use std::sync::Arc;
 use rand::random;
 
 use crate::ray::Ray;
-use crate::world::World;
 use crate::math::interval::Interval;
 use crate::utils::random_in_unit_disk;
+use crate::geometry::hittable::HittableT;
 use crate::math::vec3::{Point3, Vec3, Color};
 use crate::rendering::color::COLOR_BLACK;
 
@@ -109,13 +109,13 @@ impl Camera {
     pub fn render_ray(&self,
                       row: f64,
                       col: f64,
-                      world: &Arc<World>,
+                      object: &Arc<dyn HittableT>,
                       trace_depth: usize) -> Color {
         if !self.is_initialized {
             panic!("Camera must be initialized before rendering.");
         }
         let ray = self.generate_ray(row, col);
-        self.ray_color(ray, world, trace_depth)
+        self.ray_color(ray, object, trace_depth)
     }
 
     /// Get a randomly-sampled camera ray for the pixel at location i,j, originating from
@@ -146,14 +146,14 @@ impl Camera {
     }
 
     /// Render the color of a single ray shot into the world.
-    fn ray_color(&self, ray: Ray, world: &Arc<World>, trace_depth: usize) -> Color {
+    fn ray_color(&self, ray: Ray, object: &Arc<dyn HittableT>, trace_depth: usize) -> Color {
         if trace_depth <= 0 { 
             return COLOR_BLACK;
         }
 
         // if ray hits nothing, return color background
         // TODO: Add support for an advanced background? something like the sky gradient
-        let hitrec_result = world.shoot_ray(ray, Interval::new(T_MIN_TOLERANCE, f64::INFINITY));
+        let hitrec_result = object.hit(ray, Interval::new(T_MIN_TOLERANCE, f64::INFINITY));
         if hitrec_result.is_none() {
             return self.background;
         }
@@ -170,7 +170,7 @@ impl Camera {
         }
 
         let (attenuation, scattered) = scatter_result.unwrap();
-        let color_from_scatter = attenuation * self.ray_color(scattered, world, trace_depth - 1);
+        let color_from_scatter = attenuation * self.ray_color(scattered, object, trace_depth - 1);
 
         // ??? why add the emission color?
         color_from_emission + color_from_scatter

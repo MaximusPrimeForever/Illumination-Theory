@@ -2,17 +2,17 @@ use std::sync::Arc;
 
 use crate::{math::{vec3::Vec3, interval::Interval}, graphics::aabb::AABB, ray::Ray};
 
-use super::hittable::{HittableT, HitRecord};
+use super::hittable::{HittableT, HitRecord, HittableSync};
 
 
 pub struct Translate {
-    object: Arc<dyn HittableT>,
+    object: Arc<HittableSync>,
     offset: Vec3,
     bounding_box: AABB
 }
 
 impl Translate {
-    fn new(object: Arc<dyn HittableT>, displacement: Vec3) -> Self {
+    pub fn new(object: Arc<HittableSync>, displacement: Vec3) -> Self {
         let new_bbox = object.bounding_box() + displacement;
 
         Translate { 

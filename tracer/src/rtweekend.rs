@@ -6,14 +6,13 @@ use std::sync::Arc;
 use rand::random;
 
 use crate::{
-    world::World,
     camera::Camera,
     math::vec3::{Color, Point3, Vec3},
     geometry::hittable::HittableSync,
-    geometry::{Sphere, Quad, Sphereflake, Boxx},
+    geometry::{Sphere, Quad, hittable::HittableComposite, box_new, new_sphereflake_upright, RotateY, Translate},
 
     graphics::light::DiffuseLight,
-    graphics::material::{Lambertian, Metal, Dielectric, MaterialSync},
+    graphics::{material::{Lambertian, Metal, Dielectric, MaterialSync}, bvh::BVH},
     graphics::texture::{SolidColorTexture, CheckerTexture, ImageTexture, NoiseTexture},
     rendering::{render::render_scene, color::{COLOR_SKY_BLUE, COLOR_BLACK, COLOR_WHITE}}
 };
@@ -94,7 +93,7 @@ pub fn test_scene() {
 
     // lights
     
-    let world = World::new_from_objects(objects);
+    let world = HittableComposite::new_from_objects(objects);
 
     // Must be called!
     cam.initialize();
@@ -112,7 +111,7 @@ pub fn test_scene() {
     image_canvas.save_png("test_scene.png")
 }
 
-pub fn one_weekend_endgame(cam: &mut Camera, grid_size: i32) -> World {
+pub fn one_weekend_endgame(cam: &mut Camera, grid_size: i32) -> Arc<HittableSync> {
     let mut objects: Vec<Arc<HittableSync>> = Vec::new();
 
     let ground_material = Arc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
@@ -183,10 +182,10 @@ pub fn one_weekend_endgame(cam: &mut Camera, grid_size: i32) -> World {
     cam.look_at = Point3::new(0.0, 1.5, 0.0);
     cam.background = COLOR_SKY_BLUE;
 
-    World::new_from_objects(objects)
+    Arc::new(HittableComposite::new_from_objects(objects))
 }
 
-pub fn cool_effects(sphere_count: u32, distance: f64) -> World {
+pub fn cool_effects(sphere_count: u32, distance: f64) -> HittableComposite {
     let mut objects: Vec<Arc<HittableSync>> = Vec::new();
 
     // ground
@@ -234,10 +233,10 @@ pub fn cool_effects(sphere_count: u32, distance: f64) -> World {
         )));
     }
 
-    World::new_from_objects(objects)
+    HittableComposite::new_from_objects(objects)
 }
 
-pub fn row_of_glass(sphere_count: u32, distance: f64) -> World {
+pub fn row_of_glass(sphere_count: u32, distance: f64) -> HittableComposite {
     let mut objects: Vec<Arc<HittableSync>> = Vec::new();
 
     // ground
@@ -273,10 +272,10 @@ pub fn row_of_glass(sphere_count: u32, distance: f64) -> World {
         Arc::new(Lambertian::new(Color::new(0.2, 0.2, 2.0)))
     )));
 
-    World::new_from_objects(objects)
+    HittableComposite::new_from_objects(objects)
 }
 
-pub fn grid_of_glass(size: u32, distance: f64, radius: f64) -> World {
+pub fn grid_of_glass(size: u32, distance: f64, radius: f64) -> HittableComposite {
     let mut objects: Vec<Arc<HittableSync>> = Vec::new();
 
     // ground
@@ -316,10 +315,10 @@ pub fn grid_of_glass(size: u32, distance: f64, radius: f64) -> World {
         }
     }
 
-    World::new_from_objects(objects)
+    HittableComposite::new_from_objects(objects)
 }
 
-pub fn lit_world(cam: &mut Camera) -> World {
+pub fn lit_world(cam: &mut Camera) -> HittableComposite {
     let mut objects: Vec<Arc<HittableSync>> = Vec::new();
 
     let noise_texture = Arc::new(Lambertian::new_texture(Arc::new(
@@ -353,10 +352,10 @@ pub fn lit_world(cam: &mut Camera) -> World {
     cam.look_at = Point3::new(0, 2, 0);
     cam.background = COLOR_BLACK;
 
-    World::new_from_objects(objects)
+    HittableComposite::new_from_objects(objects)
 }
 
-pub fn lit_world_textures(cam: &mut Camera) -> World {
+pub fn lit_world_textures(cam: &mut Camera) -> HittableComposite {
     let mut objects: Vec<Arc<HittableSync>> = Vec::new();
 
     let ground_material = Arc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
@@ -397,10 +396,10 @@ pub fn lit_world_textures(cam: &mut Camera) -> World {
     cam.look_at = Point3::new(0.0, 1.5, 0.0);
     cam.background = COLOR_SKY_BLUE;
     
-    World::new_from_objects(objects)
+    HittableComposite::new_from_objects(objects)
 }
 
-pub fn two_checkered_spheres(cam: &mut Camera) -> World {
+pub fn two_checkered_spheres(cam: &mut Camera) -> HittableComposite {
     let mut objects: Vec<Arc<HittableSync>> = Vec::new();
     
     let checkered = CheckerTexture::new_color(
@@ -425,10 +424,10 @@ pub fn two_checkered_spheres(cam: &mut Camera) -> World {
     cam.look_at = Point3::new(0.0, 0.0, 0.0);
     cam.background = COLOR_SKY_BLUE;
     
-    World::new_from_objects(objects)
+    HittableComposite::new_from_objects(objects)
 }
 
-pub fn earth(cam: &mut Camera) -> World {
+pub fn earth(cam: &mut Camera) -> HittableComposite {
     let mut objects: Vec<Arc<HittableSync>> = Vec::new();
 
     let earth_texture = ImageTexture::new("./resources/textures/earthmap.jpg");
@@ -458,10 +457,10 @@ pub fn earth(cam: &mut Camera) -> World {
     cam.background = COLOR_SKY_BLUE;
 
 
-    World::new_from_objects(objects)
+    HittableComposite::new_from_objects(objects)
 }
 
-pub fn marble_texture(cam: &mut Camera) -> World {
+pub fn marble_texture(cam: &mut Camera) -> HittableComposite {
     let mut objects: Vec<Arc<HittableSync>> = Vec::new();
 
     let noise_texture = Arc::new(Lambertian::new_texture(Arc::new(
@@ -488,10 +487,10 @@ pub fn marble_texture(cam: &mut Camera) -> World {
     cam.defocus_angle = 0.0;
     cam.background = COLOR_SKY_BLUE;
 
-    World::new_from_objects(objects)
+    HittableComposite::new_from_objects(objects)
 }
 
-pub fn quad_scene(cam: &mut Camera) -> World {
+pub fn quad_scene(cam: &mut Camera) -> HittableComposite {
     let mut objects: Vec<Arc<HittableSync>> = Vec::new();
 
     let red = Lambertian::new(Color::new(1.0, 0.2, 0.2));
@@ -539,10 +538,10 @@ pub fn quad_scene(cam: &mut Camera) -> World {
     cam.look_at = Point3::zero();
     cam.background = COLOR_SKY_BLUE;
 
-    World::new_from_objects(objects)
+    HittableComposite::new_from_objects(objects)
 }
 
-pub fn quad_shadow_test(cam: &mut Camera) -> World {
+pub fn quad_shadow_test(cam: &mut Camera) -> HittableComposite {
     let mut objects: Vec<Arc<HittableSync>> = Vec::new();
 
     let white = Arc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
@@ -575,11 +574,11 @@ pub fn quad_shadow_test(cam: &mut Camera) -> World {
     cam.look_at = Point3::new(0.0, 1.0, 0.0);
     cam.background = COLOR_SKY_BLUE;
 
-    World::new_from_objects(objects)
+    HittableComposite::new_from_objects(objects)
 }
 
-pub fn cornell_box(cam: &mut Camera) -> World {
-    let mut world = World::new();
+pub fn cornell_box(cam: &mut Camera) -> Arc<HittableSync> {
+    let mut world = HittableComposite::new();
 
     let red = Arc::new(Lambertian::new(Color::new(0.65, 0.05, 0.05)));
     let green = Arc::new(Lambertian::new(Color::new(0.12, 0.45, 0.15)));
@@ -644,31 +643,36 @@ pub fn cornell_box(cam: &mut Camera) -> World {
     )));
 
     // boxes
-    let tall_box_brc = bottom_left_corner + Point3::new(width / 5.0, 0.0, length / 10.0);
-    world.add_hittable_composite(&Boxx::new(
-        tall_box_brc,
-        tall_box_brc + Vec3::new(width / 3.5, height / 1.8, length / 3.0),
+    let tall_box_brc = bottom_left_corner + Point3::new(width / 6.0, 0.0, length / 4.0);
+    let mut tall_box = box_new(
+        Point3::zero(),
+        Vec3::new(width / 3.5, height / 1.8, width / 3.5),
         white.clone()
-    ));
+    );
+    tall_box = Arc::new(RotateY::new(tall_box, 15.0));
+    tall_box = Arc::new(Translate::new(tall_box, tall_box_brc));
+    world.add_hittable(tall_box);
 
     let cube_box_side = width / 3.5;
-    let cube_box_brc = bottom_left_corner + Point3::new(width / 2.0, 0.0, length / 2.0);
-    world.add_hittable_composite(&Boxx::new(
-        cube_box_brc,
-        cube_box_brc + Vec3::new(cube_box_side, cube_box_side, cube_box_side),
+    let cube_box_brc = bottom_left_corner + Point3::new(width / 1.7, 0.0, length / 2.0);
+    let mut cube_box = box_new(
+        Point3::zero(),
+        Vec3::new(cube_box_side, cube_box_side, cube_box_side),
         white.clone()
-    ));
+    );
+    cube_box = Arc::new(RotateY::new(cube_box, -18.0));
+    cube_box = Arc::new(Translate::new(cube_box, cube_box_brc));
+    world.add_hittable(cube_box);
 
-    cam.look_from = Point3::new(0.0, 0.0, length * 2.5);
+    cam.look_from = Point3::new(0.0, 0.0, length * 2.70);
     cam.look_at = Point3::zero();
-    cam.vfov = 40.0;
+    cam.vfov = 35.0;
 
-    world.initialize();
-    world
+    Arc::new(BVH::new(&mut world))
 }
 
-pub fn sphereflake_on_sandy_plane(cam: &mut Camera) -> World {
-    let mut world = World::new();
+pub fn sphereflake_on_sandy_plane(cam: &mut Camera) -> Arc<HittableSync> {
+    let mut world = HittableComposite::new();
     let plane_size = 30.0;
 
     // Big sand colored plane
@@ -677,17 +681,16 @@ pub fn sphereflake_on_sandy_plane(cam: &mut Camera) -> World {
         Some(Color::new(0.99607843, 0.87843137, 0.60784314) * Color::new(2.0, 2.0, 1.0 ))
     )));
 
-    world.add_hittable_composite(&Sphereflake::new_upright(
+    world.add_hittable(new_sphereflake_upright(
         Point3::new(0.0, 1.0, 0.0),
         1.0, 
         Arc::new(Metal::new_mirror(Color::new(0.2, 0.2, 0.2))),
         5
     ));
 
-    cam.look_from = Point3::new(-3.0, 6.0, -8.0);
+    cam.look_from = Point3::new(-3.0, 10.0, -8.0);
     cam.look_at = Point3::new(0.0, 1.0, 0.0);
     cam.background = COLOR_SKY_BLUE;
 
-    world.initialize();
-    world
+    Arc::new(BVH::new(&mut world))
 }

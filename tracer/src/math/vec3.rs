@@ -107,7 +107,10 @@ impl Vec3 {
 
     /// Rotate vector on axis described by unit vector k
     /// (Rodrigues rotation)
-    pub fn rotate_rodrigues(&self, theta: f64, k: Vec3) -> Vec3 {
+    pub fn rotate_rodrigues(&self, theta: f64, _k: Vec3) -> Vec3 {
+        let k;
+        if _k.length() != 1.0 { k = _k.unit(); } else { k = _k; }
+
         *self * theta.cos() + k.cross(*self) * theta.sin() + k * (k.dot(*self) * (1.0 - theta.cos()))
     }
 
@@ -118,6 +121,12 @@ impl ops::Index<usize> for Vec3 {
 
     fn index(&self, index: usize) -> &Self::Output {
         &self.e[index]
+    }
+}
+
+impl ops::IndexMut<usize> for Vec3 {
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        &mut self.e[index]
     }
 }
 

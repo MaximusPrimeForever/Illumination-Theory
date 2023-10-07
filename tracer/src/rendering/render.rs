@@ -4,7 +4,7 @@ use std::sync::{Arc, Mutex};
 use indicatif::{ProgressBar, ProgressStyle, MultiProgress};
 
 use crate::Color;
-use crate::world::World;
+use crate::geometry::hittable::{HittableT, HittableSync};
 use crate::camera::Camera;
 use crate::rendering::{buffer::{Canvas, SliceBuffer}, color::rasterize_color};
 
@@ -47,7 +47,7 @@ fn core_to_slices(core_count: usize) -> (usize, usize) {
 /// Splits the frame into sub-frames according to the given core count, 
 /// and render all sub-frames in parallel.
 pub fn render_scene(core_count: usize,
-                    world: Arc<World>,
+                    object: Arc<HittableSync>,
                     cam: Arc<Camera>,
                     samples_per_pixel: usize,
                     trace_depth: usize) -> Canvas {
@@ -82,7 +82,7 @@ pub fn render_scene(core_count: usize,
                     scope.spawn(|| {
                         render_slice(
                             slice,
-                            world.clone(),
+                            object.clone(),
                             cam.clone(),
                             samples_per_pixel,
                             trace_depth,
@@ -110,7 +110,7 @@ pub fn render_scene(core_count: usize,
 /// 
 /// Shoots rays into the scene and updates the SliceBuffer with a pixel array.
 fn render_slice(slice_buffer: Arc<Mutex<SliceBuffer>>,
-                world: Arc<World>,
+                object: Arc<dyn HittableT>,
                 cam: Arc<Camera>,
                 samples_per_pixel: usize,
                 trace_depth: usize,
@@ -141,7 +141,7 @@ fn render_slice(slice_buffer: Arc<Mutex<SliceBuffer>>,
                 let color = cam.render_ray(
                     pixel_row,
                     pixel_col,
-                    &world, 
+                    &object, 
                     trace_depth
                 );
                 pixel_color += color;

@@ -1,6 +1,6 @@
 mod ray;
 mod math;
-mod world;
+// mod world;
 mod utils;
 mod camera;
 mod perlin;
@@ -71,7 +71,7 @@ fn main() -> std::io::Result<()>{
     // Render
     let image_canvas = render_scene(
         core_count,
-        Arc::new(world),
+        world,
         Arc::new(cam),
         samples_per_pixel,
         trace_depth

@@ -3,7 +3,7 @@ use std::sync::Arc;
 use crate::{
     graphics::aabb::AABB,
     math::interval::Interval, ray::Ray,
-    geometry::hittable::{HittableT, HitRecord, HittableSync}
+    geometry::hittable::{HittableT, HitRecord, HittableSync, HittableComposite}
 };
 
 pub struct BVH {
@@ -52,6 +52,10 @@ impl HittableT for BVH {
 
 
 impl BVH {
+    pub fn new(composite: &mut HittableComposite) -> Self {
+        BVH::new_tree_random_axis(&mut composite.objects)
+    }
+    
     pub fn new_tree_random_axis(objects: &mut Vec<Arc<HittableSync>>) -> Self {
         BVH::new_tree_random_axis_recurse(objects, 0, objects.len())
     }
@@ -90,10 +94,7 @@ impl BVH {
             }
         }
 
-        let bounding_box = AABB::new_from_aabb(
-            left_node.bounding_box(),
-            right_node.bounding_box()
-        );
+        let bounding_box = left_node.bounding_box() + right_node.bounding_box();
         BVH { left_node, right_node, bounding_box }
     }
 }
