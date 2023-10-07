@@ -37,8 +37,10 @@ pub fn new_sphereflake(initial: Sphere, normal: Vec3, rotation_axis: Vec3, recur
     }
 
     let child_radius = initial.radius / 3.0;
-    let mut children = HittableComposite::new();
+    let mut spheres = HittableComposite::new();
     let initial_rot_vec = normal.unit().rotate_rodrigues(-PI / 2.0, rotation_axis) * (initial.radius + child_radius);
+
+    spheres.add_hittable(Arc::new(initial.clone()));
 
     let equator_theta = PI / 3.0;
     // generate 6 spheres around the equator
@@ -52,7 +54,7 @@ pub fn new_sphereflake(initial: Sphere, normal: Vec3, rotation_axis: Vec3, recur
             initial.material.clone()
         );
 
-        children.add_hittable(new_sphereflake(
+        spheres.add_hittable(new_sphereflake(
             child_sphere,
             child_normal.unit(),
             rotation_axis.rotate_rodrigues(child_theta, normal),
@@ -73,7 +75,7 @@ pub fn new_sphereflake(initial: Sphere, normal: Vec3, rotation_axis: Vec3, recur
             initial.material.clone()                
         );
 
-        children.add_hittable(new_sphereflake(
+        spheres.add_hittable(new_sphereflake(
             child_sphere,
             child_normal.unit(),
             rotation_axis.rotate_rodrigues(child_theta, normal),
@@ -81,5 +83,5 @@ pub fn new_sphereflake(initial: Sphere, normal: Vec3, rotation_axis: Vec3, recur
         ));
     }
 
-    Arc::new(BVH::new(&mut children))
+    Arc::new(BVH::new(&mut spheres))
 }

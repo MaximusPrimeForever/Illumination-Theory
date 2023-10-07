@@ -688,9 +688,9 @@ pub fn sphereflake_on_sandy_plane(cam: &mut Camera) -> Arc<HittableSync> {
         5
     ));
 
-    cam.look_from = Point3::new(-3.0, 10.0, -8.0);
+    cam.look_from = Point3::new(-3.0, 5.0, -8.0);
     cam.look_at = Point3::new(0.0, 1.0, 0.0);
-    cam.background = COLOR_SKY_BLUE;
+    cam.background = Color::new(0.5, 0.6, 1.0);
 
     Arc::new(BVH::new(&mut world))
 }
