@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use crate::ray::Ray;
-use crate::math::vec3::Point3;
+use crate::math::vec3::{Point3, Vec3};
 use crate::math::interval::Interval;
 use crate::geometry::hittable::HittableSync;
 
@@ -87,5 +87,21 @@ impl AABB {
         }
 
         true
+    }
+}
+
+impl std::ops::Add<Vec3> for AABB {
+    type Output = AABB;
+
+    fn add(self, rhs: Vec3) -> Self::Output {
+        AABB::new(self.x + rhs.x(), self.y + rhs.y(), self.z + rhs.z())
+    }
+}
+
+impl std::ops::Add<AABB> for Vec3 {
+    type Output = AABB;
+
+    fn add(self, rhs: AABB) -> Self::Output {
+        AABB::new(self.x() + rhs.x, self.y() + rhs.y, self.z() + rhs.z)
     }
 }
