@@ -4,8 +4,8 @@ use std::sync::{Arc, Mutex};
 use indicatif::{ProgressBar, ProgressStyle, MultiProgress};
 
 use crate::Color;
-use crate::geometry::hittable::{HittableT, HittableSync};
-use crate::camera::Camera;
+use crate::graphics::Camera;
+use crate::geometry::hittable::{Hittable, HittableSync};
 use crate::rendering::{buffer::{Canvas, SliceBuffer}, color::rasterize_color};
 
 
@@ -110,7 +110,7 @@ pub fn render_scene(core_count: usize,
 /// 
 /// Shoots rays into the scene and updates the SliceBuffer with a pixel array.
 fn render_slice(slice_buffer: Arc<Mutex<SliceBuffer>>,
-                object: Arc<dyn HittableT>,
+                object: Arc<dyn Hittable>,
                 cam: Arc<Camera>,
                 samples_per_pixel: usize,
                 trace_depth: usize,

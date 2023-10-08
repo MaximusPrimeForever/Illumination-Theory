@@ -1,14 +1,16 @@
-use crate::ray::Ray;
-use crate::math::interval::Interval;
-use crate::math::vec3::{Vec3, Color};
+/// Contains color definitions and raw color conversion for images
+
+use crate::geometry::Ray;
+use crate::math::{interval::Interval, vec3::{Vec3, Color}};
+
 
 // Colors
 pub const COLOR_WHITE: Color = Color::new_const(1.0, 1.0, 1.0);
 pub const COLOR_SKY_BLUE: Color = Color::new_const(0.7, 0.8, 1.0);
-// pub const COLOR_RED: Color = Color::new_const(100.0, 0.0, 0.0);
 pub const COLOR_BLACK: Color = Color::new_const(0.0, 0.0, 0.0);
 
 
+/// Convert the accumulated raw Color value to a gamma corrected RGB value
 pub fn rasterize_color(pixel_color: Color, samples_per_pixel: usize) -> image::Rgb<u8> {
     let mut r = pixel_color.x();
     let mut g = pixel_color.y();

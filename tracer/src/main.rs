@@ -1,18 +1,13 @@
-mod ray;
 mod math;
-// mod world;
-mod utils;
-mod camera;
-mod perlin;
 mod graphics;
 mod geometry;
 mod rendering;
-mod rtweekend;
+mod scenes;
 
 use std::env;
 use std::sync::Arc;
 
-use camera::Camera;
+use graphics::Camera;
 use rendering::render::render_scene;
 // use buffer::write_img_ppm;
 
@@ -22,7 +17,7 @@ use math::vec3::{Vec3, Point3, Color};
 fn main() -> std::io::Result<()>{
     let args: Vec<String> = env::args().collect();
     if args.len() == 1 {
-        rtweekend::test_scene();
+        scenes::test_scene();
         return Ok(());
     }
     if args.len() != 7 {
@@ -62,7 +57,8 @@ fn main() -> std::io::Result<()>{
     // let world = rtweekend::quad_scene(&mut cam);
     // let world = rtweekend::sphereflake_on_sandy_plane(&mut cam);
     // let world = rtweekend::quad_shadow_test(&mut cam);
-    let world = rtweekend::cornell_box(&mut cam);
+    // let world = rtweekend::cornell_box(&mut cam);
+    let world = scenes::cornell_box_dark_sphereflake(&mut cam);
     // let world = rtweekend::lit_world(&mut cam);
 
     // Must be called!

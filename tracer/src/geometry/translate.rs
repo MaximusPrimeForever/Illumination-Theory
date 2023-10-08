@@ -1,8 +1,13 @@
+/// A wrapper for Hittable that can translate its position
+/// without actually moving it in the world space.
+/// It augments the incident ray and resulting intersecion point instead.
+
 use std::sync::Arc;
 
-use crate::{math::{vec3::Vec3, interval::Interval}, graphics::aabb::AABB, ray::Ray};
-
-use super::hittable::{HittableT, HitRecord, HittableSync};
+use crate::geometry::Ray;
+use crate::graphics::aabb::AABB;
+use crate::math::{vec3::Vec3, interval::Interval};
+use super::hittable::{Hittable, HitRecord, HittableSync};
 
 
 pub struct Translate {
@@ -23,7 +28,7 @@ impl Translate {
     }
 }
 
-impl HittableT for Translate {
+impl Hittable for Translate {
     fn bounding_box(&self) -> AABB {
         self.bounding_box
     }

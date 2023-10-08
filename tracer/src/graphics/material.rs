@@ -1,19 +1,15 @@
 use std::sync::Arc;
 
-use rand::random;
-
-use crate::ray::Ray;
-use crate::geometry::hittable::HitRecord;
-use crate::math::vec3::{Vec3, Color, Point3};
+use crate::geometry::{Ray, hittable::HitRecord};
 use crate::rendering::color::{COLOR_WHITE, COLOR_BLACK};
-use crate::math::optics::{reflect, refract};
 use crate::graphics::texture::{TextureSync, SolidColorTexture};
-
-use crate::utils::{
-    get_random_point_in_unit_sphere,
-    get_random_point_on_unit_sphere
+use crate::math::{
+    optics::{reflect, refract},
+    vec3::{Vec3, Color, Point3},
+    utils::{get_random_point_in_unit_sphere, get_random_point_on_unit_sphere}
 };
 
+use rand::random;
 
 pub trait Material {
     fn scatter(&self, incident_ray: &Ray, hitrec: &HitRecord) -> Option<(Color, Ray)>;

@@ -1,9 +1,10 @@
 use std::sync::Arc;
 
-use crate::{
-    graphics::aabb::AABB,
-    math::interval::Interval, ray::Ray,
-    geometry::hittable::{HittableT, HitRecord, HittableSync, HittableComposite}
+use crate::graphics::aabb::AABB;
+use crate::math::interval::Interval;
+use crate::geometry::{
+    Ray,
+    hittable::{Hittable, HitRecord, HittableSync, HittableComposite}
 };
 
 pub struct BVH {
@@ -12,7 +13,7 @@ pub struct BVH {
     pub bounding_box: AABB
 }
 
-impl HittableT for BVH {
+impl Hittable for BVH {
     fn bounding_box(&self) -> AABB {
         self.bounding_box
     }

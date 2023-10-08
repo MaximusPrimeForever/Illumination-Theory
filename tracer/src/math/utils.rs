@@ -1,5 +1,7 @@
+/// Misc math functions
 
-use crate::{math::vec3::{Vec3, Point3}, rtweekend::random_f64_in_range};
+use rand::random;
+use crate::math::vec3::{Vec3, Point3};
 
 pub fn get_random_point_in_unit_sphere() -> Point3 {
     loop {
@@ -18,3 +20,10 @@ pub fn random_in_unit_disk() -> Vec3 {
         if p.length_squared() < 1.0 { return p }
     }
 }
+
+/// Generate a random number in a given half open range
+/// [min, max)
+pub fn random_f64_in_range(min: f64, max: f64) -> f64 {
+    min + random::<f64>() * (max - min)
+}
+

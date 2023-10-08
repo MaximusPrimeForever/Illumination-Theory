@@ -4,25 +4,32 @@
 use std::sync::Arc;
 
 use rand::random;
-
-use crate::{
-    camera::Camera,
-    math::vec3::{Color, Point3, Vec3},
-    geometry::hittable::HittableSync,
-    geometry::{Sphere, Quad, hittable::HittableComposite, box_new, new_sphereflake_upright, RotateY, Translate},
-
-    graphics::light::DiffuseLight,
-    graphics::{material::{Lambertian, Metal, Dielectric, MaterialSync}, bvh::BVH},
-    graphics::texture::{SolidColorTexture, CheckerTexture, ImageTexture, NoiseTexture},
-    rendering::{render::render_scene, color::{COLOR_SKY_BLUE, COLOR_BLACK, COLOR_WHITE}}
+use crate::graphics::Camera;
+use crate::math::{
+    utils::random_f64_in_range,
+    vec3::{Color, Point3, Vec3}
+};
+use crate::geometry::{
+    Quad, 
+    Sphere,
+    box_new, 
+    RotateY, 
+    Translate,
+    new_sphereflake_upright, 
+    hittable::{HittableSync, HittableComposite}, 
 };
 
+use crate::graphics::{
+    bvh::BVH,
+    light::DiffuseLight,
+    material::{Lambertian, Metal, Dielectric, MaterialSync},
+    texture::{SolidColorTexture, CheckerTexture, ImageTexture, NoiseTexture},
+};
 
-/// Generate a random number in a given half open range
-/// [min, max)
-pub fn random_f64_in_range(min: f64, max: f64) -> f64 {
-    min + random::<f64>() * (max - min)
-}
+use crate::rendering::{
+    render::render_scene, 
+    color::{COLOR_SKY_BLUE, COLOR_BLACK, COLOR_WHITE}
+};
 
 fn generate_default_plane(plane_size: f64, color: Option<Color>) -> Quad {
     let plane_color = color.unwrap_or(Color::new(0.8, 0.8, 0.8));
@@ -663,6 +670,101 @@ pub fn cornell_box(cam: &mut Camera) -> Arc<HittableSync> {
     cube_box = Arc::new(RotateY::new(cube_box, -18.0));
     cube_box = Arc::new(Translate::new(cube_box, cube_box_brc));
     world.add_hittable(cube_box);
+
+    cam.look_from = Point3::new(0.0, 0.0, length * 2.70);
+    cam.look_at = Point3::zero();
+    cam.vfov = 35.0;
+
+    Arc::new(BVH::new(&mut world))
+}
+
+pub fn cornell_box_dark_sphereflake(cam: &mut Camera) -> Arc<HittableSync> {
+    let mut world = HittableComposite::new();
+
+    let red = Arc::new(Lambertian::new(Color::new(0.65, 0.05, 0.05)));
+    let green = Arc::new(Lambertian::new(Color::new(0.12, 0.45, 0.15)));
+    let white = Arc::new(Lambertian::new(Color::new(0.73, 0.73, 0.73)));
+    let light = Arc::new(DiffuseLight::new_color(COLOR_WHITE * 25.0));
+
+    let width = 100.0;
+    let height = width;
+    let length = width;
+    let light_width = width * 0.2;
+     let light_length = light_width;
+    let bottom_left_corner = Point3::new(
+        -(width / 2.0), -(height / 2.0), 0.0
+    );
+    
+    // front wall
+    world.add_hittable(Arc::new(Quad::new(
+        bottom_left_corner.clone(),
+        Vec3::new(width, 0.0, 0.0),
+        Vec3::new(0.0, height, 0.0),
+        white.clone()
+    )));
+    
+    // floor
+    world.add_hittable(Arc::new(Quad::new(
+        bottom_left_corner.clone(),
+        Vec3::new(width, 0.0, 0.0),
+        Vec3::new(0.0, 0.0, length),
+        white.clone()
+    )));
+
+    // ceiling
+    world.add_hittable(Arc::new(Quad::new(
+        bottom_left_corner.clone() + Point3::new(0.0, height, 0.0),
+        Vec3::new(width, 0.0, 0.0),
+        Vec3::new(0.0, 0.0, length),
+        white.clone()
+    )));
+
+    // light
+    world.add_hittable(Arc::new(Quad::new(
+        bottom_left_corner.clone() + Point3::new((width - light_width) / 2.0, height - 1.0, (length - light_length) / 2.0),
+        Vec3::new(light_width, 0.0, 0.0),
+        Vec3::new(0.0, 0.0, light_length),
+        light
+    )));
+
+    // left wall
+    world.add_hittable(Arc::new(Quad::new(
+        bottom_left_corner.clone(),
+        Vec3::new(0.0, 0.0, length),
+        Vec3::new(0.0, height, 0.0),
+        green
+    )));
+
+    // right wall
+    world.add_hittable(Arc::new(Quad::new(
+        bottom_left_corner.clone() + Point3::new(width, 0.0, 0.0),
+        Vec3::new(0.0, 0.0, length),
+        Vec3::new(0.0, height, 0.0),
+        red
+    )));
+
+    // boxes
+    let tall_box_brc = bottom_left_corner + Point3::new(width / 7.0, 0.0, length / 4.0);
+    let mut tall_box = box_new(
+        Point3::zero(),
+        Vec3::new(width / 3.5, height / 1.8, width / 3.5),
+        white
+    );
+    tall_box = Arc::new(RotateY::new(tall_box, 15.0));
+    tall_box = Arc::new(Translate::new(tall_box, tall_box_brc));
+    world.add_hittable(tall_box);
+
+
+    let radius = width / 6.0;
+    let mirror = Arc::new(Metal::new_mirror(Color::new(0.1, 0.1, 0.1)));
+    let sphereflake = new_sphereflake_upright(
+        bottom_left_corner + Point3::new(width / 1.5, radius, length / 2.0),
+        radius, 
+        mirror,
+        5
+    );
+
+    world.add_hittable(sphereflake);
 
     cam.look_from = Point3::new(0.0, 0.0, length * 2.70);
     cam.look_at = Point3::zero();

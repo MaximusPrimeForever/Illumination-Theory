@@ -1,8 +1,7 @@
 use std::sync::Arc;
 
 use crate::{Point3, Color};
-use crate::geometry::hittable::HitRecord;
-use crate::ray::Ray;
+use crate::geometry::{Ray, hittable::HitRecord};
 
 use super::{
     texture::{TextureSync, SolidColorTexture},

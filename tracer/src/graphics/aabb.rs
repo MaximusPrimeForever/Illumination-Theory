@@ -1,9 +1,7 @@
 use std::sync::Arc;
 
-use crate::ray::Ray;
-use crate::math::vec3::{Point3, Vec3};
-use crate::math::interval::Interval;
-use crate::geometry::hittable::HittableSync;
+use crate::geometry::{Ray, hittable::HittableSync};
+use crate::math::{vec3::{Point3, Vec3}, interval::Interval};
 
 
 #[derive(Default, Clone, Copy)]

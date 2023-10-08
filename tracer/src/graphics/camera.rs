@@ -2,10 +2,11 @@ use std::sync::Arc;
 
 use rand::random;
 
-use crate::ray::Ray;
-use crate::math::interval::Interval;
-use crate::utils::random_in_unit_disk;
-use crate::geometry::hittable::HittableT;
+use crate::math::{
+    interval::Interval,
+    utils::random_in_unit_disk
+};
+use crate::geometry::{hittable::Hittable, Ray};
 use crate::math::vec3::{Point3, Vec3, Color};
 use crate::rendering::color::COLOR_BLACK;
 
@@ -109,7 +110,7 @@ impl Camera {
     pub fn render_ray(&self,
                       row: f64,
                       col: f64,
-                      object: &Arc<dyn HittableT>,
+                      object: &Arc<dyn Hittable>,
                       trace_depth: usize) -> Color {
         if !self.is_initialized {
             panic!("Camera must be initialized before rendering.");
@@ -146,7 +147,7 @@ impl Camera {
     }
 
     /// Render the color of a single ray shot into the world.
-    fn ray_color(&self, ray: Ray, object: &Arc<dyn HittableT>, trace_depth: usize) -> Color {
+    fn ray_color(&self, ray: Ray, object: &Arc<dyn Hittable>, trace_depth: usize) -> Color {
         if trace_depth <= 0 { 
             return COLOR_BLACK;
         }

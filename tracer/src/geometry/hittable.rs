@@ -2,23 +2,22 @@
 use std::vec::Vec;
 use std::sync::Arc;
 
-use crate::ray::Ray;
+use crate::math::vec3::Color;
 use crate::math::interval::Interval;
 use crate::math::vec3::{Point3, Vec3};
-use crate::graphics::{material::Material, aabb::AABB};
-
-use crate::graphics::light::Light;
-use crate::math::vec3::Color;
 use crate::rendering::color::COLOR_BLACK;
+use crate::geometry::Ray;
+use crate::graphics::{material::Material, aabb::AABB, light::Light};
+
 
 pub struct HitRecord {
-    pub point: Point3,
-    pub normal: Vec3,
-    pub material: Arc<dyn Material>,
-    pub t: f64,
+    pub point: Point3,  // intersection point
+    pub normal: Vec3,   // normal at intersection point
+    pub material: Arc<dyn Material>,    // material at intersection point
+    pub t: f64, // intersection_point = origin + direction * t
     pub u: f64, // row of texture coordinate
     pub v: f64, // column of texture coordinate
-    pub front_face: bool
+    pub front_face: bool // whether the intersection point is on the outside or inside
 }
 
 impl HitRecord {
@@ -37,13 +36,13 @@ fn set_face_normal(ray: Ray, normal: Vec3) -> (bool, Vec3) {
 }
 
 
-pub trait HittableT {
+pub trait Hittable {
     fn hit(&self, ray: Ray, ray_interval: Interval) -> Option<HitRecord>;
     fn bounding_box(&self) -> AABB;
 }
 
 // ? wtf is this, read about it
-pub type HittableSync = dyn HittableT + Send + Sync;
+pub type HittableSync = dyn Hittable + Send + Sync;
 
 /// A Hittable container for objects.
 pub struct HittableComposite {
@@ -52,7 +51,7 @@ pub struct HittableComposite {
     pub lights: Vec<Arc<Light>>
 }
 
-impl HittableT for HittableComposite {
+impl Hittable for HittableComposite {
     fn bounding_box(&self) -> AABB {
         self.bbox
     }

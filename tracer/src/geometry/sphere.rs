@@ -1,12 +1,9 @@
 use std::sync::Arc;
 use std::f64::consts::PI;
 
-use crate::ray::Ray;
-use crate::math::interval::Interval;
-use crate::graphics::aabb::AABB;
-use crate::math::vec3::{Vec3, Point3};
-use crate::graphics::material::MaterialSync;
-use crate::geometry::hittable::{HittableT, HitRecord};
+use crate::graphics::{material::MaterialSync, aabb::AABB};
+use crate::math::{interval::Interval, vec3::{Vec3, Point3}};
+use crate::geometry::{Ray, hittable::{Hittable, HitRecord}};
 
 #[derive(Clone)]
 pub struct Sphere {
@@ -45,7 +42,7 @@ impl Sphere {
     }
 }
 
-impl HittableT for Sphere {
+impl Hittable for Sphere {
     /// Compute intersection of given ray and given sphere.
     ///
     /// The sphere equation is:

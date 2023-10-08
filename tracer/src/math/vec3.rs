@@ -1,6 +1,6 @@
 use std::ops;
 use rand::random;
-use crate::rtweekend::random_f64_in_range;
+use crate::math::utils::random_f64_in_range;
 
 use super::consts::NEAR_ZERO_THRESHOLD;
 

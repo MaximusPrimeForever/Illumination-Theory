@@ -1,10 +1,11 @@
 use std::sync::Arc;
 
+use crate::graphics::{aabb::AABB, material::MaterialSync};
+use crate::geometry::{Ray, hittable::{Hittable, HitRecord}};
 use crate::{
-    math::{vec3::{Point3, Vec3}, consts::NEAR_ZERO_THRESHOLD},
-    graphics::{aabb::AABB, material::MaterialSync},
-    geometry::hittable::{HittableT, HitRecord},
-    math::interval::Interval
+    math::interval::Interval,
+    math::vec3::{Point3, Vec3},
+    math::consts::NEAR_ZERO_THRESHOLD,
 };
 
 /// The quad is defined by a bottom left coordinate from origin
@@ -44,14 +45,14 @@ impl Quad {
     }
 }
 
-impl HittableT for Quad {
+impl Hittable for Quad {
     fn bounding_box(&self) -> AABB {
         self.bounding_box
     }
     
     /// the ray-plane intersection is defined as:
     /// t = (D - n ⋅ P) / (n ⋅ d)
-    fn hit(&self, ray: crate::ray::Ray, ray_interval: Interval) -> Option<HitRecord> {
+    fn hit(&self, ray: Ray, ray_interval: Interval) -> Option<HitRecord> {
         let denom = self.normal.dot(ray.direction);
         
         // n ⋅ d is close to zero which means ray is parallel to plane

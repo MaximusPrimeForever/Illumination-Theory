@@ -1,8 +1,14 @@
+/// A wrapper for Hittable that can rotate it
+/// without actually rotating it in the world space.
+/// It augments the incident ray and resulting intersecion point instead.
+
 use std::sync::Arc;
 
-use crate::{math::{vec3::Vec3, interval::Interval}, graphics::aabb::AABB, ray::Ray};
+use crate::geometry::Ray;
+use crate::graphics::aabb::AABB;
+use crate::math::{vec3::Vec3, interval::Interval};
 
-use super::hittable::{HittableT, HitRecord, HittableSync};
+use super::hittable::{Hittable, HitRecord, HittableSync};
 
 /// "Rotate" a hittable around Y axis
 /// The hittable isn't actually rotated, but rather the incident rays are rotated
@@ -45,7 +51,7 @@ impl RotateY {
     }
 }
 
-impl HittableT for RotateY {
+impl Hittable for RotateY {
     fn bounding_box(&self) -> AABB {
         self.bounding_box
     }
