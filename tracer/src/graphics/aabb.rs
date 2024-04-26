@@ -16,6 +16,14 @@ impl AABB {
         AABB { x: _x, y: _y, z: _z }
     }
 
+    pub fn new_empty() -> AABB {
+        AABB { 
+            x: Interval::new(0.0, 0.0), 
+            y: Interval::new(0.0, 0.0), 
+            z: Interval::new(0.0, 0.0) 
+        }
+    }
+
     /// Treat the two points a and b as extrema for the bounding box, so we don't require a
     /// particular minimum/maximum coordinate order.
     pub fn new_from_points(a: Point3, b: Point3) -> AABB {
@@ -51,6 +59,16 @@ impl AABB {
             1 => { self.y },
             2 => { self.z },
             _ => { panic!("Invalid axis index.") }
+        }
+    }
+
+    pub fn longest_axis(&self) -> usize {
+        if self.x.len() >= self.y.len() {
+            if self.x.len() >= self.z.len() { return 0 }
+            return 2
+        } else {
+            if self.y.len() >= self.z.len() { return 1 }
+            return 2
         }
     }
     

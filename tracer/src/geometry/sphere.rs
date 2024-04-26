@@ -57,10 +57,10 @@ impl Hittable for Sphere {
     /// 
     /// So,
     /// (P(t) - C)(P(t) - C) = r^2
-    /// (A + t*b - C)(A + t*b - C) = r^2
+    /// (A + t*d - C)(A + t*d - C) = r^2
     /// 
     /// Simplify, and we get a quadratic equation:
-    /// t^2*b*b + t*2b*(A-C) + (A-C)*(A-C) - r^2 = 0
+    /// t^2*d*d + t*2d*(A-C) + (A-C)*(A-C) - r^2 = 0
     /// 
     /// Solving for t (the only unknown) there is a square root part that is either:
     /// * positive - we get 2 intersection points.
@@ -79,9 +79,9 @@ impl Hittable for Sphere {
         let dscr_sqrt = discriminant.sqrt();
         let mut root = (-half_b - dscr_sqrt) / a;
 
-        if !ray_interval.surrounds(root) {
+        if !ray_interval.fully_contains(root) {
             root = (-half_b + dscr_sqrt) / a;
-            if !ray_interval.surrounds(root) { return None; }
+            if !ray_interval.fully_contains(root) { return None; }
         }
 
         let point = ray.at(root);

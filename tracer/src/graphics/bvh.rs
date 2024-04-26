@@ -65,9 +65,14 @@ impl BVH {
         let objects_span = end - start;
         let left_node: Arc<HittableSync>;
         let right_node: Arc<HittableSync>;
+
+        // Build a bounding box surrounding the objects to find the longest axis
+        let mut aux_bbox = AABB::new_empty();
+        for obj in objects.clone() {
+            aux_bbox += obj.bounding_box()
+        }
         
-        // Comparator that compares by a random axis.
-        let axis_to_sort_by = rand::random::<usize>() % 3;
+        let axis_to_sort_by = aux_bbox.longest_axis();
         let axis_comparator = |a: &Arc<HittableSync>, b: &Arc<HittableSync>| {
             a.bounding_box().axis(axis_to_sort_by).min.partial_cmp(&b.bounding_box().axis(axis_to_sort_by).min).unwrap()
         };

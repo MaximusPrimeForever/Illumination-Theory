@@ -25,7 +25,7 @@ impl Interval {
         return self.min <= x && x <= self.max
     }
 
-    pub fn surrounds(&self, x: f64) -> bool {
+    pub fn fully_contains(&self, x: f64) -> bool {
         return self.min < x && x < self.max
     }
 
