@@ -21,6 +21,10 @@ pub fn random_in_unit_disk() -> Vec3 {
     }
 }
 
+pub fn random_unit_vector() -> Vec3 {
+    random_in_unit_disk().unit()
+}
+
 /// Generate a random number in a given half open range
 /// [min, max)
 pub fn random_f64_in_range(min: f64, max: f64) -> f64 {

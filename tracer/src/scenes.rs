@@ -4,6 +4,7 @@
 use std::sync::Arc;
 
 use rand::random;
+use crate::geometry::ConstantMedium;
 use crate::graphics::Camera;
 use crate::math::{
     utils::random_f64_in_range,
@@ -670,6 +671,110 @@ pub fn cornell_box(cam: &mut Camera) -> Arc<HittableSync> {
     cube_box = Arc::new(RotateY::new(cube_box, -18.0));
     cube_box = Arc::new(Translate::new(cube_box, cube_box_brc));
     world.add_hittable(cube_box);
+
+    cam.look_from = Point3::new(0.0, 0.0, length * 2.70);
+    cam.look_at = Point3::zero();
+    cam.vfov = 35.0;
+
+    Arc::new(BVH::new(&mut world))
+}
+
+pub fn cornell_box_with_smokey_boxes(cam: &mut Camera) -> Arc<HittableSync> {
+    let mut world = HittableComposite::new();
+
+    let red = Arc::new(Lambertian::new(Color::new(0.65, 0.05, 0.05)));
+    let green = Arc::new(Lambertian::new(Color::new(0.12, 0.45, 0.15)));
+    let white = Arc::new(Lambertian::new(Color::new(0.73, 0.73, 0.73)));
+    let light = Arc::new(DiffuseLight::new_color(COLOR_WHITE * 7.0));
+
+    let width = 100.0;
+    let height = width;
+    let length = width;
+    let light_width = width * 0.4;
+     let light_length = light_width;
+    let bottom_left_corner = Point3::new(
+        -(width / 2.0), -(height / 2.0), 0.0
+    );
+    
+    // front wall
+    world.add_hittable(Arc::new(Quad::new(
+        bottom_left_corner.clone(),
+        Vec3::new(width, 0.0, 0.0),
+        Vec3::new(0.0, height, 0.0),
+        white.clone()
+    )));
+    
+    // floor
+    world.add_hittable(Arc::new(Quad::new(
+        bottom_left_corner.clone(),
+        Vec3::new(width, 0.0, 0.0),
+        Vec3::new(0.0, 0.0, length),
+        white.clone()
+    )));
+
+    // ceiling
+    world.add_hittable(Arc::new(Quad::new(
+        bottom_left_corner.clone() + Point3::new(0.0, height, 0.0),
+        Vec3::new(width, 0.0, 0.0),
+        Vec3::new(0.0, 0.0, length),
+        white.clone()
+    )));
+
+    // light
+    world.add_hittable(Arc::new(Quad::new(
+        bottom_left_corner.clone() + Point3::new((width - light_width) / 2.0, height - 1.0, (length - light_length) / 2.0),
+        Vec3::new(light_width, 0.0, 0.0),
+        Vec3::new(0.0, 0.0, light_length),
+        light
+    )));
+
+    // left wall
+    world.add_hittable(Arc::new(Quad::new(
+        bottom_left_corner.clone(),
+        Vec3::new(0.0, 0.0, length),
+        Vec3::new(0.0, height, 0.0),
+        green
+    )));
+
+    // right wall
+    world.add_hittable(Arc::new(Quad::new(
+        bottom_left_corner.clone() + Point3::new(width, 0.0, 0.0),
+        Vec3::new(0.0, 0.0, length),
+        Vec3::new(0.0, height, 0.0),
+        red
+    )));
+
+    // boxes
+    let tall_box_brc = bottom_left_corner + Point3::new(width / 6.0, 0.0, length / 4.0);
+    let mut tall_box = box_new(
+        Point3::zero(),
+        Vec3::new(width / 3.5, height / 1.8, width / 3.5),
+        white.clone()
+    );
+    tall_box = Arc::new(RotateY::new(tall_box, 15.0));
+    tall_box = Arc::new(Translate::new(tall_box, tall_box_brc));
+    world.add_hittable(Arc::new(
+        ConstantMedium::new_color(
+            tall_box, 
+            0.04, 
+            Color::new(0.0, 0.0, 0.0)
+    )));
+
+    let cube_box_side = width / 3.5;
+    let cube_box_brc = bottom_left_corner + Point3::new(width / 1.7, 0.0, length / 2.0);
+    let mut cube_box = box_new(
+        Point3::zero(),
+        Vec3::new(cube_box_side, cube_box_side, cube_box_side),
+        white.clone()
+    );
+    cube_box = Arc::new(RotateY::new(cube_box, -18.0));
+    cube_box = Arc::new(Translate::new(cube_box, cube_box_brc));
+    world.add_hittable(Arc::new(
+        ConstantMedium::new_color(
+            cube_box, 
+            0.04, 
+            Color::new(1.0, 1.0, 1.0)
+    )));
 
     cam.look_from = Point3::new(0.0, 0.0, length * 2.70);
     cam.look_at = Point3::zero();

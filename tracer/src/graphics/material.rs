@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use crate::geometry::{Ray, hittable::HitRecord};
+use crate::math::utils::random_unit_vector;
 use crate::rendering::color::{COLOR_WHITE, COLOR_BLACK};
 use crate::graphics::texture::{TextureSync, SolidColorTexture};
 use crate::math::{
@@ -53,6 +54,9 @@ impl Material for Lambertian {
         ))
     }
 }
+
+// TODO: implement a Vantablack material
+// returns black color, and swallows rays
 
 // These functions shoot the ray in some random direction
 // by adding the normal vector the target point is displaced
@@ -157,5 +161,32 @@ impl Material for Dielectric {
             COLOR_WHITE,
             Ray::new(hitrec.point, direction, incident_ray.time)
         ))
+    }
+}
+
+
+// Isotropic material
+// ==================
+
+pub struct Isotropic {
+    pub texture: Arc<TextureSync> // index of refraction
+}
+
+impl Isotropic {
+    pub fn new_color(color: Color) -> Self {
+        Isotropic { texture: Arc::new(SolidColorTexture::new(color)) }
+    }
+
+    pub fn new_texture(texture: Arc<TextureSync>) -> Self {
+        Isotropic { texture: texture.clone() }
+    }
+}
+
+impl Material for Isotropic {
+    fn scatter(&self, incident_ray: &Ray, hitrec: &HitRecord) -> Option<(Color, Ray)> {
+        let scattered = Ray::new(hitrec.point, random_unit_vector(), incident_ray.time);
+        let attentuation = self.texture.value(hitrec.u, hitrec.v, &hitrec.point);
+
+        Some((attentuation, scattered))
     }
 }
