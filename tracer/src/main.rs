@@ -59,7 +59,8 @@ fn main() -> std::io::Result<()>{
     // let world = rtweekend::quad_shadow_test(&mut cam);
     // let world = rtweekend::cornell_box(&mut cam);
     // let world = scenes::cornell_box_dark_sphereflake(&mut cam);
-    let world = scenes::cornell_box_with_smokey_boxes(&mut cam);
+    // let world = scenes::cornell_box_with_smokey_boxes(&mut cam);
+    let world = scenes::book2_final_scene(&mut cam);
     // let world = rtweekend::lit_world(&mut cam);
 
     // Must be called!

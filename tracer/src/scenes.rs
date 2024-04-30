@@ -878,6 +878,128 @@ pub fn cornell_box_dark_sphereflake(cam: &mut Camera) -> Arc<HittableSync> {
     Arc::new(BVH::new(&mut world))
 }
 
+pub fn book2_final_scene(cam: &mut Camera) -> Arc<HittableSync> {
+    let mut world = HittableComposite::new();
+    let ground_material = Arc::new(Lambertian::new(Color::new(0.48, 0.83, 0.53)));
+
+    let boxes_per_side: usize = 20;
+    for i in 0..boxes_per_side {
+        for j in 0..boxes_per_side {
+            let w = 100.0;
+            let x0 = -1000.0 + i as f64 * w;
+            let z0 = -1000.0 + j as f64 * w;
+            let y0 = 0.0;
+            let x1 = x0 + w;
+            let y1 = random_f64_in_range(1.0, 101.0);
+            let z1 = z0 + w;
+
+            world.add_hittable(box_new(
+                Point3::new(x0, y0, z0),
+                Point3::new(x1, y1, z1),
+                ground_material.clone()
+            ))
+        }
+    }
+
+    let light = DiffuseLight::new_color(Color::new(7.0, 7.0, 7.0));
+    world.add_hittable(Arc::new(
+        Quad::new(
+            Point3::new(123.0,554.0,147.0),
+             Vec3::new(300.0, 0.0,0.0), 
+             Vec3::new(0.0,0.0,265.0),
+              Arc::new(light)
+    )));
+
+    // * All the various spheres
+    // *=========================
+
+    world.add_hittable(new_sphereflake_upright(
+        Point3::new(400.0, 400.0, 200.0),
+        50.0,  
+        Arc::new(Lambertian::new(Color::new(0.7, 0.3, 0.1))),
+        3
+    ));
+
+    world.add_hittable(Arc::new(Sphere::new(
+        Point3::new(260.0, 150.0, 45.0),
+        50.0,
+        Arc::new(Dielectric{ir: 1.5})
+    )));
+
+    world.add_hittable(Arc::new(Sphere::new(
+        Point3::new(0.0, 150.0, 145.0),
+        50.0,
+        Arc::new(Metal::new_fuzzy(Color::new(0.8, 0.8, 0.9)))
+    )));
+
+    let mut boundry = Arc::new(Sphere::new(
+        Point3::new(360.0, 150.0, 145.0),
+        70.0,
+        Arc::new(Dielectric{ir: 1.5})
+    ));
+
+    world.add_hittable(boundry.clone());
+    world.add_hittable(Arc::new(ConstantMedium::new_color(
+        boundry, 
+        0.2, 
+        Color::new(0.2, 0.4, 0.9)
+    )));
+
+    boundry = Arc::new(Sphere::new(Point3::
+        zero(), 
+        5000.0, 
+        Arc::new(Dielectric{ir: 1.5})
+    ));
+    world.add_hittable(Arc::new(ConstantMedium::new_color(
+        boundry, 
+        0.0001, 
+        COLOR_WHITE
+    )));
+
+    // earth
+    let earth_texture = ImageTexture::new("./resources/textures/earthmap.jpg");
+    let emat = Lambertian::new_texture(Arc::new(earth_texture));
+    world.add_hittable(Arc::new(Sphere::new(
+        Point3::new(400.0,200.0,400.0),
+        100.0,
+        Arc::new(emat)
+    )));
+
+    // noisy sphere
+    let per_texture = Arc::new(NoiseTexture::new(0.2));
+    world.add_hittable(Arc::new(Sphere::new(
+        Point3::new(220.0, 280.0, 300.0), 
+        80.0, 
+        Arc::new(Lambertian::new_texture(per_texture))
+    )));
+        
+
+    // Sphery box
+    let mut lumpy_box = HittableComposite::new();
+    for _ in 0..1000 {
+        lumpy_box.add_hittable(Arc::new(
+            Sphere::new(
+                Point3::random_range(0.0, 165.0),
+                10.0,
+                Arc::new(Lambertian::new(COLOR_WHITE * 0.73))
+            )
+        ));
+    }
+    world.add_hittable(Arc::new(Translate::new(
+        Arc::new(RotateY::new(
+            Arc::new(BVH::new(&mut lumpy_box)),
+            15.0)),
+        Vec3::new(-100.0,270.0,395.0)
+    )));
+
+    cam.look_from = Point3::new(478.0, 278.0, -600.0);
+    cam.look_at = Point3::new(278.0, 278.0, 0.0);
+    cam.vfov = 40.0;
+    cam.background = COLOR_BLACK;
+
+    Arc::new(BVH::new(&mut world))
+}
+
 pub fn sphereflake_on_sandy_plane(cam: &mut Camera) -> Arc<HittableSync> {
     let mut world = HittableComposite::new();
     let plane_size = 30.0;
