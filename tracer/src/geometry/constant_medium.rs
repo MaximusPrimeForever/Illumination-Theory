@@ -18,6 +18,7 @@ pub struct ConstantMedium {
 }
 
 impl ConstantMedium {
+    #[allow(dead_code)]
     pub fn new_texture(boundry: Arc<HittableSync>, density: f64, texture: Arc<TextureSync>) -> Self {
         ConstantMedium { 
             boundry: boundry, 

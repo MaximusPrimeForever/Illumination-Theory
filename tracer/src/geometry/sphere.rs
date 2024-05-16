@@ -24,6 +24,7 @@ impl Sphere {
         } 
     }
 
+    #[allow(dead_code)]
     pub fn at(&self) -> Point3 {
         self.center
     }

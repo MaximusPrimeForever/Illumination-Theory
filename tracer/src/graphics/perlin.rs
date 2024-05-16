@@ -11,6 +11,7 @@ pub struct Perlin {
 }
 
 impl Perlin {
+    #[allow(dead_code)]
     pub fn new(point_count: usize) -> Self {
         let mut rv = Vec::<Vec3>::with_capacity(point_count);
         for _ in 0..point_count {

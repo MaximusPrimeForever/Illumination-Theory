@@ -177,6 +177,7 @@ impl Isotropic {
         Isotropic { texture: Arc::new(SolidColorTexture::new(color)) }
     }
 
+    #[allow(dead_code)]
     pub fn new_texture(texture: Arc<TextureSync>) -> Self {
         Isotropic { texture: texture.clone() }
     }

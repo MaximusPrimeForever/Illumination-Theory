@@ -32,6 +32,7 @@ pub fn rasterize_color(pixel_color: Color, samples_per_pixel: usize) -> image::R
 
 /// Return the color of the sky gradient when a ray hit it.
 /// Blends smoothly between white, and light blue.
+#[allow(dead_code)]
 pub fn sky_color(ray: Ray) -> Color {
     let unit_direction: Vec3 = ray.direction.unit();
     let h = 0.5 * (unit_direction.y() + 1.0) * 1.0;

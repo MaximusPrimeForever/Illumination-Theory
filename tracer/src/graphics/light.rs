@@ -19,6 +19,7 @@ pub struct Light {
 }
 
 impl Light {
+    #[allow(dead_code)]
     pub fn new(origin: Point3, color: Color, brightness: f64) -> Light {
         Light { origin, color, brightness }
     }
@@ -31,6 +32,7 @@ pub struct DiffuseLight {
 }
 
 impl DiffuseLight {
+    #[allow(dead_code)]
     pub fn new(texture: Arc<TextureSync>) -> Self {
         DiffuseLight { emit: texture }
     }

@@ -93,6 +93,7 @@ impl HittableComposite {
         self.objects.push(object);
     }
 
+    #[allow(dead_code)]
     pub fn add_light(&mut self, light: Light) {
         self.lights.push(Arc::new(light));
     }
@@ -102,6 +103,7 @@ impl HittableComposite {
     /// The sum of all shadow and light rays result in the final color.
     /// Light rays' color is determined by the light's color and brightness.
     /// Whereas the shadow ray just results in a black color.
+    #[allow(dead_code)]
     pub fn hit_lights(&self, point: Point3, t_min: f64) -> Color {
         let mut color = Color::zero();
 
