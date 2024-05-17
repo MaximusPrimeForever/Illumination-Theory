@@ -5,6 +5,7 @@ var<private> vertices: TriangleVertices = TriangleVertices(
   vec2f( 0.0,  0.5),
 );
 
+
 @vertex fn display_vs(@builtin(vertex_index) vid: u32) -> @builtin(position) vec4f {
   return vec4f(vertices[vid], 0.0, 1.0);
 }
