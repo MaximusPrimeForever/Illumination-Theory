@@ -23,8 +23,8 @@ use {
 };
 
 // Assign the appropriate window size in terms of physical pixels based on your display DPI.
-const WIDTH: u32 = 1024;
-const HEIGHT: u32 = 768;
+const WIDTH: u32 = 1920;
+const HEIGHT: u32 = 1080;
 
 
 fn main_fake() -> std::io::Result<()>{
@@ -104,7 +104,12 @@ async fn main() -> Result<()> {
         .with_title("GPU Path Tracer".to_string())
         .build(&event_loop)?;
     let (device, queue, surface) = connect_to_gpu(&window).await?;
-    let renderer = gpu_render::PathTracer::new(device, queue);
+    let renderer = gpu_render::PathTracer::new(
+        device,
+        queue,
+        WIDTH,
+        HEIGHT
+    );
 
     event_loop.run(|event, control_handle| {
         control_handle.set_control_flow(ControlFlow::Poll);
