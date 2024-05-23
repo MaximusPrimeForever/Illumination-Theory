@@ -19,9 +19,35 @@ struct Ray {
   direction: vec3f,
 }
 
+struct Sphere {
+  center: vec3f,
+  radius: f32,
+}
+
+fn intersect_sphere(ray: Ray, sphere: Sphere) -> f32 {
+  let v = ray.origin - sphere.center;
+  let a = dot(ray.direction, ray.direction);
+  let b = dot(v, ray.direction);
+  let c = dot(v, v) - sphere.radius * sphere.radius;
+
+  let d = b * b - a * c;
+  if d < 0. {
+    return -1.;
+  }
+
+  let sqrt_d = sqrt(d);
+  let recip_a = 1. / a;
+  let mb = -b;
+  let t = (mb - sqrt_d) * recip_a;
+  if t > 0. {
+    return t;
+  }
+  return (mb + sqrt_d) * recip_a;
+}
+
 fn sky_color(ray: Ray) -> vec3f {
   let t = 0.5 * (normalize(ray.direction).y + 1.);
-  return (1. - t) * vec3(1.) + t * vec3(0.3, 0.5, 1.);
+  return (1. - t) * vec3(1., 0.5, 0.3) + t * vec3(0.3, 0.5, 1.);
 }
 
 @vertex fn display_vs(@builtin(vertex_index) vid: u32) -> @builtin(position) vec4f {
@@ -41,6 +67,12 @@ fn sky_color(ray: Ray) -> vec3f {
 
   let direction = vec3(uv, -focus_distance);
   let ray = Ray(origin, direction);
+  let sphere = Sphere(vec3(0., 0., -2.), 1.);
+
+  let intersection = intersect_sphere(ray, sphere);
+  if intersection > 0. {
+    return vec4(1., .5, 0., 0.);
+  }
 
   return vec4(sky_color(ray), 1.);
 }
