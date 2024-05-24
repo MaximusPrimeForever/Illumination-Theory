@@ -24,6 +24,14 @@ struct Sphere {
   radius: f32,
 }
 
+const MAX_T: f32 = 3.4028235e+38;
+const OBJECT_COUNT: u32 = 2;
+alias Scene = array<Sphere, OBJECT_COUNT>;
+var<private> scene: Scene = Scene(
+  Sphere(vec3(0., 0., -1.), 0.5),
+  Sphere(vec3(0., -100.5, -1.), 100.),
+);
+
 fn intersect_sphere(ray: Ray, sphere: Sphere) -> f32 {
   let v = ray.origin - sphere.center;
   let a = dot(ray.direction, ray.direction);
@@ -67,11 +75,20 @@ fn sky_color(ray: Ray) -> vec3f {
 
   let direction = vec3(uv, -focus_distance);
   let ray = Ray(origin, direction);
-  let sphere = Sphere(vec3(0., 0., -2.), 1.);
-
-  let intersection = intersect_sphere(ray, sphere);
-  if intersection > 0. {
-    return vec4(1., .5, 0., 0.);
+  
+  var closest_t: f32 = MAX_T;
+  for (var i: u32 = 0u; i < OBJECT_COUNT; i = i + 1u) {
+    let sphere = scene[i];
+    let intersection = intersect_sphere(ray, sphere);
+    if intersection > 0. {
+      if intersection < closest_t {
+        closest_t = intersection;
+      }
+    }
+  }
+  if closest_t < MAX_T {
+    let color = vec3(1., 0.5, 0.) * (1. - closest_t);
+    return vec4(color, 0.);
   }
 
   return vec4(sky_color(ray), 1.);
