@@ -104,7 +104,7 @@ async fn main() -> Result<()> {
         .with_title("GPU Path Tracer".to_string())
         .build(&event_loop)?;
     let (device, queue, surface) = connect_to_gpu(&window).await?;
-    let renderer = gpu_render::PathTracer::new(
+    let mut renderer = gpu_render::PathTracer::new(
         device,
         queue,
         WIDTH,
@@ -127,6 +127,7 @@ async fn main() -> Result<()> {
                     
                     renderer.render_frame(&render_target);
                     frame.present();
+
                     window.request_redraw();
                 }
                 _ => (),

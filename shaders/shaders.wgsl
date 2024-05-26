@@ -1,6 +1,7 @@
 
 // == Constants ==
 const MAX_T: f32 = 3.4028235e+38;
+const GAMMA: f32 = 0.3;
 // == /Constants ==
 
 alias TriangleVertices = array<vec2f, 6>;
@@ -16,6 +17,7 @@ var<private> vertices: TriangleVertices = TriangleVertices(
 struct Uniforms {
   width: u32,
   height: u32,
+  frame_count: u32,
 }
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
 
@@ -113,14 +115,19 @@ fn sky_color(ray: Ray) -> vec3f {
   
   var closest_intersection: Intersection = INF_intersection;
   for (var i: u32 = 0u; i < OBJECT_COUNT; i = i + 1u) {
-    let sphere = scene[i];
+    var sphere = scene[i];
+    sphere.center.x += sin(f32(uniforms.frame_count) * 0.02) * 0.5;
+    sphere.center.y += cos(f32(uniforms.frame_count) * 0.02) * 0.5;
+
+    let hit = intersect_sphere(ray, sphere);
     let intersection = intersect_sphere(ray, sphere);
     if intersection.t > 0. && intersection.t < closest_intersection.t {
         closest_intersection = intersection;
       }
   }
   if closest_intersection.t < INF_intersection.t {
-    return vec4(closest_intersection.normal, 0.);
+    var rgb = (1. - GAMMA) * closest_intersection.normal + vec3(GAMMA);
+    return vec4(rgb, 1.);
   }
 
   return vec4(sky_color(ray), 1.);

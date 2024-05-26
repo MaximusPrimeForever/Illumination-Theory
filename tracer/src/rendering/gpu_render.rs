@@ -4,15 +4,16 @@ use wgpu::PipelineCompilationOptions;
 
 #[derive(Copy, Clone, Pod, Zeroable)]
 #[repr(C)]
-struct Uniforms {
+pub struct Uniforms {
     width: u32,
     height: u32,
+    pub frame_count: u32
 }
 
 pub struct PathTracer {
     device: wgpu::Device,
     queue: wgpu::Queue,
-    uniforms: Uniforms,
+    pub uniforms: Uniforms,
     uniform_buffer: wgpu::Buffer,
     display_pipeline: wgpu::RenderPipeline,
     display_bind_group: wgpu::BindGroup
@@ -30,19 +31,15 @@ impl PathTracer {
 
         let uniforms = Uniforms {
             width,
-            height
+            height,
+            frame_count: 0
         };
         let uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor{
             label: Some("uniforms"),
             size: std::mem::size_of::<Uniforms>() as u64,
-            usage: wgpu::BufferUsages::UNIFORM,
-            mapped_at_creation: true
+            usage: wgpu::BufferUsages::UNIFORM  | wgpu::BufferUsages::COPY_DST,
+            mapped_at_creation: false
         });
-        uniform_buffer
-            .slice(..)
-            .get_mapped_range_mut()
-            .copy_from_slice(bytemuck::bytes_of(&uniforms));
-        uniform_buffer.unmap();
 
         let display_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor{
             label: None,
@@ -67,7 +64,13 @@ impl PathTracer {
         }
     }
 
-    pub fn render_frame(&self, target: &wgpu::TextureView) {
+    pub fn render_frame(&mut self, target: &wgpu::TextureView) {
+        self.uniforms.frame_count += 1;
+        self.queue.write_buffer(
+            &self.uniform_buffer,
+            0,
+            bytemuck::bytes_of(&self.uniforms)
+        );
         let mut encoder = self
             .device
             .create_command_encoder(&wgpu::CommandEncoderDescriptor {
